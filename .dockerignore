@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+**/target/
+**/node_modules/
+.git/
+docs/
