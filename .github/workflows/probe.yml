@@ -31,7 +31,6 @@ jobs:
         SERVERS=$(docker compose config --format json | jq -c '
           [.services | to_entries[] |
            select(.value.labels["probe.port"] != null) |
-           select(.key == "glyph") |
            {
              service: .key,
              port:    (.value.labels["probe.port"] | tonumber),
