@@ -92,14 +92,15 @@ jobs:
         for row in $(echo "$SERVERS" | jq -r '.[] | @base64'); do
           dir=$(echo "$row" | base64 -d | jq -r '.dir')
           name=$(echo "$row" | base64 -d | jq -r '.name')
+          tag=$(echo "probe-$dir" | tr '[:upper:]' '[:lower:]')
 
           echo "::group::$name"
 
           # Build
-          docker build -t "probe-$dir" -f "src/Servers/$dir/Dockerfile" .
+          docker build -t "$tag" -f "src/Servers/$dir/Dockerfile" .
 
           # Run
-          docker run -d --name probe-target --network host "probe-$dir"
+          docker run -d --name probe-target --network host "$tag"
 
           # Wait
           for i in $(seq 1 30); do
