@@ -482,12 +482,17 @@ jobs:
         # ── Write PR comment ─────────────────────────────────────────
         lines = ['<!-- http11probe-results -->', '## Http11Probe — Compliance Comparison', '']
 
-        # Summary badges
-        badges = []
-        for sv in server_data:
+        # Summary table with bars
+        max_scored = max(s['summary']['scored'] for s in server_data)
+        BAR_WIDTH = 20
+        lines.append('| Server | Score | |')
+        lines.append('|--------|------:|---|')
+        for sv in sorted(server_data, key=lambda s: s['summary']['passed'], reverse=True):
             s = sv['summary']
-            badges.append(f"**{sv['name']}** {s['passed']}/{s['scored']}")
-        lines.append(' · '.join(badges))
+            pct = s['passed'] / s['scored'] if s['scored'] else 0
+            filled = round(pct * BAR_WIDTH)
+            bar = '\u2588' * filled + '\u2591' * (BAR_WIDTH - filled)
+            lines.append(f"| **{sv['name']}** | {s['passed']}/{s['scored']} | `{bar}` {pct:.0%} |")
         lines.append('')
 
         # Collect all test IDs in order from first server
