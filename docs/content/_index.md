@@ -27,7 +27,7 @@ layout: hextra-home
 ## Features
 
 {{< cards >}}
-  {{< card link="probe-results" title="Compliance Testing" subtitle="RFC 9110/9112 protocol requirements — bare LF, obs-fold, missing Host, invalid versions, and more." icon="check-circle" >}}
-  {{< card link="probe-results" title="Smuggling Detection" subtitle="CL/TE ambiguity, duplicate Content-Length, leading zeros, pipeline probes, and obfuscation vectors." icon="shield-exclamation" >}}
-  {{< card link="probe-results" title="Robustness Testing" subtitle="Binary garbage, oversized URLs/headers, control characters, integer overflow, and incomplete requests." icon="lightning-bolt" >}}
+  {{< card link="compliance" title="Compliance Testing" subtitle="RFC 9110/9112 protocol requirements — bare LF, obs-fold, missing Host, invalid versions, and more." icon="check-circle" >}}
+  {{< card link="smuggling" title="Smuggling Detection" subtitle="CL/TE ambiguity, duplicate Content-Length, leading zeros, pipeline probes, and obfuscation vectors." icon="shield-exclamation" >}}
+  {{< card link="malformed-input" title="Robustness Testing" subtitle="Binary garbage, oversized URLs/headers, control characters, integer overflow, and incomplete requests." icon="lightning-bolt" >}}
 {{< /cards >}}

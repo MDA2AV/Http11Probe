@@ -18,12 +18,24 @@ menu:
     - name: Probe Results
       pageRef: /probe-results
       weight: 1
-    - name: Search
+    - name: Compliance
+      pageRef: /compliance
       weight: 2
+    - name: Smuggling
+      pageRef: /smuggling
+      weight: 3
+    - name: Malformed Input
+      pageRef: /malformed-input
+      weight: 4
+    - name: Glossary
+      pageRef: /glossary
+      weight: 5
+    - name: Search
+      weight: 6
       params:
         type: search
     - name: GitHub
-      weight: 3
+      weight: 7
       url: https://github.com/MDA2AV/Http11Probe
       params:
         icon: github
@@ -31,7 +43,13 @@ menu:
 params:
   navbar:
     displayTitle: true
-    displayLogo: false
+    displayLogo: true
+    logo:
+      link: /
+      light: images/logo.svg
+      dark: images/logo.svg
+      width: 24
+      height: 24
   footer:
     displayCopyright: false
     displayPoweredBy: true
