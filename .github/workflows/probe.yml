@@ -26,119 +26,15 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: |
-          8.0
-          10.0
+        dotnet-version: '10.0'
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: '21'
-        cache: maven
-
-    - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
-
-    - name: Build
+    - name: Build probe CLI
       run: dotnet build Http11Probe.slnx -c Release
 
-    - name: Install Flask
-      run: pip install flask
+    # ── Start all servers via Docker Compose ──────────────────────────
 
-    - name: Install Express
-      run: npm install --prefix src/Servers/ExpressServer
-
-    - name: Install Nginx, Apache, and system dependencies
-      run: sudo apt-get update && sudo apt-get install -y nginx apache2 pkg-config libssl-dev
-
-    - name: Download Caddy
-      run: |
-        curl -o caddy -fsSL "https://caddyserver.com/api/download?os=linux&arch=amd64"
-        chmod +x caddy
-
-    - name: Build Java servers
-      run: |
-        mvn package -q -DskipTests -f src/Servers/SpringBootServer/pom.xml
-        mvn package -q -DskipTests -f src/Servers/QuarkusServer/pom.xml
-        mvn package -q -DskipTests -f src/Servers/JettyServer/pom.xml
-
-    - name: Build Pingora
-      run: cargo build --release --manifest-path src/Servers/PingoraServer/Cargo.toml
-
-    # ── Start all servers ──────────────────────────────────────────────
-
-    - name: Start GlyphServer
-      run: |
-        dotnet run --no-build -c Release --project src/Servers/GlyphServer -- 9001 &
-        echo $! > glyph.pid
-
-    - name: Start Kestrel (AspNetMinimal)
-      run: |
-        dotnet run --no-build -c Release --project src/Servers/AspNetMinimal &
-        echo $! > kestrel.pid
-
-    - name: Start Flask
-      run: |
-        python3 src/Servers/FlaskServer/app.py 9002 &
-        echo $! > flask.pid
-
-    - name: Start Express
-      run: |
-        node src/Servers/ExpressServer/server.js 9003 &
-        echo $! > express.pid
-
-    - name: Start Spring Boot
-      run: |
-        java -jar src/Servers/SpringBootServer/target/*.jar --server.port=9004 --server.address=127.0.0.1 &
-        echo $! > spring.pid
-
-    - name: Start Quarkus
-      run: |
-        java -Dquarkus.http.port=9005 -jar src/Servers/QuarkusServer/target/quarkus-app/quarkus-run.jar &
-        echo $! > quarkus.pid
-
-    - name: Start Nancy
-      run: |
-        dotnet run --no-build -c Release --project src/Servers/NancyServer -- 9006 &
-        echo $! > nancy.pid
-
-    - name: Start Jetty
-      run: |
-        java -jar src/Servers/JettyServer/target/jetty-server-1.0.0.jar 9007 &
-        echo $! > jetty.pid
-
-    - name: Start Nginx
-      run: |
-        nginx -c $GITHUB_WORKSPACE/src/Servers/NginxServer/nginx.conf &
-        echo $! > nginx.pid
-
-    - name: Start Apache
-      run: |
-        sudo sed -i 's/Listen 80/Listen 9009/' /etc/apache2/ports.conf
-        sudo sed -i 's/:80/:9009/' /etc/apache2/sites-enabled/000-default.conf
-        echo "OK" | sudo tee /var/www/html/index.html
-        sudo apache2ctl start
-
-    - name: Start Caddy
-      run: |
-        ./caddy run --config src/Servers/CaddyServer/Caddyfile --adapter caddyfile &
-        echo $! > caddy.pid
-
-    - name: Start Pingora
-      run: |
-        src/Servers/PingoraServer/target/release/pingora-server 9011 &
-        echo $! > pingora.pid
+    - name: Start servers
+      run: docker compose up -d --build
 
     - name: Wait for servers
       run: |
@@ -249,19 +145,7 @@ jobs:
 
     - name: Stop servers
       if: always()
-      run: |
-        kill $(cat glyph.pid)   2>/dev/null || true
-        kill $(cat kestrel.pid) 2>/dev/null || true
-        kill $(cat flask.pid)   2>/dev/null || true
-        kill $(cat express.pid) 2>/dev/null || true
-        kill $(cat spring.pid)   2>/dev/null || true
-        kill $(cat quarkus.pid) 2>/dev/null || true
-        kill $(cat nancy.pid)   2>/dev/null || true
-        kill $(cat jetty.pid)   2>/dev/null || true
-        kill $(cat nginx.pid)   2>/dev/null || true
-        sudo apache2ctl stop             2>/dev/null || true
-        kill $(cat caddy.pid)   2>/dev/null || true
-        kill $(cat pingora.pid) 2>/dev/null || true
+      run: docker compose down
 
     # ── Process results ────────────────────────────────────────────────
 
@@ -687,25 +571,28 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Push to gh-pages
+    - name: Push to latest-results
       if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git fetch origin gh-pages || git checkout --orphan gh-pages
-        git worktree add /tmp/gh-pages gh-pages || true
-        mkdir -p /tmp/gh-pages/probe
-        cp probe-data.js /tmp/gh-pages/probe/data.js
-        cd /tmp/gh-pages
+        if git fetch origin latest-results 2>/dev/null; then
+          git worktree add /tmp/latest-results origin/latest-results
+        else
+          git worktree add --orphan /tmp/latest-results latest-results
+        fi
+        mkdir -p /tmp/latest-results/probe
+        cp probe-data.js /tmp/latest-results/probe/data.js
+        cd /tmp/latest-results
         git add probe/data.js
         if git diff --cached --quiet; then
           echo "No changes to commit."
         else
           git commit -m "Update probe results"
-          git push origin gh-pages
+          git push origin HEAD:latest-results
         fi
         cd -
-        git worktree remove /tmp/gh-pages || true
+        git worktree remove /tmp/latest-results || true
 
     - name: Rebuild docs
       if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'

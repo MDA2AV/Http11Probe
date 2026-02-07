@@ -1,0 +1,73 @@
+services:
+
+  glyph:
+    build:
+      context: .
+      dockerfile: src/Servers/GlyphServer/Dockerfile
+    network_mode: host
+
+  kestrel:
+    build:
+      context: .
+      dockerfile: src/Servers/AspNetMinimal/Dockerfile
+    network_mode: host
+
+  flask:
+    build:
+      context: .
+      dockerfile: src/Servers/FlaskServer/Dockerfile
+    network_mode: host
+
+  express:
+    build:
+      context: .
+      dockerfile: src/Servers/ExpressServer/Dockerfile
+    network_mode: host
+
+  spring:
+    build:
+      context: .
+      dockerfile: src/Servers/SpringBootServer/Dockerfile
+    network_mode: host
+
+  quarkus:
+    build:
+      context: .
+      dockerfile: src/Servers/QuarkusServer/Dockerfile
+    network_mode: host
+
+  nancy:
+    build:
+      context: .
+      dockerfile: src/Servers/NancyServer/Dockerfile
+    network_mode: host
+
+  jetty:
+    build:
+      context: .
+      dockerfile: src/Servers/JettyServer/Dockerfile
+    network_mode: host
+
+  nginx:
+    build:
+      context: .
+      dockerfile: src/Servers/NginxServer/Dockerfile
+    network_mode: host
+
+  apache:
+    build:
+      context: .
+      dockerfile: src/Servers/ApacheServer/Dockerfile
+    network_mode: host
+
+  caddy:
+    build:
+      context: .
+      dockerfile: src/Servers/CaddyServer/Dockerfile
+    network_mode: host
+
+  pingora:
+    build:
+      context: .
+      dockerfile: src/Servers/PingoraServer/Dockerfile
+    network_mode: host
