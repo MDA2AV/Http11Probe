@@ -1,12 +1,96 @@
+/* ── Theme colors ─────────────────────────────────────────────── */
+
+:root {
+  --primary-hue: 215deg;
+  --primary-saturation: 70%;
+  --primary-lightness: 45%;
+}
+
+/* Light mode — cool blue-gray tint */
+body {
+  background: linear-gradient(180deg, #f0f4f8 0%, #e2e8f0 100%);
+}
+
+.hextra-content {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+/* Dark mode — deep navy */
+html.dark body {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+}
+
+html.dark .hextra-content {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+/* ── Fix opaque backgrounds clashing with gradient ───────────── */
+
+/* TOC — "Edit this page" sticky area */
+.hextra-toc .hextra-scrollbar > div:last-child {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Hide sidebar theme toggle (moved to navbar) */
+.hextra-sidebar-container div[data-toggle-animation] {
+  display: none !important;
+}
+
+/* Footer */
+.hextra-footer {
+  background: transparent !important;
+}
+
+/* ── Cards ───────────────────────────────────────────────────── */
+
+.hextra-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(59, 130, 246, 0.15) !important;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.hextra-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.18), 0 4px 8px rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+html.dark .hextra-card {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid rgba(96, 165, 250, 0.15) !important;
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.08), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .hextra-card:hover {
+  box-shadow: 0 12px 32px rgba(96, 165, 250, 0.15), 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+  border-color: rgba(96, 165, 250, 0.35) !important;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────── */
+
 /* Probe Results — primary nav item */
 a[href$="/probe-results"],
 a[href$="/probe-results/"] {
   font-weight: 700 !important;
+  font-size: 1.1em !important;
 }
 
 /* Separator before Glossary */
 a[href$="/glossary"],
 a[href$="/glossary/"] {
+  margin-left: 12px !important;
+  padding-left: 14px !important;
+  border-left: 1px solid rgba(128, 128, 128, 0.3) !important;
+}
+
+/* Separator before Add a Framework */
+a[href$="/add-a-framework"],
+a[href$="/add-a-framework/"] {
   margin-left: 12px !important;
   padding-left: 14px !important;
   border-left: 1px solid rgba(128, 128, 128, 0.3) !important;

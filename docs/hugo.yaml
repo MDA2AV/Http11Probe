@@ -30,12 +30,19 @@ menu:
     - name: Glossary
       pageRef: /glossary
       weight: 5
-    - name: Search
+    - name: Add a Framework
+      pageRef: /add-a-framework
       weight: 6
+    - name: Search
+      weight: 7
       params:
         type: search
+    - name: Theme Toggle
+      weight: 8
+      params:
+        type: theme-toggle
     - name: GitHub
-      weight: 7
+      weight: 9
       url: https://github.com/MDA2AV/Http11Probe
       params:
         icon: github
@@ -47,12 +54,12 @@ params:
     logo:
       link: /Http11Probe/
       light: images/logo.svg
-      dark: images/logo.svg
-      width: 24
-      height: 24
+      dark: images/logo-dark.svg
+      width: 36
+      height: 32
   footer:
     displayCopyright: false
-    displayPoweredBy: true
+    displayPoweredBy: false
   editURL:
     enable: true
     base: https://github.com/MDA2AV/Http11Probe/edit/main/docs/content

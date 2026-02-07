@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" width="36" height="32" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" width="36" height="32" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <!-- Probe signal wave -->
   <path d="M2 16h4l2-6 3 12 2.5-10 3 14 2.5-10 2 6h4" stroke-width="2.2"/>
   <!-- Crosshair target -->
   <circle cx="29" cy="7" r="4.5" stroke-width="1.8" opacity="0.8"/>
-  <circle cx="29" cy="7" r="1.5" fill="#3b82f6" stroke="none"/>
+  <circle cx="29" cy="7" r="1.5" fill="#ffffff" stroke="none"/>
   <line x1="29" y1="1" x2="29" y2="4" stroke-width="1.8" opacity="0.8"/>
   <line x1="29" y1="10" x2="29" y2="13" stroke-width="1.8" opacity="0.8"/>
   <line x1="23" y1="7" x2="26" y2="7" stroke-width="1.8" opacity="0.8"/>

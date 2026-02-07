@@ -48,27 +48,11 @@ Http11Probe sends a suite of crafted HTTP requests to each server and checks whe
 
 <div style="height:16px"></div>
 
-Http11Probe is designed so anyone can contribute their HTTP server and get compliance results without touching the test infrastructure.
+Http11Probe is designed so anyone can contribute their HTTP server and get compliance results without touching the test infrastructure. Just add a Dockerfile, a one-line `probe.json`, and open a PR.
 
-<div style="height:24px"></div>
+<div style="height:20px"></div>
 
-**1. Write a minimal server** — Create a directory under `src/Servers/YourServer/` with a simple HTTP server that listens on **port 8080** and returns `200 OK` on `GET /`. Any language, any framework.
-
-<div style="height:16px"></div>
-
-**2. Add a Dockerfile** — Build and run your server. It will run with `--network host`.
-
-<div style="height:16px"></div>
-
-**3. Add a `probe.json`** — One file, one field:
-
-<div style="height:12px"></div>
-
-```json
-{"name": "Your Server"}
-```
-
-<div style="height:24px"></div>
-
-The CI pipeline auto-discovers servers from `src/Servers/*/probe.json`. No workflow edits, no test changes, no config files. Open a PR and the probe runs automatically.
+{{< cards >}}
+  {{< card link="add-a-framework" title="Get Started" subtitle="Three steps to add your framework — Dockerfile, probe.json, and open a PR." icon="plus-circle" >}}
+{{< /cards >}}
 
