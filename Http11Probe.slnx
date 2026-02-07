@@ -3,4 +3,8 @@
     <Project Path="src/Http11Probe.Cli/Http11Probe.Cli.csproj" />
     <Project Path="src/Http11Probe/Http11Probe.csproj" />
   </Folder>
+  <Folder Name="/src/Servers/">
+    <Project Path="src/Servers/AspNetMinimal/AspNetMinimal.csproj" />
+    <Project Path="src/Servers/NancyServer/NancyServer.csproj" />
+  </Folder>
 </Solution>

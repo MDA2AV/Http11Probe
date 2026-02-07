@@ -1,0 +1,9 @@
+[package]
+name = "pingora-server"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+pingora = { version = "0.7", features = ["proxy"] }
+async-trait = "0.1"
+bytes = "1"

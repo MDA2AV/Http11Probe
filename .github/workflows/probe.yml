@@ -59,14 +59,14 @@ jobs:
     - name: Build Http11Probe
       run: dotnet build Http11Probe.slnx -c Release
 
-    - name: Build Glyph11
+    - name: Build Glyph11 (GlyphServer only)
       run: dotnet build Glyph11/src/Glyph11.sln -c Release
 
     - name: Install Flask
       run: pip install flask
 
     - name: Install Express
-      run: npm install --prefix Glyph11/src/Servers/ExpressServer
+      run: npm install --prefix src/Servers/ExpressServer
 
     - name: Install Nginx, Apache, and system dependencies
       run: sudo apt-get update && sudo apt-get install -y nginx apache2 pkg-config libssl-dev
@@ -78,12 +78,12 @@ jobs:
 
     - name: Build Java servers
       run: |
-        mvn package -q -DskipTests -f Glyph11/src/Servers/SpringBootServer/pom.xml
-        mvn package -q -DskipTests -f Glyph11/src/Servers/QuarkusServer/pom.xml
-        mvn package -q -DskipTests -f Glyph11/src/Servers/JettyServer/pom.xml
+        mvn package -q -DskipTests -f src/Servers/SpringBootServer/pom.xml
+        mvn package -q -DskipTests -f src/Servers/QuarkusServer/pom.xml
+        mvn package -q -DskipTests -f src/Servers/JettyServer/pom.xml
 
     - name: Build Pingora
-      run: cargo build --release --manifest-path Glyph11/src/Servers/PingoraServer/Cargo.toml
+      run: cargo build --release --manifest-path src/Servers/PingoraServer/Cargo.toml
 
     # ── Start all servers ──────────────────────────────────────────────
 
@@ -94,42 +94,42 @@ jobs:
 
     - name: Start Kestrel (AspNetMinimal)
       run: |
-        dotnet run --no-build -c Release --project Glyph11/src/Servers/AspNetMinimal &
+        dotnet run --no-build -c Release --project src/Servers/AspNetMinimal &
         echo $! > kestrel.pid
 
     - name: Start Flask
       run: |
-        python3 Glyph11/src/Servers/FlaskServer/app.py 9002 &
+        python3 src/Servers/FlaskServer/app.py 9002 &
         echo $! > flask.pid
 
     - name: Start Express
       run: |
-        node Glyph11/src/Servers/ExpressServer/server.js 9003 &
+        node src/Servers/ExpressServer/server.js 9003 &
         echo $! > express.pid
 
     - name: Start Spring Boot
       run: |
-        java -jar Glyph11/src/Servers/SpringBootServer/target/*.jar --server.port=9004 --server.address=127.0.0.1 &
+        java -jar src/Servers/SpringBootServer/target/*.jar --server.port=9004 --server.address=127.0.0.1 &
         echo $! > spring.pid
 
     - name: Start Quarkus
       run: |
-        java -Dquarkus.http.port=9005 -jar Glyph11/src/Servers/QuarkusServer/target/quarkus-app/quarkus-run.jar &
+        java -Dquarkus.http.port=9005 -jar src/Servers/QuarkusServer/target/quarkus-app/quarkus-run.jar &
         echo $! > quarkus.pid
 
     - name: Start Nancy
       run: |
-        dotnet run --no-build -c Release --project Glyph11/src/Servers/NancyServer -- 9006 &
+        dotnet run --no-build -c Release --project src/Servers/NancyServer -- 9006 &
         echo $! > nancy.pid
 
     - name: Start Jetty
       run: |
-        java -jar Glyph11/src/Servers/JettyServer/target/jetty-server-1.0.0.jar 9007 &
+        java -jar src/Servers/JettyServer/target/jetty-server-1.0.0.jar 9007 &
         echo $! > jetty.pid
 
     - name: Start Nginx
       run: |
-        nginx -c $GITHUB_WORKSPACE/Glyph11/src/Servers/NginxServer/nginx.conf &
+        nginx -c $GITHUB_WORKSPACE/src/Servers/NginxServer/nginx.conf &
         echo $! > nginx.pid
 
     - name: Start Apache
@@ -141,12 +141,12 @@ jobs:
 
     - name: Start Caddy
       run: |
-        ./caddy run --config Glyph11/src/Servers/CaddyServer/Caddyfile --adapter caddyfile &
+        ./caddy run --config src/Servers/CaddyServer/Caddyfile --adapter caddyfile &
         echo $! > caddy.pid
 
     - name: Start Pingora
       run: |
-        Glyph11/src/Servers/PingoraServer/target/release/pingora-server 9011 &
+        src/Servers/PingoraServer/target/release/pingora-server 9011 &
         echo $! > pingora.pid
 
     - name: Wait for servers
