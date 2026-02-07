@@ -41,20 +41,32 @@ window.ProbeRender = (function () {
       var pb = sb.passed / (sb.scored || sb.total || 1);
       return pb - pa || a.name.localeCompare(b.name);
     });
-    var html = '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">';
-    sorted.forEach(function (sv) {
+    var maxScored = sorted[0] ? (sorted[0].summary.scored || sorted[0].summary.total) : 1;
+    var topPassed = sorted[0] ? sorted[0].summary.passed : 1;
+
+    var html = '<div style="display:flex;flex-direction:column;gap:6px;max-width:700px;">';
+    sorted.forEach(function (sv, i) {
       var s = sv.summary;
       var scored = s.scored || s.total;
-      var pct = Math.round((s.passed / scored) * 100);
-      var bg = pct >= 85 ? '#1a7f37' : pct >= 60 ? '#9a6700' : pct >= 20 ? '#cf222e' : '#82071e';
-      html += '<div style="background:' + bg + ';color:#fff;border-radius:6px;padding:6px 12px;text-align:center;line-height:1.3;">';
-      html += '<div style="font-weight:700;font-size:12px;">' + sv.name + '</div>';
-      html += '<div style="font-size:16px;font-weight:800;">' + s.passed + '/' + scored + '</div>';
+      var pct = s.passed / scored;
+      var barPct = (s.passed / topPassed) * 100;
+      var displayPct = Math.round(pct * 100);
+      var bg = pct >= 0.85 ? '#1a7f37' : pct >= 0.6 ? '#9a6700' : pct >= 0.2 ? '#cf222e' : '#82071e';
+      var rank = i + 1;
+
+      html += '<div style="display:flex;align-items:center;gap:10px;">';
+      html += '<div style="min-width:24px;text-align:right;font-size:13px;font-weight:600;color:#656d76;">' + rank + '</div>';
+      html += '<div style="min-width:110px;font-size:13px;font-weight:600;white-space:nowrap;">' + sv.name + '</div>';
+      html += '<div style="flex:1;height:22px;background:#f0f0f0;border-radius:3px;overflow:hidden;position:relative;">';
+      html += '<div style="height:100%;width:' + barPct + '%;background:' + bg + ';border-radius:3px;transition:width 0.3s;"></div>';
+      html += '</div>';
+      html += '<div style="min-width:72px;text-align:right;font-size:13px;font-weight:700;">' + s.passed + '/' + scored + '</div>';
+      html += '<div style="min-width:40px;text-align:right;font-size:12px;color:#656d76;">' + displayPct + '%</div>';
       html += '</div>';
     });
     html += '</div>';
     if (data.commit) {
-      html += '<p style="margin-top:8px;font-size:0.85em;color:#656d76;">Commit: <code>' + data.commit.id.substring(0, 7) + '</code> &mdash; ' + (data.commit.message || '') + '</p>';
+      html += '<p style="margin-top:12px;font-size:0.85em;color:#656d76;">Commit: <code>' + data.commit.id.substring(0, 7) + '</code> &mdash; ' + (data.commit.message || '') + '</p>';
     }
     el.innerHTML = html;
   }
