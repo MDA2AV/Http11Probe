@@ -27,8 +27,8 @@ menu:
     - name: Malformed Input
       pageRef: /malformed-input
       weight: 4
-    - name: Glossary
-      pageRef: /glossary
+    - name: Docs
+      pageRef: /docs
       weight: 5
     - name: Add a Framework
       pageRef: /add-a-framework

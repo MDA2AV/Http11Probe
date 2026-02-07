@@ -143,37 +143,37 @@ jobs:
             'RFC9112-2.2-BARE-LF-REQUEST-LINE': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Bare LF in request-line is a framing violation (RFC 9112 §2.2)'
+                'reason': 'Bare LF — recipient MAY accept but rejection is stricter (RFC 9112 §2.2)'
             },
             'RFC9112-2.2-BARE-LF-HEADER': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Bare LF in header field is a framing violation (RFC 9112 §2.2)'
+                'reason': 'Bare LF — recipient MAY accept but rejection is stricter (RFC 9112 §2.2)'
             },
             'RFC9112-5.1-OBS-FOLD': {
-                'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'expected': '400 or close',
-                'reason': 'Obs-fold (line folding) is deprecated and must be rejected (RFC 9112 §5.1)'
+                'accept': [400], 'close_ok': False, 'timeout_ok': False,
+                'expected': '400',
+                'reason': 'MUST reject by sending 400 or replace with SP (RFC 9112 §5.1)'
             },
             'RFC9110-5.6.2-SP-BEFORE-COLON': {
-                'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'expected': '400 or close',
-                'reason': 'Space between header name and colon is invalid (RFC 9110 §5.6.2)'
+                'accept': [400], 'close_ok': False, 'timeout_ok': False,
+                'expected': '400',
+                'reason': 'MUST reject with 400 (RFC 9112 §5)'
             },
             'RFC9112-3-MULTI-SP-REQUEST-LINE': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Multiple SP in request-line is malformed (RFC 9112 §3)'
+                'reason': 'SHOULD respond with 400 (RFC 9112 §3)'
             },
             'RFC9112-7.1-MISSING-HOST': {
-                'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'expected': '400 or close',
-                'reason': 'Missing Host header requires 400 (RFC 9112 §7.1)'
+                'accept': [400], 'close_ok': False, 'timeout_ok': False,
+                'expected': '400',
+                'reason': 'MUST respond with 400 (RFC 9112 §3.2)'
             },
             'RFC9112-2.3-INVALID-VERSION': {
                 'accept': [400, 505], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400/505 or close',
-                'reason': 'Invalid HTTP version must be rejected (RFC 9112 §2.3)'
+                'reason': 'No MUST — 505 is available but not mandated (RFC 9112 §2.3)'
             },
             'RFC9112-5-EMPTY-HEADER-NAME': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
@@ -181,19 +181,19 @@ jobs:
                 'reason': 'Empty header name (leading colon) is invalid (RFC 9112 §5)'
             },
             'RFC9112-3-CR-ONLY-LINE-ENDING': {
-                'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'expected': '400 or close',
-                'reason': 'CR without LF is a framing violation (RFC 9112 §2.2)'
+                'accept': [400], 'close_ok': False, 'timeout_ok': False,
+                'expected': '400',
+                'reason': 'MUST consider invalid or replace with SP (RFC 9112 §2.2)'
             },
             'SMUG-CL-TE-BOTH': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'CL + TE together enables smuggling — must reject (RFC 9112 §6.1)'
+                'reason': 'CL + TE together "ought to" be handled as error (RFC 9112 §6.3)'
             },
             'SMUG-DUPLICATE-CL': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Conflicting Content-Length values enable smuggling (RFC 9110 §8.6)'
+                'reason': 'MUST treat as unrecoverable error (RFC 9112 §6.3)'
             },
             'SMUG-CL-LEADING-ZEROS': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
@@ -268,17 +268,17 @@ jobs:
             'RFC9112-3-MISSING-TARGET': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Missing request-target is malformed (RFC 9112 §3)'
+                'reason': 'SHOULD respond with 400 (RFC 9112 §3)'
             },
             'RFC9112-3.2-FRAGMENT-IN-TARGET': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Fragment in request-target is invalid (RFC 9112 §3.2)'
+                'reason': 'SHOULD respond with 400 (RFC 9112 §3)'
             },
             'RFC9112-2.3-HTTP09-REQUEST': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': True,
                 'expected': '400/close/timeout',
-                'reason': 'HTTP/0.9 requests must be rejected (RFC 9112 §2.3)'
+                'reason': 'Invalid request-line — SHOULD respond with 400 (RFC 9112 §3)'
             },
             'RFC9112-5-INVALID-HEADER-NAME': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
@@ -291,19 +291,19 @@ jobs:
                 'reason': 'Header line without colon is malformed (RFC 9112 §5)'
             },
             'RFC9110-5.4-DUPLICATE-HOST': {
-                'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'expected': '400 or close',
-                'reason': 'Duplicate Host headers with different values must be rejected (RFC 9110 §5.4)'
+                'accept': [400], 'close_ok': False, 'timeout_ok': False,
+                'expected': '400',
+                'reason': 'MUST respond with 400 (RFC 9112 §3.2)'
             },
             'RFC9112-6.1-CL-NON-NUMERIC': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Non-numeric Content-Length is invalid (RFC 9112 §6.1)'
+                'reason': 'MUST treat as unrecoverable error (RFC 9112 §6.3)'
             },
             'RFC9112-6.1-CL-PLUS-SIGN': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
-                'reason': 'Content-Length with + sign is invalid (RFC 9112 §6.1)'
+                'reason': 'MUST treat as unrecoverable error (RFC 9112 §6.3)'
             },
             'SMUG-TECL-PIPELINE': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
