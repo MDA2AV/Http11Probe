@@ -32,11 +32,11 @@ jobs:
           hugo-version: 'latest'
           extended: true
 
-      - name: Fetch probe data from gh-pages
+      - name: Fetch probe data from latest-results
         run: |
-          git fetch origin gh-pages || true
+          git fetch origin latest-results || true
           mkdir -p docs/static/probe
-          git show origin/gh-pages:probe/data.js > docs/static/probe/data.js 2>/dev/null || true
+          git show origin/latest-results:probe/data.js > docs/static/probe/data.js 2>/dev/null || true
 
       - name: Build
         run: hugo --minify --source docs
