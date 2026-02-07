@@ -579,7 +579,7 @@ jobs:
         if git fetch origin latest-results 2>/dev/null; then
           git worktree add /tmp/latest-results origin/latest-results
         else
-          git worktree add --orphan /tmp/latest-results latest-results
+          git worktree add -b latest-results --orphan /tmp/latest-results
         fi
         mkdir -p /tmp/latest-results/probe
         cp probe-data.js /tmp/latest-results/probe/data.js
