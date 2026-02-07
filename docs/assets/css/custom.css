@@ -80,7 +80,7 @@ a[href$="/probe-results/"] {
   font-size: 1.1em !important;
 }
 
-/* Separator before Docs */
+/* Separator before Glossary */
 a[href$="/docs"],
 a[href$="/docs/"] {
   margin-left: 12px !important;

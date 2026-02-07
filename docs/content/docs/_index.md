@@ -1,6 +1,6 @@
 ---
-title: Docs
-description: "Docs — Http11Probe documentation"
+title: Glossary
+description: "Glossary — Http11Probe documentation"
 sidebar:
   open: true
 ---
