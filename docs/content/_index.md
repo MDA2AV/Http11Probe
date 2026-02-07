@@ -75,8 +75,3 @@ yourserver:
 
 The CI pipeline auto-discovers servers from `docker-compose.yml` labels. No workflow edits, no test changes, no config files. Open a PR and the probe runs automatically.
 
-<div style="height:60px"></div>
-
-## Currently Tested
-
-Servers across C#, Python, JavaScript, Java, Rust, and C — from application frameworks to reverse proxies.
