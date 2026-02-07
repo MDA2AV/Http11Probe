@@ -1,5 +1,6 @@
 ---
 title: Line Endings
+description: "Line Endings — Http11Probe documentation"
 weight: 2
 sidebar:
   open: true

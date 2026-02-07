@@ -1,5 +1,6 @@
 ---
 title: "LONG-HEADER-NAME"
+description: "LONG-HEADER-NAME test documentation"
 weight: 3
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: "HEADER-NO-COLON"
+description: "HEADER-NO-COLON test documentation"
 weight: 5
 ---
 

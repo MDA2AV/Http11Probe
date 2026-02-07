@@ -1,5 +1,6 @@
 ---
 title: Request Line
+description: "Request Line — Http11Probe documentation"
 weight: 3
 sidebar:
   open: true

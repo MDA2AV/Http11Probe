@@ -1,5 +1,6 @@
 ---
 title: Host Header
+description: "Host Header — Http11Probe documentation"
 weight: 5
 sidebar:
   open: true

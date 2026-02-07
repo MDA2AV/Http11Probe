@@ -1,5 +1,6 @@
 ---
 title: "CL-TRAILING-SPACE"
+description: "CL-TRAILING-SPACE test documentation"
 weight: 10
 ---
 

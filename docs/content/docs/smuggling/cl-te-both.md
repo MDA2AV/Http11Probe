@@ -1,5 +1,6 @@
 ---
 title: "CL-TE-BOTH"
+description: "CL-TE-BOTH test documentation"
 weight: 1
 ---
 

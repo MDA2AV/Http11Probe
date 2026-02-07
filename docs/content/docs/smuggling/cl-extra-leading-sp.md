@@ -1,5 +1,6 @@
 ---
 title: "CL-EXTRA-LEADING-SP"
+description: "CL-EXTRA-LEADING-SP test documentation"
 weight: 11
 ---
 

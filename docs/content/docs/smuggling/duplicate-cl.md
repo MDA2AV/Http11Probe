@@ -1,5 +1,6 @@
 ---
 title: "DUPLICATE-CL"
+description: "DUPLICATE-CL test documentation"
 weight: 2
 ---
 

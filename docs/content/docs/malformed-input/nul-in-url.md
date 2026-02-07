@@ -1,5 +1,6 @@
 ---
 title: "NUL-IN-URL"
+description: "NUL-IN-URL test documentation"
 weight: 7
 ---
 

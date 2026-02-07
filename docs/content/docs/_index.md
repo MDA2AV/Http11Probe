@@ -1,5 +1,6 @@
 ---
 title: Docs
+description: "Docs — Http11Probe documentation"
 sidebar:
   open: true
 ---

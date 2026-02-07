@@ -1,5 +1,6 @@
 ---
 title: "TE-SP-BEFORE-COLON"
+description: "TE-SP-BEFORE-COLON test documentation"
 weight: 7
 ---
 

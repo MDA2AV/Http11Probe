@@ -1,5 +1,6 @@
 ---
 title: "BARE-LF-HEADER"
+description: "BARE-LF-HEADER test documentation"
 weight: 2
 ---
 

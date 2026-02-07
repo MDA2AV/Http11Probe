@@ -1,5 +1,6 @@
 ---
 title: "SP-BEFORE-COLON"
+description: "SP-BEFORE-COLON test documentation"
 weight: 1
 ---
 

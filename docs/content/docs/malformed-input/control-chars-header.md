@@ -1,5 +1,6 @@
 ---
 title: "CONTROL-CHARS-HEADER"
+description: "CONTROL-CHARS-HEADER test documentation"
 weight: 8
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: "EMPTY-HEADER-NAME"
+description: "EMPTY-HEADER-NAME test documentation"
 weight: 3
 ---
 

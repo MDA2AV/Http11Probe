@@ -1,5 +1,6 @@
 ---
 title: "CL-NON-NUMERIC"
+description: "CL-NON-NUMERIC test documentation"
 weight: 1
 ---
 

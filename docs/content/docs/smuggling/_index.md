@@ -1,5 +1,6 @@
 ---
 title: Request Smuggling
+description: "Request Smuggling — Http11Probe documentation"
 weight: 7
 sidebar:
   open: true

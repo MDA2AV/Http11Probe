@@ -1,5 +1,6 @@
 ---
 title: "NON-ASCII-HEADER-NAME"
+description: "NON-ASCII-HEADER-NAME test documentation"
 weight: 9
 ---
 

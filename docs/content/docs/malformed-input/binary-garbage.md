@@ -1,5 +1,6 @@
 ---
 title: "BINARY-GARBAGE"
+description: "BINARY-GARBAGE test documentation"
 weight: 1
 ---
 

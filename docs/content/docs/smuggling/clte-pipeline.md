@@ -1,5 +1,6 @@
 ---
 title: "CLTE-PIPELINE"
+description: "CLTE-PIPELINE test documentation"
 weight: 8
 ---
 

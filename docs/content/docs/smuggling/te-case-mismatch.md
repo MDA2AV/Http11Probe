@@ -1,5 +1,6 @@
 ---
 title: "TE-CASE-MISMATCH"
+description: "TE-CASE-MISMATCH test documentation"
 weight: 14
 ---
 

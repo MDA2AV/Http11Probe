@@ -1,5 +1,6 @@
 ---
 title: "MISSING-HOST"
+description: "MISSING-HOST test documentation"
 weight: 1
 ---
 

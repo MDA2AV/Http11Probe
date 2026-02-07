@@ -1,5 +1,6 @@
 ---
 title: "TE-TRAILING-SPACE"
+description: "TE-TRAILING-SPACE test documentation"
 weight: 6
 ---
 

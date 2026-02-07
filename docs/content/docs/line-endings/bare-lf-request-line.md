@@ -1,5 +1,6 @@
 ---
 title: "BARE-LF-REQUEST-LINE"
+description: "BARE-LF-REQUEST-LINE test documentation"
 weight: 1
 ---
 

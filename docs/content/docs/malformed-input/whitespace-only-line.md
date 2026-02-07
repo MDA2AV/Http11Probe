@@ -1,5 +1,6 @@
 ---
 title: "WHITESPACE-ONLY-LINE"
+description: "WHITESPACE-ONLY-LINE test documentation"
 weight: 14
 ---
 

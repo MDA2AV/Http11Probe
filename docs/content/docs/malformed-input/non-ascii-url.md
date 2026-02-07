@@ -1,5 +1,6 @@
 ---
 title: "NON-ASCII-URL"
+description: "NON-ASCII-URL test documentation"
 weight: 10
 ---
 

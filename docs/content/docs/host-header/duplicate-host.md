@@ -1,5 +1,6 @@
 ---
 title: "DUPLICATE-HOST"
+description: "DUPLICATE-HOST test documentation"
 weight: 2
 ---
 
