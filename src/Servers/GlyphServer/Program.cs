@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -35,85 +36,92 @@ static async Task HandleClientAsync(TcpClient client, CancellationToken ct)
     using (client)
     await using (var stream = client.GetStream())
     {
-        var buffer = new byte[65536];
-        var filled = 0;
         var limits = ParserLimits.Default;
+        var reader = PipeReader.Create(stream);
         using var request = new BinaryRequest();
 
         try
         {
             while (!ct.IsCancellationRequested)
             {
-                if (filled >= buffer.Length)
+                var result = await reader.ReadAsync(ct);
+                var buffer = result.Buffer;
+
+                if (result.IsCompleted && buffer.IsEmpty)
+                    break;
+
+                var sequence = buffer;
+
+                try
                 {
-                    // Buffer full but headers still incomplete — request is too large
-                    await stream.WriteAsync(MakeErrorResponse(431, "Request Header Fields Too Large"), ct);
-                    return;
+                    if (!HardenedParser.TryExtractFullHeader(ref sequence, request, in limits, out var bytesRead))
+                    {
+                        if (buffer.Length > limits.MaxTotalHeaderBytes)
+                        {
+                            reader.AdvanceTo(buffer.End);
+                            await stream.WriteAsync(MakeErrorResponse(431, "Request Header Fields Too Large"), ct);
+                            break;
+                        }
+
+                        // Tell the pipe: consumed nothing, examined everything
+                        reader.AdvanceTo(buffer.Start, buffer.End);
+
+                        if (result.IsCompleted)
+                            break;
+
+                        continue;
+                    }
+
+                    // Post-parse semantic validation (must happen before AdvanceTo — request
+                    // holds ReadOnlyMemory slices into the pipe's buffer)
+                    if (RequestSemantics.HasTransferEncodingWithContentLength(request) ||
+                        RequestSemantics.HasConflictingContentLength(request) ||
+                        RequestSemantics.HasConflictingCommaSeparatedContentLength(request) ||
+                        RequestSemantics.HasInvalidContentLengthFormat(request) ||
+                        RequestSemantics.HasContentLengthWithLeadingZeros(request) ||
+                        RequestSemantics.HasInvalidHostHeaderCount(request) ||
+                        RequestSemantics.HasInvalidTransferEncoding(request) ||
+                        RequestSemantics.HasDotSegments(request) ||
+                        RequestSemantics.HasFragmentInRequestTarget(request) ||
+                        RequestSemantics.HasBackslashInPath(request) ||
+                        RequestSemantics.HasDoubleEncoding(request) ||
+                        RequestSemantics.HasEncodedNullByte(request) ||
+                        RequestSemantics.HasOverlongUtf8(request))
+                    {
+                        reader.AdvanceTo(buffer.End);
+                        await stream.WriteAsync(MakeErrorResponse(400, "Bad Request"), ct);
+                        break;
+                    }
+
+                    // Extract strings while buffer is still valid
+                    var method = Encoding.ASCII.GetString(request.Method.Span);
+                    var path = Encoding.ASCII.GetString(request.Path.Span);
+
+                    // Advance past consumed bytes, then respond
+                    reader.AdvanceTo(buffer.GetPosition(bytesRead));
+
+                    var responseBytes = BuildResponse(method, path);
+                    await stream.WriteAsync(responseBytes, ct);
+
+                    request.Clear();
                 }
-
-                var read = await stream.ReadAsync(buffer.AsMemory(filled), ct);
-                if (read == 0) break;
-                filled += read;
-
-                while (filled > 0)
+                catch (HttpParseException ex)
                 {
-                    var sequence = new ReadOnlySequence<byte>(buffer, 0, filled);
-
-                    try
-                    {
-                        if (!HardenedParser.TryExtractFullHeader(ref sequence, request, in limits, out var bytesRead))
-                            break; // Need more data
-
-                        // Post-parse semantic validation
-                        if (RequestSemantics.HasTransferEncodingWithContentLength(request) ||
-                            RequestSemantics.HasConflictingContentLength(request) ||
-                            RequestSemantics.HasConflictingCommaSeparatedContentLength(request) ||
-                            RequestSemantics.HasInvalidContentLengthFormat(request) ||
-                            RequestSemantics.HasContentLengthWithLeadingZeros(request) ||
-                            RequestSemantics.HasInvalidHostHeaderCount(request) ||
-                            RequestSemantics.HasInvalidTransferEncoding(request) ||
-                            RequestSemantics.HasDotSegments(request) ||
-                            RequestSemantics.HasFragmentInRequestTarget(request) ||
-                            RequestSemantics.HasBackslashInPath(request) ||
-                            RequestSemantics.HasDoubleEncoding(request) ||
-                            RequestSemantics.HasEncodedNullByte(request) ||
-                            RequestSemantics.HasOverlongUtf8(request))
-                        {
-                            await stream.WriteAsync(MakeErrorResponse(400, "Bad Request"), ct);
-                            return;
-                        }
-
-                        var method = Encoding.ASCII.GetString(request.Method.Span);
-                        var path = Encoding.ASCII.GetString(request.Path.Span);
-                        var responseBytes = BuildResponse(method, path);
-                        await stream.WriteAsync(responseBytes, ct);
-
-                        // Consume parsed bytes and reset for keep-alive
-                        if (bytesRead > 0 && bytesRead <= filled)
-                        {
-                            Buffer.BlockCopy(buffer, bytesRead, buffer, 0, filled - bytesRead);
-                            filled -= bytesRead;
-                        }
-                        else
-                        {
-                            filled = 0;
-                        }
-
-                        request.Clear();
-                    }
-                    catch (HttpParseException ex)
-                    {
-                        var (code, reason) = ex.IsLimitViolation
-                            ? (431, "Request Header Fields Too Large")
-                            : (400, "Bad Request");
-                        await stream.WriteAsync(MakeErrorResponse(code, reason), ct);
-                        return;
-                    }
+                    var (code, reason) = ex.IsLimitViolation
+                        ? (431, "Request Header Fields Too Large")
+                        : (400, "Bad Request");
+                    reader.AdvanceTo(buffer.End);
+                    await stream.WriteAsync(MakeErrorResponse(code, reason), ct);
+                    break;
                 }
             }
         }
         catch (OperationCanceledException) { }
         catch (IOException) { }
+        finally
+        {
+            await reader.CompleteAsync();
+        }
     }
 }
 
