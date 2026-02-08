@@ -19,6 +19,7 @@ A well-implemented server should respond with `400 Bad Request`, `414 URI Too Lo
 - **Incomplete/empty requests** &mdash; partial HTTP or zero bytes sent
 - **Whitespace-only request** &mdash; just spaces/tabs with no method or URI
 
+<div id="lang-filter"></div>
 <div id="table-malformed"><p><em>Loading...</em></p></div>
 
 <script src="/Http11Probe/probe/data.js"></script>
@@ -29,7 +30,11 @@ A well-implemented server should respond with `400 Bad Request`, `414 URI Too Lo
     document.getElementById('table-malformed').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
     return;
   }
-  var ctx = ProbeRender.buildLookups(window.PROBE_DATA.servers);
-  ProbeRender.renderTable('table-malformed', 'MalformedInput', ctx);
+  function render(data) {
+    var ctx = ProbeRender.buildLookups(data.servers);
+    ProbeRender.renderTable('table-malformed', 'MalformedInput', ctx);
+  }
+  render(window.PROBE_DATA);
+  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, render);
 })();
 </script>

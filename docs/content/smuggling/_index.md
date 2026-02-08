@@ -23,6 +23,7 @@ These tests send requests with ambiguous framing &mdash; conflicting `Content-Le
 Some tests are **unscored** (marked with `*`). These send payloads where the RFC permits multiple valid interpretations &mdash; for example, OWS trimming or case-insensitive TE matching. A `2xx` response is RFC-compliant but shown as a warning since stricter rejection is preferred.
 {{< /callout >}}
 
+<div id="lang-filter"></div>
 <div id="table-smuggling"><p><em>Loading...</em></p></div>
 
 <script src="/Http11Probe/probe/data.js"></script>
@@ -33,7 +34,11 @@ Some tests are **unscored** (marked with `*`). These send payloads where the RFC
     document.getElementById('table-smuggling').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
     return;
   }
-  var ctx = ProbeRender.buildLookups(window.PROBE_DATA.servers);
-  ProbeRender.renderTable('table-smuggling', 'Smuggling', ctx);
+  function render(data) {
+    var ctx = ProbeRender.buildLookups(data.servers);
+    ProbeRender.renderTable('table-smuggling', 'Smuggling', ctx);
+  }
+  render(window.PROBE_DATA);
+  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, render);
 })();
 </script>

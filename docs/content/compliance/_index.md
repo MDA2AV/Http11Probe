@@ -18,6 +18,7 @@ Each test sends a request that violates a specific **MUST** or **MUST NOT** requ
 - **Host header** &mdash; missing or duplicate Host with conflicting values (RFC 9112 &sect;7.1, RFC 9110 &sect;5.4)
 - **Content-Length** &mdash; non-numeric, plus sign, overflow (RFC 9112 &sect;6.1)
 
+<div id="lang-filter"></div>
 <div id="table-compliance"><p><em>Loading...</em></p></div>
 
 <script src="/Http11Probe/probe/data.js"></script>
@@ -28,7 +29,11 @@ Each test sends a request that violates a specific **MUST** or **MUST NOT** requ
     document.getElementById('table-compliance').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
     return;
   }
-  var ctx = ProbeRender.buildLookups(window.PROBE_DATA.servers);
-  ProbeRender.renderTable('table-compliance', 'Compliance', ctx);
+  function render(data) {
+    var ctx = ProbeRender.buildLookups(data.servers);
+    ProbeRender.renderTable('table-compliance', 'Compliance', ctx);
+  }
+  render(window.PROBE_DATA);
+  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, render);
 })();
 </script>

@@ -8,6 +8,7 @@ HTTP/1.1 compliance comparison across frameworks. Each test sends a specific mal
 
 ## Summary
 
+<div id="lang-filter"></div>
 <div id="probe-summary"><p><em>Loading probe data...</em></p></div>
 
 {{< callout type="info" >}}
@@ -23,5 +24,8 @@ These results are from CI runs (`ubuntu-latest`). Click on the **Compliance**, *
     return;
   }
   ProbeRender.renderSummary('probe-summary', window.PROBE_DATA);
+  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, function (filtered) {
+    ProbeRender.renderSummary('probe-summary', filtered);
+  });
 })();
 </script>

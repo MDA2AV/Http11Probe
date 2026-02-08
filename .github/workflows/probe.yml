@@ -32,7 +32,8 @@ jobs:
         for f in src/Servers/*/probe.json; do
           dir=$(basename "$(dirname "$f")")
           name=$(jq -r .name "$f")
-          SERVERS=$(echo "$SERVERS" | jq -c --arg d "$dir" --arg n "$name" '. + [{"dir": $d, "name": $n}]')
+          lang=$(jq -r '.language // ""' "$f")
+          SERVERS=$(echo "$SERVERS" | jq -c --arg d "$dir" --arg n "$name" --arg l "$lang" '. + [{"dir": $d, "name": $n, "language": $l}]')
         done
         echo "servers=$SERVERS" >> "$GITHUB_OUTPUT"
         echo "Discovered: $(echo "$SERVERS" | jq -r '.[].name' | tr '\n' ', ')"
@@ -64,8 +65,9 @@ jobs:
         for row in $(echo "$SERVERS" | jq -r '.[] | @base64'); do
           dir=$(echo "$row" | base64 -d | jq -r '.dir')
           name=$(echo "$row" | base64 -d | jq -r '.name')
+          lang=$(echo "$row" | base64 -d | jq -r '.language')
           if echo "$CHANGED" | grep -q "^src/Servers/${dir}/"; then
-            AFFECTED=$(echo "$AFFECTED" | jq -c --arg d "$dir" --arg n "$name" '. + [{"dir": $d, "name": $n}]')
+            AFFECTED=$(echo "$AFFECTED" | jq -c --arg d "$dir" --arg n "$name" --arg l "$lang" '. + [{"dir": $d, "name": $n, "language": $l}]')
           fi
         done
 
@@ -607,14 +609,14 @@ jobs:
 
         # ── Process each server ──────────────────────────────────────
         servers_config = json.loads(os.environ['PROBE_SERVERS'])
-        SERVERS = [(s['name'], f"probe-{s['dir']}.json") for s in servers_config]
+        SERVERS = [(s['name'], f"probe-{s['dir']}.json", s.get('language', '')) for s in servers_config]
 
         commit_id   = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
         commit_msg  = subprocess.check_output(['git', 'log', '-1', '--format=%s']).decode().strip()
         commit_time = subprocess.check_output(['git', 'log', '-1', '--format=%cI']).decode().strip()
 
         server_data = []
-        for name, path in SERVERS:
+        for name, path, language in SERVERS:
             p = pathlib.Path(path)
             if not p.exists():
                 print(f'::warning::{name}: result file {path} not found, skipping')
@@ -623,6 +625,7 @@ jobs:
                 raw = json.load(f)
             ev = evaluate(raw)
             ev['name'] = name
+            ev['language'] = language
             server_data.append(ev)
             s = ev['summary']
             print(f"{name}: {s['passed']}/{s['scored']} passed, {s['failed']} failed, {s['warnings']} warnings")
