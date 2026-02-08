@@ -9,7 +9,7 @@ weight: 9
 | **Test ID** | `COMP-ABSOLUTE-FORM` |
 | **Category** | Compliance |
 | **RFC** | [RFC 9112 Section 3.2.2](https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2) |
-| **Requirement** | MUST accept when acting as proxy (unscored) |
+| **Requirement** | MUST accept (server) |
 | **Expected** | `400` or `2xx` |
 
 ## What it sends
@@ -25,11 +25,62 @@ Host: localhost:8080\r\n
 
 ## What the RFC says
 
-> "When making a request to a proxy, other than a CONNECT or server-wide OPTIONS request, a client MUST send the target URI in absolute-form as the request-target." — RFC 9112 Section 3.2.2. A server MUST accept absolute-form requests.
+> "When making a request to a proxy, other than a CONNECT or server-wide OPTIONS request, a client MUST send the target URI in 'absolute-form' as the request-target." — RFC 9112 Section 3.2.2
+
+> "A server MUST accept the absolute-form in requests even though most HTTP/1.1 clients will only send the absolute-form to a proxy." — RFC 9112 Section 3.2.2
+
+## Why this test is unscored
+
+Although the RFC says servers MUST accept absolute-form, in practice most non-proxy origin servers reject it. Both `400` and `2xx` are observed in the wild, and rejecting absolute-form on an origin server is a common and generally harmless deviation. Since neither behavior is clearly wrong from a practical standpoint, this test records the response without scoring it.
 
 ## Why it matters
 
-This is an unscored test. Non-proxy servers commonly reject absolute-form. Both `400` and `2xx` are acceptable.
+**Pass:** Server rejects with `400` (common origin-server behavior).
+**Warn:** Server accepts with `2xx` (RFC-compliant, accepts absolute-form).
+
+## Deep Analysis
+
+### Relevant ABNF Grammar
+
+```
+request-line   = method SP request-target SP HTTP-version
+request-target = origin-form / absolute-form / authority-form / asterisk-form
+absolute-form  = absolute-URI
+```
+
+The `absolute-form` production requires a complete `absolute-URI` as defined in RFC 3986. This is the full URI including scheme, authority, path, and optional query -- for example `http://host/path?query`.
+
+### RFC Evidence
+
+**RFC 9112 Section 3.2.2** mandates server acceptance:
+
+> "A server MUST accept the absolute-form in requests even though most HTTP/1.1 clients will only send the absolute-form to a proxy." — RFC 9112 Section 3.2.2
+
+**RFC 9112 Section 3.2.2** describes the client-side usage:
+
+> "When making a request to a proxy, other than a CONNECT or server-wide OPTIONS request, a client MUST send the target URI in absolute-form as the request-target." -- RFC 9112 Section 3.2.2
+
+**RFC 9112 Section 3.2.2** specifies Host header override behavior:
+
+> "When an origin server receives a request with an absolute-form of request-target, the origin server MUST ignore the received Host header field (if any) and instead use the host information of the request-target." -- RFC 9112 Section 3.2.2
+
+### Chain of Reasoning
+
+1. The `absolute-form` production requires the full `absolute-URI` as the request-target, e.g., `GET http://host/ HTTP/1.1`.
+2. Historically, only proxy-targeted requests used absolute-form. Clients sending directly to origin servers used origin-form (`/path`).
+3. Despite this convention, the RFC contains a clear MUST: servers MUST accept absolute-form even from direct clients. This ensures interoperability across the request chain.
+4. When absolute-form is received, the server MUST use the host from the request-target and ignore the Host header, which prevents host confusion attacks when both are present.
+5. A server that rejects absolute-form with `400` is technically non-compliant with the MUST, but since most origin servers are not proxies, rejecting it is a common and pragmatically harmless behavior.
+
+### Scoring Justification
+
+**Unscored.** Although the RFC uses "MUST accept," this requirement primarily targets proxy servers. An origin server that rejects absolute-form (returning `400`) is technically non-compliant but is not creating a security vulnerability -- it is simply refusing a request format it was not designed to handle. Both `400` and `2xx` are treated as acceptable outcomes.
+
+### Edge Cases
+
+- **Mismatched Host and request-target authority:** If the absolute-form says `http://a.com/` but the Host header says `b.com`, the server MUST use `a.com` per the RFC. Servers that do not implement this override may route to the wrong virtual host.
+- **Scheme mismatch:** A request arriving on HTTPS with `http://` in the absolute-form creates ambiguity about the intended scheme. The RFC does not address this directly.
+- **Missing path:** `GET http://host HTTP/1.1` (no trailing slash) is a valid absolute-URI. The server should treat the empty path as `/`.
 
 ## Sources
 
