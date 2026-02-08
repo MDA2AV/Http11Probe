@@ -1,0 +1,16 @@
+http:
+  routers:
+    catchall:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - web
+      middlewares:
+        - static-ok
+      service: noop@internal
+
+  middlewares:
+    static-ok:
+      plugin:
+        staticresponse:
+          statusCode: 200
+          body: "OK"

@@ -12,5 +12,6 @@
     <Project Path="src/Servers/SimpleWServer/SimpleWServer.csproj" />
     <Project Path="src/Servers/SiskServer/SiskServer.csproj" />
     <Project Path="src/Servers/WatsonServer/WatsonServer.csproj" />
+    <Project Path="src/Servers/ServiceStackServer/ServiceStackServer.csproj" />
   </Folder>
 </Solution>

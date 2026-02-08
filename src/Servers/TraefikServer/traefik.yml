@@ -1,0 +1,12 @@
+entryPoints:
+  web:
+    address: ":8080"
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+
+experimental:
+  localPlugins:
+    staticresponse:
+      moduleName: github.com/jdel/staticresponse
