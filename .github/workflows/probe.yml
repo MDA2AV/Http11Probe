@@ -314,31 +314,31 @@ jobs:
             },
             'SMUG-CL-TRAILING-SPACE': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Trailing space in CL — OWS trimming is valid per RFC 9110 §5.5'
             },
             'SMUG-HEADER-INJECTION': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Payload is two valid headers on the wire — 2xx is RFC-compliant'
             },
             'SMUG-TE-DOUBLE-CHUNKED': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Duplicate chunked TE with CL — 4xx is strict, 2xx is tolerable'
             },
             'SMUG-CL-EXTRA-LEADING-SP': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Extra OWS after colon is valid per RFC 9110 §5.5'
             },
             'SMUG-TE-CASE-MISMATCH': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Case-insensitive TE matching is valid per RFC — 2xx is compliant'
             },
@@ -411,19 +411,19 @@ jobs:
             },
             'COMP-LEADING-CRLF': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Leading CRLF — server MAY ignore per RFC 9112 §2.2'
             },
             'COMP-ABSOLUTE-FORM': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Absolute-form is valid per RFC 9112 §3.2.2'
             },
             'COMP-METHOD-CASE': {
                 'accept': [400, 405, 501], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400/405/501 or 2xx',
                 'reason': 'Methods are case-sensitive per RFC 9110 §9.1 — 2xx means case-insensitive'
             },
@@ -523,7 +523,7 @@ jobs:
             },
             'SMUG-CHUNKED-WITH-PARAMS': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Parameters on chunked encoding — some servers ignore'
             },
@@ -561,7 +561,7 @@ jobs:
             },
             'MAL-CL-TAB-BEFORE-VALUE': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
-                'warn_on_2xx': True, 'scored': False,
+                'warn_on_2xx': True,
                 'expected': '400 or 2xx',
                 'reason': 'Tab as OWS is valid per RFC 9110 §5.5 — 2xx is compliant'
             },
@@ -601,10 +601,9 @@ jobs:
                 'reason': 'Unknown Expect value — 417 is correct, 2xx means ignored (RFC 9110 §10.1.1)'
             },
             'COMP-UPGRADE-INVALID-VER': {
-                'accept': [c for c in range(100, 600) if c != 101],
-                'close_ok': True, 'timeout_ok': False,
-                'scored': False,
-                'expected': '!101',
+                'accept': [426], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True,
+                'expected': '426 or 2xx',
                 'reason': 'Unsupported WebSocket version — 426 is correct, 101 is failure (RFC 6455 §4.4)'
             },
             'COMP-METHOD-TRACE': {
@@ -736,7 +735,6 @@ jobs:
             'COMP-CHUNKED-EXTENSION': {
                 'accept': list(range(200, 300)) + [400],
                 'close_ok': True, 'timeout_ok': False,
-                'scored': False,
                 'expected': '2xx or 400',
                 'reason': 'Chunk extensions are valid per RFC 9112 §7.1.1 — 400 means unsupported'
             },
@@ -784,7 +782,7 @@ jobs:
                     'durationMs': r.get('durationMs', 0),
                 })
 
-            scored_results = [r for r in results if r['scored']]
+            scored_results = [r for r in results if r['scored'] and r['verdict'] != 'Warn']
             total  = len(scored_results)
             passed = sum(1 for r in scored_results if r['verdict'] == 'Pass')
             warned = sum(1 for r in results if r['verdict'] == 'Warn')
