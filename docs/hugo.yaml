@@ -48,6 +48,8 @@ menu:
         icon: github
 
 params:
+  theme:
+    displayToggle: false
   navbar:
     displayTitle: true
     displayLogo: true
