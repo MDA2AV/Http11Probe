@@ -1,6 +1,7 @@
 ---
 title: Glossary
 description: "Glossary — Http11Probe documentation"
+breadcrumbs: false
 sidebar:
   open: false
 ---

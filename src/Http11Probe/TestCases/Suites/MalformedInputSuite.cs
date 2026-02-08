@@ -21,8 +21,15 @@ public static class MalformedInputSuite
             },
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
-                AllowConnectionClose = true
+                CustomValidator = (response, state) =>
+                {
+                    // Any of these is acceptable: 400, close, or timeout
+                    if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
+                        return TestVerdict.Pass;
+                    if (response is not null && response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Fail;
+                }
             }
         };
 
@@ -42,8 +49,8 @@ public static class MalformedInputSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    // 414 is ideal, but any 4xx is acceptable
-                    return response.StatusCode >= 400 && response.StatusCode < 600
+                    // 414 is ideal, 400 and 431 are also acceptable
+                    return response.StatusCode is 400 or 414 or 431
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
@@ -66,7 +73,7 @@ public static class MalformedInputSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    return response.StatusCode >= 400 && response.StatusCode < 600
+                    return response.StatusCode is 400 or 431
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
@@ -93,7 +100,7 @@ public static class MalformedInputSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    return response.StatusCode >= 400 && response.StatusCode < 600
+                    return response.StatusCode is 400 or 431
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
@@ -108,7 +115,7 @@ public static class MalformedInputSuite
             PayloadFactory = ctx => MakeRequest($"GET /\0test HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -126,7 +133,7 @@ public static class MalformedInputSuite
             },
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -134,9 +141,9 @@ public static class MalformedInputSuite
         yield return new TestCase
         {
             Id = "MAL-INCOMPLETE-REQUEST",
-            Description = "Incomplete request line (just 'GET ') should timeout or close, not crash",
+            Description = "Partial HTTP request — request-line and headers but no final CRLF",
             Category = TestCategory.MalformedInput,
-            PayloadFactory = _ => MakeRequest("GET "),
+            PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nX-Test: value"),
             Expected = new ExpectedBehavior
             {
                 CustomValidator = (response, state) =>
@@ -144,7 +151,7 @@ public static class MalformedInputSuite
                     // Any of these is acceptable: timeout, close, or 400
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode >= 400)
+                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -154,16 +161,16 @@ public static class MalformedInputSuite
         yield return new TestCase
         {
             Id = "MAL-EMPTY-REQUEST",
-            Description = "Empty request (just CRLF) should be handled gracefully",
+            Description = "Zero bytes — TCP connection established without sending any data",
             Category = TestCategory.MalformedInput,
-            PayloadFactory = _ => MakeRequest("\r\n"),
+            PayloadFactory = _ => [],
             Expected = new ExpectedBehavior
             {
                 CustomValidator = (response, state) =>
                 {
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode >= 400)
+                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -186,7 +193,7 @@ public static class MalformedInputSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    return response.StatusCode >= 400 && response.StatusCode < 600
+                    return response.StatusCode is 400 or 431
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
@@ -209,7 +216,7 @@ public static class MalformedInputSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    return response.StatusCode >= 400 && response.StatusCode < 600
+                    return response.StatusCode == 400
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
@@ -235,7 +242,7 @@ public static class MalformedInputSuite
             },
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -259,7 +266,7 @@ public static class MalformedInputSuite
             },
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -273,7 +280,7 @@ public static class MalformedInputSuite
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 99999999999999999999\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -290,7 +297,7 @@ public static class MalformedInputSuite
                 {
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode >= 400)
+                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }

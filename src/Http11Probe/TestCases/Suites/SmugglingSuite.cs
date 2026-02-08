@@ -1,6 +1,5 @@
 using System.Text;
 using Http11Probe.Client;
-using Http11Probe.Response;
 
 namespace Http11Probe.TestCases.Suites;
 
@@ -18,7 +17,7 @@ public static class SmugglingSuite
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 6\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -33,7 +32,7 @@ public static class SmugglingSuite
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nContent-Length: 10\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -43,11 +42,12 @@ public static class SmugglingSuite
             Id = "SMUG-CL-LEADING-ZEROS",
             Description = "Content-Length with leading zeros should be rejected",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §8.6",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 005\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -57,23 +57,13 @@ public static class SmugglingSuite
             Id = "SMUG-TE-XCHUNKED",
             Description = "Transfer-Encoding: xchunked must not be treated as chunked",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: xchunked\r\nContent-Length: 5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                // Server should either reject (400) or use CL, not treat as chunked
-                ExpectedStatus = StatusCodeRange.Range4xxOr5xx,
-                AllowConnectionClose = true,
-                CustomValidator = (response, state) =>
-                {
-                    // 400 = strict rejection (best), 501 = unknown TE (ok), 2xx with CL-based body = acceptable
-                    if (response is null)
-                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
-                        return TestVerdict.Pass;
-                    // 2xx means server ignored unknown TE and used CL — acceptable but warn
-                    return TestVerdict.Warn;
-                }
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
             }
         };
 
@@ -82,18 +72,13 @@ public static class SmugglingSuite
             Id = "SMUG-TE-TRAILING-SPACE",
             Description = "Transfer-Encoding: 'chunked ' (trailing space) must not be treated as chunked",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked \r\nContent-Length: 5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                CustomValidator = (response, state) =>
-                {
-                    if (response is null)
-                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
-                        return TestVerdict.Pass;
-                    return TestVerdict.Warn;
-                }
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
             }
         };
 
@@ -102,11 +87,12 @@ public static class SmugglingSuite
             Id = "SMUG-TE-SP-BEFORE-COLON",
             Description = "Transfer-Encoding with space before colon must be rejected",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §5",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding : chunked\r\nContent-Length: 5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -116,11 +102,12 @@ public static class SmugglingSuite
             Id = "SMUG-CL-NEGATIVE",
             Description = "Negative Content-Length must be rejected",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §8.6",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: -1\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -130,6 +117,7 @@ public static class SmugglingSuite
             Id = "SMUG-CLTE-PIPELINE",
             Description = "CL.TE smuggling probe — follow-up should not receive smuggled response",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
             RequiresConnectionReuse = true,
             PayloadFactory = ctx =>
             {
@@ -145,13 +133,13 @@ public static class SmugglingSuite
                 CustomValidator = (response, state) =>
                 {
                     // Best: server rejects the ambiguous request with 400
-                    if (response is not null && response.StatusCode >= 400)
+                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     // Connection closed = safe
                     if (state == ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    // If we got a normal 2xx, might be vulnerable — warn
-                    return TestVerdict.Warn;
+                    // If we got a 2xx, might be vulnerable — fail
+                    return TestVerdict.Fail;
                 }
             }
         };
@@ -161,6 +149,7 @@ public static class SmugglingSuite
             Id = "SMUG-TECL-PIPELINE",
             Description = "TE.CL smuggling probe — TE: chunked + CL: 30 with pipelined GET",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
             RequiresConnectionReuse = true,
             PayloadFactory = ctx =>
             {
@@ -174,11 +163,11 @@ public static class SmugglingSuite
             {
                 CustomValidator = (response, state) =>
                 {
-                    if (response is not null && response.StatusCode >= 400)
+                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     if (state == ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    return TestVerdict.Warn;
+                    return TestVerdict.Fail;
                 }
             }
         };
@@ -188,6 +177,7 @@ public static class SmugglingSuite
             Id = "SMUG-CL-TRAILING-SPACE",
             Description = "Content-Length with trailing space — OWS trimming is valid per RFC 9110 §5.5",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §5.5",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5 \r\n\r\nhello"),
             Expected = new ExpectedBehavior
@@ -196,7 +186,7 @@ public static class SmugglingSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
+                    if (response.StatusCode == 400)
                         return TestVerdict.Pass;
                     // 2xx is RFC-compliant (OWS trimming) but worth noting
                     return TestVerdict.Warn;
@@ -209,6 +199,7 @@ public static class SmugglingSuite
             Id = "SMUG-HEADER-INJECTION",
             Description = "Apparent CRLF injection — payload is actually two valid headers on the wire",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §5.5",
             PayloadFactory = ctx => MakeRequest(
                 $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nX-Test: val\r\nInjected: yes\r\n\r\n"),
             Expected = new ExpectedBehavior
@@ -217,7 +208,7 @@ public static class SmugglingSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
+                    if (response.StatusCode == 400)
                         return TestVerdict.Pass;
                     // 2xx is correct — these are two well-formed headers
                     return TestVerdict.Warn;
@@ -230,6 +221,7 @@ public static class SmugglingSuite
             Id = "SMUG-TE-DOUBLE-CHUNKED",
             Description = "Transfer-Encoding: chunked, chunked with CL is ambiguous",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked, chunked\r\nContent-Length: 5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
@@ -238,7 +230,7 @@ public static class SmugglingSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
+                    if (response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Warn;
                 }
@@ -250,6 +242,7 @@ public static class SmugglingSuite
             Id = "SMUG-CL-EXTRA-LEADING-SP",
             Description = "Content-Length with extra leading whitespace (double space OWS)",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §5.5",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length:  5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
@@ -258,7 +251,7 @@ public static class SmugglingSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
+                    if (response.StatusCode == 400)
                         return TestVerdict.Pass;
                     // Extra OWS is technically valid per RFC
                     return TestVerdict.Warn;
@@ -271,6 +264,7 @@ public static class SmugglingSuite
             Id = "SMUG-TE-CASE-MISMATCH",
             Description = "Transfer-Encoding: Chunked (capital C) with CL — case-insensitive is valid",
             Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: Chunked\r\nContent-Length: 5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
@@ -279,7 +273,7 @@ public static class SmugglingSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode >= 400)
+                    if (response.StatusCode == 400)
                         return TestVerdict.Pass;
                     // Case-insensitive matching is valid per RFC
                     return TestVerdict.Warn;

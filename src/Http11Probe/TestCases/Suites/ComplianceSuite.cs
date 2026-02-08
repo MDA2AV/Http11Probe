@@ -28,7 +28,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -42,7 +42,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\nX-Test: value\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -56,8 +56,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nX-Test: value\r\n continued\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
-                AllowConnectionClose = true
+                ExpectedStatus = StatusCodeRange.Exact(400)
             }
         };
 
@@ -66,12 +65,11 @@ public static class ComplianceSuite
             Id = "RFC9110-5.6.2-SP-BEFORE-COLON",
             Description = "Whitespace between header name and colon must be rejected",
             Category = TestCategory.Compliance,
-            RfcReference = "RFC 9110 §5.6.2",
+            RfcReference = "RFC 9112 §5",
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nX-Test : value\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
-                AllowConnectionClose = true
+                ExpectedStatus = StatusCodeRange.Exact(400)
             }
         };
 
@@ -84,7 +82,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET  / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -94,12 +92,11 @@ public static class ComplianceSuite
             Id = "RFC9112-7.1-MISSING-HOST",
             Description = "Request without Host header must be rejected with 400",
             Category = TestCategory.Compliance,
-            RfcReference = "RFC 9112 §7.1",
+            RfcReference = "RFC 9112 §3.2",
             PayloadFactory = _ => MakeRequest("GET / HTTP/1.1\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
-                AllowConnectionClose = true
+                ExpectedStatus = StatusCodeRange.Exact(400)
             }
         };
 
@@ -112,8 +109,14 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/9.9\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xxOr5xx,
-                AllowConnectionClose = true
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode is 400 or 505)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Fail;
+                }
             }
         };
 
@@ -126,7 +129,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n: empty-name\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -140,8 +143,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\rHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
-                AllowConnectionClose = true
+                ExpectedStatus = StatusCodeRange.Exact(400)
             }
         };
 
@@ -154,7 +156,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -168,7 +170,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET /path#frag HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -186,7 +188,7 @@ public static class ComplianceSuite
                 {
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode >= 400)
+                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -202,7 +204,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nBad[Name: value\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -216,7 +218,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nNoColonHere\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -226,12 +228,11 @@ public static class ComplianceSuite
             Id = "RFC9110-5.4-DUPLICATE-HOST",
             Description = "Duplicate Host headers with different values must be rejected",
             Category = TestCategory.Compliance,
-            RfcReference = "RFC 9110 §5.4",
+            RfcReference = "RFC 9112 §3.2",
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nHost: other.example.com\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
-                AllowConnectionClose = true
+                ExpectedStatus = StatusCodeRange.Exact(400)
             }
         };
 
@@ -244,7 +245,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: abc\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
@@ -258,7 +259,7 @@ public static class ComplianceSuite
             PayloadFactory = ctx => MakeRequest($"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: +5\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range4xx,
+                ExpectedStatus = StatusCodeRange.Exact(400),
                 AllowConnectionClose = true
             }
         };
