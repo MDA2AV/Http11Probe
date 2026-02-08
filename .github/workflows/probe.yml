@@ -554,6 +554,192 @@ jobs:
                 'expected': '400/431 or close',
                 'reason': '100 KB chunk extension exceeds reasonable limits'
             },
+            'MAL-CL-EMPTY': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Empty Content-Length value is not valid DIGIT (RFC 9110 §8.6)'
+            },
+            'MAL-CL-TAB-BEFORE-VALUE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Tab as OWS is valid per RFC 9110 §5.5 — 2xx is compliant'
+            },
+            # ── Missing Compliance tests ──────────────────────────────────
+            'COMP-UPGRADE-POST': {
+                'accept': [c for c in range(100, 600) if c != 101],
+                'close_ok': True, 'timeout_ok': False,
+                'expected': '!101',
+                'reason': 'WebSocket upgrade via POST must not be accepted (RFC 6455 §4.1)'
+            },
+            'COMP-UPGRADE-MISSING-CONN': {
+                'accept': [c for c in range(100, 600) if c != 101],
+                'close_ok': True, 'timeout_ok': False,
+                'expected': '!101',
+                'reason': 'Upgrade without Connection: Upgrade must not trigger 101 (RFC 9110 §7.8)'
+            },
+            'COMP-UPGRADE-UNKNOWN': {
+                'accept': [c for c in range(100, 600) if c != 101],
+                'close_ok': True, 'timeout_ok': False,
+                'expected': '!101',
+                'reason': 'Upgrade to unknown protocol must not return 101 (RFC 9110 §7.8)'
+            },
+            'COMP-METHOD-CONNECT': {
+                'accept': [400, 405, 501], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400/405/501 or close',
+                'reason': 'CONNECT to an origin server must be rejected (RFC 9110 §9.3.6)'
+            },
+            'COMP-METHOD-CONNECT-NO-PORT': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'CONNECT without port in authority-form is invalid (RFC 9112 §3.2.3)'
+            },
+            'COMP-EXPECT-UNKNOWN': {
+                'accept': [417], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True,
+                'expected': '417 or 2xx',
+                'reason': 'Unknown Expect value — 417 is correct, 2xx means ignored (RFC 9110 §10.1.1)'
+            },
+            'COMP-UPGRADE-INVALID-VER': {
+                'accept': [c for c in range(100, 600) if c != 101],
+                'close_ok': True, 'timeout_ok': False,
+                'scored': False,
+                'expected': '!101',
+                'reason': 'Unsupported WebSocket version — 426 is correct, 101 is failure (RFC 6455 §4.4)'
+            },
+            'COMP-METHOD-TRACE': {
+                'accept': [405, 501], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '405/501 or 2xx',
+                'reason': 'TRACE should be disabled in production — 2xx means enabled (RFC 9110 §9.3.8)'
+            },
+            # ── Missing Smuggling tests (scored) ─────────────────────────
+            'SMUG-CHUNK-EXT-LF': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Bare LF in chunk extension must be rejected (RFC 9112 §7.1.1)'
+            },
+            'SMUG-CHUNK-SPILL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Oversized chunk data must be rejected (RFC 9112 §7.1)'
+            },
+            'SMUG-CHUNK-LF-TERM': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Bare LF as chunk data terminator must be rejected (RFC 9112 §7.1)'
+            },
+            'SMUG-CHUNK-EXT-CTRL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'NUL byte in chunk extension must be rejected (RFC 9112 §7.1.1)'
+            },
+            'SMUG-CHUNK-LF-TRAILER': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Bare LF in chunked trailer termination must be rejected (RFC 9112 §7.1)'
+            },
+            'SMUG-TE-IDENTITY': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'TE: identity (deprecated) with CL must be rejected (RFC 9112 §7)'
+            },
+            'SMUG-CHUNK-NEGATIVE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Negative chunk size must be rejected (RFC 9112 §7.1)'
+            },
+            # ── Missing Smuggling tests (unscored) ───────────────────────
+            'SMUG-TRAILER-CL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'CL in trailers is prohibited — 2xx means server ignored it (RFC 9110 §6.5.1)'
+            },
+            'SMUG-TRAILER-TE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'TE in trailers is prohibited — 2xx means server ignored it (RFC 9110 §6.5.1)'
+            },
+            'SMUG-TRAILER-HOST': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Host in trailers must not be used for routing (RFC 9110 §6.5.2)'
+            },
+            'SMUG-HEAD-CL-BODY': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'HEAD with body — server must not leave body on connection (RFC 9110 §9.3.2)'
+            },
+            'SMUG-OPTIONS-CL-BODY': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'OPTIONS with body — server should consume or reject (RFC 9110 §9.3.7)'
+            },
+            # ── Body / Content-Length / Chunked ──────────────────────────
+            'COMP-POST-CL-BODY': {
+                'accept': list(range(200, 300)),
+                'close_ok': False, 'timeout_ok': False,
+                'expected': '2xx',
+                'reason': 'Valid POST with CL and matching body must be accepted (RFC 9112 §6.2)'
+            },
+            'COMP-POST-CL-ZERO': {
+                'accept': list(range(200, 300)),
+                'close_ok': True, 'timeout_ok': False,
+                'expected': '2xx or close',
+                'reason': 'POST with CL:0 and no body must be accepted (RFC 9112 §6.2)'
+            },
+            'COMP-POST-NO-CL-NO-TE': {
+                'accept': list(range(200, 300)),
+                'close_ok': True, 'timeout_ok': False,
+                'expected': '2xx or close',
+                'reason': 'POST with no CL/TE implies zero-length body (RFC 9112 §6.3)'
+            },
+            'COMP-POST-CL-UNDERSEND': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': True,
+                'expected': '400/close/timeout',
+                'reason': 'Incomplete body — server blocks waiting then times out (RFC 9112 §6.2)'
+            },
+            'COMP-CHUNKED-BODY': {
+                'accept': list(range(200, 300)),
+                'close_ok': False, 'timeout_ok': False,
+                'expected': '2xx',
+                'reason': 'Valid single-chunk POST must be accepted (RFC 9112 §7.1)'
+            },
+            'COMP-CHUNKED-MULTI': {
+                'accept': list(range(200, 300)),
+                'close_ok': False, 'timeout_ok': False,
+                'expected': '2xx',
+                'reason': 'Valid multi-chunk POST must be accepted (RFC 9112 §7.1)'
+            },
+            'COMP-CHUNKED-EMPTY': {
+                'accept': list(range(200, 300)),
+                'close_ok': True, 'timeout_ok': False,
+                'expected': '2xx or close',
+                'reason': 'Zero-length chunked body must be accepted (RFC 9112 §7.1)'
+            },
+            'COMP-CHUNKED-NO-FINAL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': True,
+                'expected': '400/close/timeout',
+                'reason': 'Missing zero terminator — server blocks then times out (RFC 9112 §7.1)'
+            },
+            'COMP-GET-WITH-CL-BODY': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'GET with body is unusual but allowed (RFC 9110 §9.3.1)'
+            },
+            'COMP-CHUNKED-EXTENSION': {
+                'accept': list(range(200, 300)) + [400],
+                'close_ok': True, 'timeout_ok': False,
+                'scored': False,
+                'expected': '2xx or 400',
+                'reason': 'Chunk extensions are valid per RFC 9112 §7.1.1 — 400 means unsupported'
+            },
         }
 
         # ── Evaluate one server's results ────────────────────────────

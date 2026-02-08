@@ -47,6 +47,12 @@ Each test sends a request that violates a specific **MUST** or **MUST NOT** requ
     { key: 'content-length', label: 'Content-Length', testIds: [
       'RFC9112-6.1-CL-NON-NUMERIC','RFC9112-6.1-CL-PLUS-SIGN'
     ]},
+    { key: 'body', label: 'Body Handling', testIds: [
+      'COMP-POST-CL-BODY','COMP-POST-CL-ZERO','COMP-POST-NO-CL-NO-TE',
+      'COMP-POST-CL-UNDERSEND','COMP-CHUNKED-BODY','COMP-CHUNKED-MULTI',
+      'COMP-CHUNKED-EMPTY','COMP-CHUNKED-NO-FINAL',
+      'COMP-GET-WITH-CL-BODY','COMP-CHUNKED-EXTENSION'
+    ]},
     { key: 'methods', label: 'Methods & Routing', testIds: [
       'COMP-METHOD-CONNECT','COMP-METHOD-CONNECT-NO-PORT',
       'COMP-UNKNOWN-TE-501','COMP-EXPECT-UNKNOWN','COMP-METHOD-TRACE'

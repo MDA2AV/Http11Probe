@@ -444,6 +444,139 @@ public static class ComplianceSuite
             }
         };
 
+        // ── Body / Content-Length / Chunked ──────────────────────────
+
+        yield return new TestCase
+        {
+            Id = "COMP-POST-CL-BODY",
+            Description = "POST with Content-Length and matching body must be accepted",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §6.2",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\n\r\nhello"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Range2xx
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-POST-CL-ZERO",
+            Description = "POST with Content-Length: 0 and no body must be accepted",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §6.2",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Range2xx,
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-POST-NO-CL-NO-TE",
+            Description = "POST with neither Content-Length nor Transfer-Encoding — implicit zero-length body",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §6.3",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Range2xx,
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-POST-CL-UNDERSEND",
+            Description = "POST with Content-Length: 10 but only 5 bytes sent — incomplete body",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §6.2",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 10\r\n\r\nhello"),
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    // Server should wait for remaining bytes then timeout, or reject
+                    if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
+                        return TestVerdict.Pass;
+                    if (response is not null && response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-CHUNKED-BODY",
+            Description = "Valid single-chunk POST must be accepted",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §7.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Range2xx
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-CHUNKED-MULTI",
+            Description = "Valid multi-chunk POST must be accepted",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §7.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n6\r\n world\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Range2xx
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-CHUNKED-EMPTY",
+            Description = "Zero-length chunked body (just terminator) must be accepted",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §7.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Range2xx,
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-CHUNKED-NO-FINAL",
+            Description = "Chunked body without zero terminator — incomplete transfer",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §7.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    // Server should wait for more chunks then timeout, or reject
+                    if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
+                        return TestVerdict.Pass;
+                    if (response is not null && response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
+
         // ── Upgrade / WebSocket ─────────────────────────────────────
 
         yield return new TestCase
@@ -568,6 +701,53 @@ public static class ComplianceSuite
         };
 
         // ── Unscored ────────────────────────────────────────────────
+
+        yield return new TestCase
+        {
+            Id = "COMP-GET-WITH-CL-BODY",
+            Description = "GET with Content-Length and body — semantically unusual",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9110 §9.3.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\n\r\nhello"),
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    // 2xx is RFC-compliant — GET with body is unusual but allowed
+                    return TestVerdict.Warn;
+                }
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-CHUNKED-EXTENSION",
+            Description = "Chunk extension (valid per RFC) — server should accept or may reject",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §7.1.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5;ext=value\r\nhello\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    // 2xx = server correctly handled chunk extension
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    // 400 = server doesn't support extensions — warning
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
 
         yield return new TestCase
         {

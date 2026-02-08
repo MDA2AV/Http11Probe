@@ -15,6 +15,7 @@ Reference documentation for every test in Http11Probe, organized by topic. Each 
   {{< card link="headers" title="Header Syntax" subtitle="Obs-fold, space before colon, empty names, invalid characters, missing colon." icon="document-text" >}}
   {{< card link="host-header" title="Host Header" subtitle="Missing Host, duplicate Host — the only tests where RFC explicitly mandates 400." icon="server" >}}
   {{< card link="content-length" title="Content-Length" subtitle="Non-numeric CL, plus sign, integer overflow, leading zeros, negative values." icon="calculator" >}}
+  {{< card link="body" title="Body Handling" subtitle="Content-Length body consumption, chunked transfer encoding, incomplete bodies, chunk extensions." icon="document-download" >}}
   {{< card link="smuggling" title="Request Smuggling" subtitle="CL+TE conflicts, TE obfuscation, pipeline injection, and why ambiguous framing is dangerous." icon="shield-exclamation" >}}
   {{< card link="malformed-input" title="Malformed Input" subtitle="Binary garbage, oversized fields, control characters, incomplete requests." icon="lightning-bolt" >}}
   {{< card link="upgrade" title="Upgrade / WebSocket" subtitle="Protocol upgrade validation, WebSocket handshake method and version checks." icon="arrow-up" >}}
