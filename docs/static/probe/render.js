@@ -262,7 +262,6 @@ window.ProbeRender = (function () {
       var passPct = (scoredPass / total) * 100;
       var warnPct = (scoredWarn / total) * 100;
       var failPct = (scoredFail / total) * 100;
-      var unscoredPct = (unscored / total) * 100;
       var rank = i + 1;
 
       html += '<div style="display:flex;align-items:center;gap:10px;">';
@@ -278,9 +277,6 @@ window.ProbeRender = (function () {
       }
       if (scoredFail > 0) {
         html += '<div style="height:100%;width:' + failPct + '%;background:' + FAIL_BG + ';transition:width 0.3s;"></div>';
-      }
-      if (unscored > 0) {
-        html += '<div style="height:100%;width:' + unscoredPct + '%;background:' + SKIP_BG + ';transition:width 0.3s;"></div>';
       }
       html += '</div>';
       // Score: pass + warn [fail] [unscored] / total
