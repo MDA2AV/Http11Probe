@@ -192,54 +192,57 @@ window.ProbeRender = (function () {
     }
     var sorted = servers.slice().sort(function (a, b) {
       var sa = a.summary, sb = b.summary;
-      var pa = sa.passed / (sa.scored || sa.total || 1);
-      var pb = sb.passed / (sb.scored || sb.total || 1);
+      var pa = sa.passed / (sa.total || 1);
+      var pb = sb.passed / (sb.total || 1);
       return pb - pa || a.name.localeCompare(b.name);
     });
-
-    // Bar width is relative to total tests (not top scorer)
-    var maxTotal = sorted[0] ? sorted[0].summary.total : 1;
 
     var html = '<div style="display:flex;flex-direction:column;gap:6px;max-width:780px;">';
     sorted.forEach(function (sv, i) {
       var s = sv.summary;
       var total = s.total || 1;
-      var scored = s.scored || total;
       var warnings = s.warnings || 0;
+      var failed = s.failed || 0;
       var passPct = (s.passed / total) * 100;
       var warnPct = (warnings / total) * 100;
-      var displayPct = Math.round((s.passed / scored) * 100);
+      var failPct = (failed / total) * 100;
       var rank = i + 1;
 
       html += '<div style="display:flex;align-items:center;gap:10px;">';
       html += '<div style="min-width:24px;text-align:right;font-size:13px;font-weight:600;color:#656d76;">' + rank + '</div>';
       html += '<div style="min-width:110px;font-size:13px;font-weight:600;white-space:nowrap;">' + sv.name + '</div>';
       var trackBg = document.documentElement.classList.contains('dark') ? '#2a2f38' : '#f0f0f0';
-      html += '<div style="flex:1;height:22px;background:' + trackBg + ';border-radius:3px;overflow:hidden;position:relative;display:flex;">';
+      html += '<div style="flex:1;height:22px;background:' + trackBg + ';border-radius:3px;overflow:hidden;display:flex;">';
       html += '<div style="height:100%;width:' + passPct + '%;background:' + PASS_BG + ';transition:width 0.3s;"></div>';
       if (warnings > 0) {
         html += '<div style="height:100%;width:' + warnPct + '%;background:' + WARN_BG + ';transition:width 0.3s;"></div>';
       }
-      html += '</div>';
-      html += '<div style="min-width:120px;text-align:right;font-size:13px;font-weight:700;">'
-        + s.passed + '/' + scored;
-      if (warnings > 0) {
-        html += ' <span style="font-weight:400;color:#656d76;font-size:12px;">' + warnings + 'w</span>';
+      if (failed > 0) {
+        html += '<div style="height:100%;width:' + failPct + '%;background:' + FAIL_BG + ';transition:width 0.3s;"></div>';
       }
       html += '</div>';
-      html += '<div style="min-width:40px;text-align:right;font-size:12px;color:#656d76;">' + displayPct + '%</div>';
+      // Score: pass / total
+      html += '<div style="min-width:130px;text-align:right;font-size:13px;">';
+      html += '<span style="font-weight:700;color:' + PASS_BG + ';">' + s.passed + '</span>';
+      if (warnings > 0) {
+        html += ' <span style="color:' + WARN_BG + ';">' + warnings + '</span>';
+      }
+      if (failed > 0) {
+        html += ' <span style="color:' + FAIL_BG + ';">' + failed + '</span>';
+      }
+      html += ' <span style="color:#656d76;font-size:12px;">/ ' + total + '</span>';
+      html += '</div>';
       html += '</div>';
     });
     html += '</div>';
 
-    // Legend + total
+    // Legend
     var totalTests = sorted[0] ? sorted[0].summary.total : 0;
     html += '<div style="display:flex;align-items:center;gap:16px;margin-top:10px;font-size:12px;color:#656d76;">';
-    html += '<span>' + totalTests + ' tests total</span>';
+    html += '<span>' + totalTests + ' tests</span>';
     html += '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + PASS_BG + ';"></span> Pass</span>';
     html += '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + WARN_BG + ';"></span> Warn</span>';
-    var failBg = document.documentElement.classList.contains('dark') ? '#2a2f38' : '#f0f0f0';
-    html += '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + failBg + ';border:1px solid #656d76;"></span> Fail</span>';
+    html += '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + FAIL_BG + ';"></span> Fail</span>';
     html += '</div>';
 
     if (data.commit) {
