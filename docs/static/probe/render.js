@@ -179,7 +179,7 @@ window.ProbeRender = (function () {
       lookup[sv.name] = m;
     });
     var testIds = servers[0].results.map(function (r) { return r.id; });
-    return { names: names, lookup: lookup, testIds: testIds };
+    return { names: names, lookup: lookup, testIds: testIds, servers: servers };
   }
 
   function renderSummary(targetId, data) {
@@ -192,8 +192,8 @@ window.ProbeRender = (function () {
     }
     var sorted = servers.slice().sort(function (a, b) {
       var sa = a.summary, sb = b.summary;
-      var pa = sa.passed / (sa.total || 1);
-      var pb = sb.passed / (sb.total || 1);
+      var pa = (sa.passed + (sa.warnings || 0)) / (sa.total || 1);
+      var pb = (sb.passed + (sb.warnings || 0)) / (sb.total || 1);
       return pb - pa || a.name.localeCompare(b.name);
     });
 
@@ -210,7 +210,9 @@ window.ProbeRender = (function () {
 
       html += '<div style="display:flex;align-items:center;gap:10px;">';
       html += '<div style="min-width:24px;text-align:right;font-size:13px;font-weight:600;color:#656d76;">' + rank + '</div>';
-      html += '<div style="min-width:110px;font-size:13px;font-weight:600;white-space:nowrap;">' + sv.name + '</div>';
+      var nameLabel = sv.name;
+      if (sv.language) nameLabel += ' <span style="font-weight:400;color:#656d76;font-size:11px;">(' + sv.language + ')</span>';
+      html += '<div style="min-width:150px;font-size:13px;font-weight:600;white-space:nowrap;">' + nameLabel + '</div>';
       var trackBg = document.documentElement.classList.contains('dark') ? '#2a2f38' : '#f0f0f0';
       html += '<div style="flex:1;height:22px;background:' + trackBg + ';border-radius:3px;overflow:hidden;display:flex;">';
       html += '<div style="height:100%;width:' + passPct + '%;background:' + PASS_BG + ';transition:width 0.3s;"></div>';
@@ -221,14 +223,12 @@ window.ProbeRender = (function () {
         html += '<div style="height:100%;width:' + failPct + '%;background:' + FAIL_BG + ';transition:width 0.3s;"></div>';
       }
       html += '</div>';
-      // Score: pass / total
+      // Score: (pass+warn) / total
+      var combined = s.passed + warnings;
       html += '<div style="min-width:130px;text-align:right;font-size:13px;">';
-      html += '<span style="font-weight:700;color:' + PASS_BG + ';">' + s.passed + '</span>';
-      if (warnings > 0) {
-        html += ' <span style="color:' + WARN_BG + ';">' + warnings + '</span>';
-      }
+      html += '<span style="font-weight:700;color:' + PASS_BG + ';">' + combined + '</span>';
       if (failed > 0) {
-        html += ' <span style="color:' + FAIL_BG + ';">' + failed + '</span>';
+        html += ' <span style="color:' + FAIL_BG + ';">' + failed + ' fail</span>';
       }
       html += ' <span style="color:#656d76;font-size:12px;">/ ' + total + '</span>';
       html += '</div>';
@@ -310,9 +310,13 @@ window.ProbeRender = (function () {
     t += '</tr>';
 
     // Server rows
+    var serverLangs = {};
+    if (ctx.servers) ctx.servers.forEach(function (sv) { serverLangs[sv.name] = sv.language; });
     names.forEach(function (n) {
       t += '<tr class="probe-server-row">';
-      t += '<td style="padding:4px 8px;font-weight:600;font-size:12px;">' + n + '</td>';
+      var lang = serverLangs[n];
+      var langSuffix = lang ? ' <span style="font-weight:400;color:#656d76;font-size:10px;">(' + lang + ')</span>' : '';
+      t += '<td style="padding:4px 8px;font-weight:600;font-size:12px;white-space:nowrap;">' + n + langSuffix + '</td>';
       orderedTests.forEach(function (tid) {
         var r = lookup[n] && lookup[n][tid];
         var isUnscored = lookup[names[0]][tid].scored === false;
