@@ -5,7 +5,9 @@
   </Folder>
   <Folder Name="/src/Servers/">
     <Project Path="src/Servers/AspNetMinimal/AspNetMinimal.csproj" />
+    <Project Path="src/Servers/EmbedIOServer/EmbedIOServer.csproj" />
+    <Project Path="src/Servers/GenHttpServer/GenHttpServer.csproj" />
     <Project Path="src/Servers/GlyphServer/GlyphServer.csproj" />
-    <Project Path="src/Servers/NancyServer/NancyServer.csproj" />
+    <Project Path="src/Servers/SimpleWServer/SimpleWServer.csproj" />
   </Folder>
 </Solution>
