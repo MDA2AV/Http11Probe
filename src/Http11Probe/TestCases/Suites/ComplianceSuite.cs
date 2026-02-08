@@ -175,14 +175,24 @@ public static class ComplianceSuite
         yield return new TestCase
         {
             Id = "RFC9112-3.2-FRAGMENT-IN-TARGET",
-            Description = "Fragment (#) in request-target must be rejected",
+            Description = "Fragment (#) in request-target — not part of origin-form grammar",
             Category = TestCategory.Compliance,
             RfcReference = "RFC 9112 §3.2",
             PayloadFactory = ctx => MakeRequest($"GET /path#frag HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
+                Description = "400 or 2xx",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    // Fragment not in origin-form grammar, but RFC only says SHOULD reject invalid request-line
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
             }
         };
 
