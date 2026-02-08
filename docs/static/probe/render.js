@@ -251,7 +251,7 @@ window.ProbeRender = (function () {
           if (r.scored === false) { unscored++; return; }
           if (r.verdict === 'Pass') scoredPass++;
           else if (r.verdict === 'Warn') scoredWarn++;
-          else if (r.verdict === 'Fail') scoredFail++;
+          else scoredFail++;
         });
       } else {
         scoredPass = s.passed || 0;
@@ -525,9 +525,8 @@ window.ProbeRender = (function () {
             total: filtered.length,
             scored: scored.length,
             passed: scored.filter(function (r) { return r.verdict === 'Pass'; }).length,
-            failed: scored.filter(function (r) { return r.verdict === 'Fail'; }).length,
+            failed: scored.filter(function (r) { return r.verdict !== 'Pass' && r.verdict !== 'Warn'; }).length,
             warnings: scored.filter(function (r) { return r.verdict === 'Warn'; }).length,
-            errors: scored.filter(function (r) { return r.verdict === 'Error'; }).length,
             unscored: filtered.filter(function (r) { return r.scored === false; }).length
           }
         };
