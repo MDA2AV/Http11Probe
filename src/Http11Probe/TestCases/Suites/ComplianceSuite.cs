@@ -177,6 +177,7 @@ public static class ComplianceSuite
             Id = "RFC9112-3.2-FRAGMENT-IN-TARGET",
             Description = "Fragment (#) in request-target — not part of origin-form grammar",
             Category = TestCategory.Compliance,
+            Scored = false,
             RfcReference = "RFC 9112 §3.2",
             PayloadFactory = ctx => MakeRequest($"GET /path#frag HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
