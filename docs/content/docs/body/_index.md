@@ -16,7 +16,7 @@ HTTP/1.1 defines two mechanisms for framing a request body: **Content-Length** (
 
 **Chunked encoding** — body is split into self-terminating chunks:
 
-> "The chunked transfer coding wraps the payload body in order to transfer it as a series of chunks, each with its own size indicator, followed by an OPTIONAL trailer section containing trailer fields." — RFC 9112 Section 7.1
+> "The chunked transfer coding wraps content in order to transfer it as a series of chunks, each with its own size indicator, followed by an OPTIONAL trailer section containing trailer fields." — RFC 9112 Section 7.1
 
 **No CL, no TE** — with neither header, the body length is zero:
 
