@@ -1,0 +1,7 @@
+[package]
+name = "ntex-server"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+ntex = { version = "2", features = ["tokio"] }

@@ -8,6 +8,9 @@
     <Project Path="src/Servers/EmbedIOServer/EmbedIOServer.csproj" />
     <Project Path="src/Servers/GenHttpServer/GenHttpServer.csproj" />
     <Project Path="src/Servers/GlyphServer/GlyphServer.csproj" />
+    <Project Path="src/Servers/NetCoreServerFramework/NetCoreServerFramework.csproj" />
     <Project Path="src/Servers/SimpleWServer/SimpleWServer.csproj" />
+    <Project Path="src/Servers/SiskServer/SiskServer.csproj" />
+    <Project Path="src/Servers/WatsonServer/WatsonServer.csproj" />
   </Folder>
 </Solution>
