@@ -22,4 +22,15 @@ Note this is a SHOULD, not a MUST. The RFC recommends 400 but does not mandate i
   {{< card link="fragment-in-target" title="FRAGMENT-IN-TARGET" subtitle="Fragment identifier (#) in request-target." >}}
   {{< card link="invalid-version" title="INVALID-VERSION" subtitle="Unrecognized HTTP version string." >}}
   {{< card link="http09-request" title="HTTP09-REQUEST" subtitle="HTTP/0.9 style request with no version." >}}
+  {{< card link="asterisk-with-get" title="ASTERISK-WITH-GET" subtitle="Asterisk-form (*) with non-OPTIONS method." >}}
+  {{< card link="options-star" title="OPTIONS-STAR" subtitle="OPTIONS * — valid asterisk-form request." >}}
+  {{< card link="unknown-te-501" title="UNKNOWN-TE-501" subtitle="Unknown Transfer-Encoding without CL." >}}
+  {{< card link="connect-empty-port" title="CONNECT-EMPTY-PORT" subtitle="CONNECT with empty port in authority-form." >}}
+{{< /cards >}}
+
+### Unscored
+
+{{< cards >}}
+  {{< card link="absolute-form" title="ABSOLUTE-FORM" subtitle="Absolute-form request-target (http://host/)." >}}
+  {{< card link="method-case" title="METHOD-CASE" subtitle="Lowercase method 'get'. Methods are case-sensitive." >}}
 {{< /cards >}}

@@ -21,3 +21,9 @@ RFC 9112 Section 2.2 defines that HTTP/1.1 messages use **CRLF** (`\r\n`) as the
   {{< card link="bare-lf-header" title="BARE-LF-HEADER" subtitle="Bare LF in a header field. Recipients MAY accept." >}}
   {{< card link="cr-only-line-ending" title="CR-ONLY-LINE-ENDING" subtitle="CR without LF. MUST consider invalid or replace with SP." >}}
 {{< /cards >}}
+
+### Unscored
+
+{{< cards >}}
+  {{< card link="leading-crlf" title="LEADING-CRLF" subtitle="Leading CRLF before request-line. Server MAY ignore." >}}
+{{< /cards >}}

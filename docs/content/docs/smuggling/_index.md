@@ -68,6 +68,21 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="te-sp-before-colon" title="TE-SP-BEFORE-COLON" subtitle="Space before colon in Transfer-Encoding." >}}
   {{< card link="clte-pipeline" title="CLTE-PIPELINE" subtitle="Full CL.TE smuggling payload." >}}
   {{< card link="tecl-pipeline" title="TECL-PIPELINE" subtitle="Full TE.CL smuggling payload." >}}
+  {{< card link="cl-comma-different" title="CL-COMMA-DIFFERENT" subtitle="Comma-separated CL with different values." >}}
+  {{< card link="te-not-final-chunked" title="TE-NOT-FINAL-CHUNKED" subtitle="Chunked is not the final transfer encoding." >}}
+  {{< card link="te-http10" title="TE-HTTP10" subtitle="Transfer-Encoding in HTTP/1.0 request." >}}
+  {{< card link="chunk-bare-semicolon" title="CHUNK-BARE-SEMICOLON" subtitle="Bare semicolon in chunk size." >}}
+  {{< card link="bare-cr-header-value" title="BARE-CR-HEADER-VALUE" subtitle="Bare CR in header value." >}}
+  {{< card link="cl-octal" title="CL-OCTAL" subtitle="Content-Length with octal prefix." >}}
+  {{< card link="chunk-underscore" title="CHUNK-UNDERSCORE" subtitle="Underscore in chunk size." >}}
+  {{< card link="te-empty-value" title="TE-EMPTY-VALUE" subtitle="Empty Transfer-Encoding value with CL." >}}
+  {{< card link="te-leading-comma" title="TE-LEADING-COMMA" subtitle="Leading comma in Transfer-Encoding." >}}
+  {{< card link="te-duplicate-headers" title="TE-DUPLICATE-HEADERS" subtitle="Two TE headers with conflicting values." >}}
+  {{< card link="chunk-hex-prefix" title="CHUNK-HEX-PREFIX" subtitle="Chunk size with 0x prefix." >}}
+  {{< card link="cl-hex-prefix" title="CL-HEX-PREFIX" subtitle="Content-Length with 0x prefix." >}}
+  {{< card link="cl-internal-space" title="CL-INTERNAL-SPACE" subtitle="Space inside Content-Length value." >}}
+  {{< card link="chunk-leading-sp" title="CHUNK-LEADING-SP" subtitle="Leading space in chunk size." >}}
+  {{< card link="chunk-missing-trailing-crlf" title="CHUNK-MISSING-TRAILING-CRLF" subtitle="Chunk data without trailing CRLF." >}}
 {{< /cards >}}
 
 ### Unscored
@@ -78,4 +93,8 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="header-injection" title="HEADER-INJECTION" subtitle="CRLF injection in header value." >}}
   {{< card link="te-double-chunked" title="TE-DOUBLE-CHUNKED" subtitle="Duplicate 'chunked' TE with CL." >}}
   {{< card link="te-case-mismatch" title="TE-CASE-MISMATCH" subtitle="'Chunked' vs 'chunked'. Case is valid per RFC." >}}
+  {{< card link="transfer-encoding-underscore" title="TRANSFER_ENCODING" subtitle="Underscore instead of hyphen in header name." >}}
+  {{< card link="cl-comma-same" title="CL-COMMA-SAME" subtitle="Comma-separated identical CL values." >}}
+  {{< card link="chunked-with-params" title="CHUNKED-WITH-PARAMS" subtitle="Parameters on chunked encoding." >}}
+  {{< card link="expect-100-cl" title="EXPECT-100-CL" subtitle="Expect: 100-continue with Content-Length." >}}
 {{< /cards >}}

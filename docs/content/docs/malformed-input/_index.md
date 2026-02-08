@@ -32,4 +32,8 @@ These tests send pathological, oversized, or completely invalid payloads. The go
   {{< card link="incomplete-request" title="INCOMPLETE-REQUEST" subtitle="Partial HTTP request." >}}
   {{< card link="empty-request" title="EMPTY-REQUEST" subtitle="Zero bytes sent." >}}
   {{< card link="whitespace-only-line" title="WHITESPACE-ONLY-LINE" subtitle="Only spaces/tabs, no method or URI." >}}
+  {{< card link="nul-in-header-value" title="NUL-IN-HEADER-VALUE" subtitle="NUL byte in header value." >}}
+  {{< card link="chunk-size-overflow" title="CHUNK-SIZE-OVERFLOW" subtitle="Chunk size integer overflow." >}}
+  {{< card link="h2-preface" title="H2-PREFACE" subtitle="HTTP/2 preface sent to HTTP/1.1 server." >}}
+  {{< card link="chunk-extension-long" title="CHUNK-EXTENSION-LONG" subtitle="100KB chunk extension value." >}}
 {{< /cards >}}

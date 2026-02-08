@@ -303,6 +303,80 @@ public static class MalformedInputSuite
                 }
             }
         };
+
+        yield return new TestCase
+        {
+            Id = "MAL-NUL-IN-HEADER-VALUE",
+            Description = "NUL byte in header value should be rejected",
+            Category = TestCategory.MalformedInput,
+            PayloadFactory = ctx =>
+            {
+                var request = $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nX-Test: val\0ue\r\n\r\n";
+                return Encoding.ASCII.GetBytes(request);
+            },
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "MAL-CHUNK-SIZE-OVERFLOW",
+            Description = "Chunk size with integer overflow must be rejected",
+            Category = TestCategory.MalformedInput,
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\nFFFFFFFFFFFFFFFF0\r\nhello\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "MAL-H2-PREFACE",
+            Description = "HTTP/2 connection preface sent to HTTP/1.1 server must be rejected",
+            Category = TestCategory.MalformedInput,
+            PayloadFactory = _ => Encoding.ASCII.GetBytes("PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
+                        return TestVerdict.Pass;
+                    if (response is not null && response.StatusCode is 400 or 505)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "MAL-CHUNK-EXTENSION-LONG",
+            Description = "Chunk extension with 100KB value should be rejected",
+            Category = TestCategory.MalformedInput,
+            PayloadFactory = ctx =>
+            {
+                var longExt = new string('A', 100_000);
+                return MakeRequest(
+                    $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5;ext={longExt}\r\nhello\r\n0\r\n\r\n");
+            },
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    return response.StatusCode is 400 or 431
+                        ? TestVerdict.Pass
+                        : TestVerdict.Fail;
+                }
+            }
+        };
     }
 
     private static byte[] MakeRequest(string request) => Encoding.ASCII.GetBytes(request);

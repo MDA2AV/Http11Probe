@@ -370,6 +370,188 @@ jobs:
                 'expected': '400/close/timeout',
                 'reason': 'Whitespace-only request line is not valid HTTP'
             },
+            # ── New Compliance tests ───────────────────────────────────
+            'COMP-WHITESPACE-BEFORE-HEADERS': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Whitespace before first header is invalid (RFC 9112 §2.2)'
+            },
+            'COMP-DUPLICATE-HOST-SAME': {
+                'accept': [400], 'close_ok': False, 'timeout_ok': False,
+                'expected': '400',
+                'reason': 'MUST respond with 400 for more than one Host header (RFC 9112 §3.2)'
+            },
+            'COMP-HOST-WITH-USERINFO': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Host header with userinfo is invalid (RFC 9112 §3.2)'
+            },
+            'COMP-HOST-WITH-PATH': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Host header with path component is invalid (RFC 9112 §3.2)'
+            },
+            'COMP-ASTERISK-WITH-GET': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Asterisk-form only valid for OPTIONS (RFC 9112 §3.2.4)'
+            },
+            'COMP-OPTIONS-STAR': {
+                'accept': list(range(200, 300)),
+                'close_ok': False, 'timeout_ok': False,
+                'expected': '2xx',
+                'reason': 'OPTIONS * is valid asterisk-form (RFC 9112 §3.2.4)'
+            },
+            'COMP-UNKNOWN-TE-501': {
+                'accept': [400, 501], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400/501 or close',
+                'reason': 'Unknown TE without CL should be rejected (RFC 9112 §6.1)'
+            },
+            'COMP-LEADING-CRLF': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Leading CRLF — server MAY ignore per RFC 9112 §2.2'
+            },
+            'COMP-ABSOLUTE-FORM': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Absolute-form is valid per RFC 9112 §3.2.2'
+            },
+            'COMP-METHOD-CASE': {
+                'accept': [400, 405, 501], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400/405/501 or 2xx',
+                'reason': 'Methods are case-sensitive per RFC 9110 §9.1 — 2xx means case-insensitive'
+            },
+            'COMP-CONNECT-EMPTY-PORT': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'CONNECT with empty port is invalid (RFC 9112 §3.2.3)'
+            },
+            # ── New Smuggling tests (scored) ───────────────────────────
+            'SMUG-CL-COMMA-DIFFERENT': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Comma-separated different CL values must be rejected (RFC 9110 §8.6)'
+            },
+            'SMUG-TE-NOT-FINAL-CHUNKED': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Chunked must be the final encoding (RFC 9112 §7)'
+            },
+            'SMUG-TE-HTTP10': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'TE in HTTP/1.0 is invalid (RFC 9112 §6.1)'
+            },
+            'SMUG-CHUNK-BARE-SEMICOLON': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Bare semicolon in chunk size without extension name (RFC 9112 §7.1.1)'
+            },
+            'SMUG-BARE-CR-HEADER-VALUE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Bare CR must be rejected or replaced with SP (RFC 9112 §2.2)'
+            },
+            'SMUG-CL-OCTAL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Octal prefix in CL is not valid DIGIT syntax (RFC 9110 §8.6)'
+            },
+            'SMUG-CHUNK-UNDERSCORE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Underscores in chunk size are not valid HEXDIG (RFC 9112 §7.1)'
+            },
+            'SMUG-TE-EMPTY-VALUE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Empty TE value with CL is ambiguous (RFC 9112 §6.1)'
+            },
+            'SMUG-TE-LEADING-COMMA': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Leading comma in TE is malformed (RFC 9112 §6.1)'
+            },
+            'SMUG-TE-DUPLICATE-HEADERS': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Two TE headers with CL is ambiguous framing (RFC 9112 §6.1)'
+            },
+            'SMUG-CHUNK-HEX-PREFIX': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': '0x prefix in chunk size is not valid HEXDIG (RFC 9112 §7.1)'
+            },
+            'SMUG-CL-HEX-PREFIX': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Hex prefix in CL is not valid DIGIT syntax (RFC 9110 §8.6)'
+            },
+            'SMUG-CL-INTERNAL-SPACE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Internal space in CL value is not valid DIGIT (RFC 9110 §8.6)'
+            },
+            'SMUG-CHUNK-LEADING-SP': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Leading space in chunk size is not valid HEXDIG (RFC 9112 §7.1)'
+            },
+            'SMUG-CHUNK-MISSING-TRAILING-CRLF': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Chunk data without trailing CRLF is malformed (RFC 9112 §7.1)'
+            },
+            # ── New Smuggling tests (unscored) ─────────────────────────
+            'SMUG-TRANSFER_ENCODING': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Underscore makes it a different header — 2xx is valid'
+            },
+            'SMUG-CL-COMMA-SAME': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'RFC allows merging identical CL values (RFC 9110 §8.6)'
+            },
+            'SMUG-CHUNKED-WITH-PARAMS': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Parameters on chunked encoding — some servers ignore'
+            },
+            'SMUG-EXPECT-100-CL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Expect: 100-continue handling varies (RFC 9110 §10.1.1)'
+            },
+            # ── New Malformed Input tests ──────────────────────────────
+            'MAL-NUL-IN-HEADER-VALUE': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'NUL byte in header value is invalid'
+            },
+            'MAL-CHUNK-SIZE-OVERFLOW': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Chunk size overflow must be rejected'
+            },
+            'MAL-H2-PREFACE': {
+                'accept': [400, 505], 'close_ok': True, 'timeout_ok': True,
+                'expected': '400/505/close/timeout',
+                'reason': 'HTTP/2 preface sent to HTTP/1.1 server is not valid HTTP/1.1'
+            },
+            'MAL-CHUNK-EXTENSION-LONG': {
+                'accept': [400, 431], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400/431 or close',
+                'reason': '100 KB chunk extension exceeds reasonable limits'
+            },
         }
 
         # ── Evaluate one server's results ────────────────────────────

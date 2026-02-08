@@ -28,4 +28,5 @@ HTTP header fields follow a strict grammar: `field-name ":" OWS field-value OWS`
   {{< card link="empty-header-name" title="EMPTY-HEADER-NAME" subtitle="Leading colon with no field name." >}}
   {{< card link="invalid-header-name" title="INVALID-HEADER-NAME" subtitle="Non-token characters in field name." >}}
   {{< card link="header-no-colon" title="HEADER-NO-COLON" subtitle="Header line with no colon separator." >}}
+  {{< card link="whitespace-before-headers" title="WHITESPACE-BEFORE-HEADERS" subtitle="Whitespace before the first header line." >}}
 {{< /cards >}}

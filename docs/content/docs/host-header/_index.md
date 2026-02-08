@@ -22,4 +22,7 @@ This single sentence covers three violations:
 {{< cards >}}
   {{< card link="missing-host" title="MISSING-HOST" subtitle="No Host header present. MUST respond with 400." >}}
   {{< card link="duplicate-host" title="DUPLICATE-HOST" subtitle="Two Host headers with different values. MUST respond with 400." >}}
+  {{< card link="duplicate-host-same" title="DUPLICATE-HOST-SAME" subtitle="Two Host headers with identical values. MUST respond with 400." >}}
+  {{< card link="host-with-userinfo" title="HOST-WITH-USERINFO" subtitle="Host header with userinfo (user@host). Invalid field value." >}}
+  {{< card link="host-with-path" title="HOST-WITH-PATH" subtitle="Host header with path component. Invalid field value." >}}
 {{< /cards >}}
