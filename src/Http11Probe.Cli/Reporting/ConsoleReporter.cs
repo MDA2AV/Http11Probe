@@ -26,6 +26,9 @@ public static class ConsoleReporter
             _ => (ConsoleColor.Gray, "SKIP")
         };
 
+        if (!result.TestCase.Scored)
+            symbol += "*";
+
         var statusStr = result.Response is not null
             ? result.Response.StatusCode.ToString()
             : result.ConnectionState.ToString();
@@ -95,6 +98,9 @@ public static class ConsoleReporter
             Console.Write($"{report.ErrorCount} errors");
             Console.ForegroundColor = prev;
         }
+
+        if (report.UnscoredCount > 0)
+            Console.Write($"  {report.UnscoredCount} unscored");
 
         if (report.SkipCount > 0)
             Console.Write($"  {report.SkipCount} skipped");

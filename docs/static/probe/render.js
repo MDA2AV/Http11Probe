@@ -138,7 +138,6 @@ window.ProbeRender = (function () {
     'SMUG-CLTE-PIPELINE': '/Http11Probe/docs/smuggling/clte-pipeline/',
     'SMUG-EXPECT-100-CL': '/Http11Probe/docs/smuggling/expect-100-cl/',
     'SMUG-HEAD-CL-BODY': '/Http11Probe/docs/smuggling/head-cl-body/',
-    'SMUG-HEADER-INJECTION': '/Http11Probe/docs/smuggling/header-injection/',
     'SMUG-OPTIONS-CL-BODY': '/Http11Probe/docs/smuggling/options-cl-body/',
     'SMUG-TE-CASE-MISMATCH': '/Http11Probe/docs/smuggling/te-case-mismatch/',
     'SMUG-TE-DOUBLE-CHUNKED': '/Http11Probe/docs/smuggling/te-double-chunked/',
@@ -155,7 +154,38 @@ window.ProbeRender = (function () {
     'SMUG-TRAILER-CL': '/Http11Probe/docs/smuggling/trailer-cl/',
     'SMUG-TRAILER-HOST': '/Http11Probe/docs/smuggling/trailer-host/',
     'SMUG-TRAILER-TE': '/Http11Probe/docs/smuggling/trailer-te/',
-    'SMUG-TRANSFER_ENCODING': '/Http11Probe/docs/smuggling/transfer-encoding-underscore/'
+    'SMUG-TRANSFER_ENCODING': '/Http11Probe/docs/smuggling/transfer-encoding-underscore/',
+    'COMP-CHUNKED-HEX-UPPERCASE': '/Http11Probe/docs/body/chunked-hex-uppercase/',
+    'COMP-CHUNKED-TRAILER-VALID': '/Http11Probe/docs/body/chunked-trailer-valid/',
+    'COMP-CONNECTION-CLOSE': '/Http11Probe/docs/headers/connection-close/',
+    'COMP-CONNECT-ORIGIN-FORM': '/Http11Probe/docs/request-line/connect-origin-form/',
+    'COMP-HOST-EMPTY-VALUE': '/Http11Probe/docs/host-header/host-empty-value/',
+    'COMP-HTTP10-DEFAULT-CLOSE': '/Http11Probe/docs/headers/http10-default-close/',
+    'COMP-HTTP10-NO-HOST': '/Http11Probe/docs/host-header/http10-no-host/',
+    'COMP-HTTP12-VERSION': '/Http11Probe/docs/request-line/http12-version/',
+    'COMP-METHOD-TRACE': '/Http11Probe/docs/request-line/method-trace/',
+    'COMP-REQUEST-LINE-TAB': '/Http11Probe/docs/request-line/request-line-tab/',
+    'COMP-TRACE-WITH-BODY': '/Http11Probe/docs/request-line/trace-with-body/',
+    'COMP-VERSION-LEADING-ZEROS': '/Http11Probe/docs/request-line/version-leading-zeros/',
+    'COMP-VERSION-MISSING-MINOR': '/Http11Probe/docs/request-line/version-missing-minor/',
+    'COMP-VERSION-WHITESPACE': '/Http11Probe/docs/request-line/version-whitespace/',
+    'MAL-POST-CL-HUGE-NO-BODY': '/Http11Probe/docs/malformed-input/post-cl-huge-no-body/',
+    'MAL-RANGE-OVERLAPPING': '/Http11Probe/docs/malformed-input/range-overlapping/',
+    'MAL-URL-BACKSLASH': '/Http11Probe/docs/malformed-input/url-backslash/',
+    'MAL-URL-OVERLONG-UTF8': '/Http11Probe/docs/malformed-input/url-overlong-utf8/',
+    'MAL-URL-PERCENT-CRLF': '/Http11Probe/docs/malformed-input/url-percent-crlf/',
+    'MAL-URL-PERCENT-NULL': '/Http11Probe/docs/malformed-input/url-percent-null/',
+    'SMUG-ABSOLUTE-URI-HOST-MISMATCH': '/Http11Probe/docs/smuggling/absolute-uri-host-mismatch/',
+    'SMUG-CHUNK-BARE-CR-TERM': '/Http11Probe/docs/smuggling/chunk-bare-cr-term/',
+    'SMUG-CL-DOUBLE-ZERO': '/Http11Probe/docs/smuggling/cl-double-zero/',
+    'SMUG-CL-LEADING-ZEROS-OCTAL': '/Http11Probe/docs/smuggling/cl-leading-zeros-octal/',
+    'SMUG-CL-NEGATIVE-ZERO': '/Http11Probe/docs/smuggling/cl-negative-zero/',
+    'SMUG-CL-UNDERSCORE': '/Http11Probe/docs/smuggling/cl-underscore/',
+    'SMUG-MULTIPLE-HOST-COMMA': '/Http11Probe/docs/smuggling/multiple-host-comma/',
+    'SMUG-TE-OBS-FOLD': '/Http11Probe/docs/smuggling/te-obs-fold/',
+    'SMUG-TE-TAB-BEFORE-VALUE': '/Http11Probe/docs/smuggling/te-tab-before-value/',
+    'SMUG-TE-TRAILING-COMMA': '/Http11Probe/docs/smuggling/te-trailing-comma/',
+    'SMUG-TRAILER-CONTENT-TYPE': '/Http11Probe/docs/smuggling/trailer-content-type/'
   };
 
   function testUrl(tid) {
@@ -202,8 +232,8 @@ window.ProbeRender = (function () {
       var s = sv.summary;
       var total = s.total || 1;
       var warnings = s.warnings || 0;
-      var failed = total - s.passed - warnings;
-      var passPct = (s.passed / total) * 100;
+      var failed = s.failed || 0;
+      var passPct = ((total - warnings - failed) / total) * 100;
       var warnPct = (warnings / total) * 100;
       var failPct = (failed / total) * 100;
       var rank = i + 1;
@@ -354,14 +384,30 @@ window.ProbeRender = (function () {
     injectScrollStyle();
     var el = document.getElementById(targetId);
     if (!el) return;
-    var html = '';
+
+    // Find tests in this category that aren't in any explicit group
+    var grouped = {};
     groups.forEach(function (g) {
+      g.testIds.forEach(function (tid) { grouped[tid] = true; });
+    });
+    var allCatTests = ctx.testIds.filter(function (tid) {
+      return ctx.lookup[ctx.names[0]][tid] && ctx.lookup[ctx.names[0]][tid].category === categoryKey;
+    });
+    var ungrouped = allCatTests.filter(function (tid) { return !grouped[tid]; });
+
+    var allGroups = groups.slice();
+    if (ungrouped.length > 0) {
+      allGroups.push({ key: 'other', label: 'Other', testIds: ungrouped });
+    }
+
+    var html = '';
+    allGroups.forEach(function (g) {
       var divId = targetId + '-' + g.key;
       html += '<h3 style="margin-top:1.5em;margin-bottom:0.3em;">' + g.label + '</h3>';
       html += '<div id="' + divId + '"></div>';
     });
     el.innerHTML = html;
-    groups.forEach(function (g) {
+    allGroups.forEach(function (g) {
       var divId = targetId + '-' + g.key;
       renderTable(divId, categoryKey, ctx, g.testIds);
     });
