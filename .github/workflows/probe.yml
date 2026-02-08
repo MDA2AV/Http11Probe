@@ -549,11 +549,6 @@ jobs:
                 'expected': '400/505/close/timeout',
                 'reason': 'HTTP/2 preface sent to HTTP/1.1 server is not valid HTTP/1.1'
             },
-            'MAL-CHUNK-EXTENSION-LONG': {
-                'accept': [400, 431], 'close_ok': True, 'timeout_ok': False,
-                'expected': '400/431 or close',
-                'reason': '100 KB chunk extension exceeds reasonable limits'
-            },
             'MAL-CL-EMPTY': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
                 'expected': '400 or close',
@@ -648,6 +643,26 @@ jobs:
                 'expected': '400 or close',
                 'reason': 'Negative chunk size must be rejected (RFC 9112 §7.1)'
             },
+            'SMUG-CHUNK-EXT-CR': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Bare CR in chunk extension is invalid (RFC 9112 §7.1.1)'
+            },
+            'SMUG-TE-VTAB': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'VTAB in TE value is a control char obfuscation vector (RFC 9112 §6.1)'
+            },
+            'SMUG-TE-FORMFEED': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'Form feed in TE value is a control char obfuscation vector (RFC 9112 §6.1)'
+            },
+            'SMUG-TE-NULL': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'expected': '400 or close',
+                'reason': 'NUL in TE value — C-string truncation attack (RFC 9112 §6.1)'
+            },
             # ── Missing Smuggling tests (unscored) ───────────────────────
             'SMUG-TRAILER-CL': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,
@@ -666,6 +681,12 @@ jobs:
                 'warn_on_2xx': True, 'scored': False,
                 'expected': '400 or 2xx',
                 'reason': 'Host in trailers must not be used for routing (RFC 9110 §6.5.2)'
+            },
+            'SMUG-TRAILER-AUTH': {
+                'accept': [400], 'close_ok': True, 'timeout_ok': False,
+                'warn_on_2xx': True, 'scored': False,
+                'expected': '400 or 2xx',
+                'reason': 'Authorization in trailers is prohibited — 2xx means ignored (RFC 9110 §6.5.1)'
             },
             'SMUG-HEAD-CL-BODY': {
                 'accept': [400], 'close_ok': True, 'timeout_ok': False,

@@ -592,6 +592,103 @@ public static class SmugglingSuite
 
         yield return new TestCase
         {
+            Id = "SMUG-CHUNK-EXT-CR",
+            Description = "Bare CR (not CRLF) in chunk extension — some parsers treat CR alone as line ending",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §7.1.1",
+            PayloadFactory = ctx =>
+            {
+                // "5;a\rX\r\n" — the \r after "a" is NOT followed by \n
+                var before = Encoding.ASCII.GetBytes($"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5;a");
+                byte[] bareCr = [0x0d]; // bare CR
+                var after = Encoding.ASCII.GetBytes("X\r\nhello\r\n0\r\n\r\n");
+                var payload = new byte[before.Length + bareCr.Length + after.Length];
+                before.CopyTo(payload, 0);
+                bareCr.CopyTo(payload, before.Length);
+                after.CopyTo(payload, before.Length + bareCr.Length);
+                return payload;
+            },
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "SMUG-TE-VTAB",
+            Description = "Vertical tab before 'chunked' in TE value — control char obfuscation vector",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
+            PayloadFactory = ctx =>
+            {
+                var before = Encoding.ASCII.GetBytes($"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: ");
+                byte[] vtab = [0x0b];
+                var after = Encoding.ASCII.GetBytes("chunked\r\nContent-Length: 5\r\n\r\nhello");
+                var payload = new byte[before.Length + vtab.Length + after.Length];
+                before.CopyTo(payload, 0);
+                vtab.CopyTo(payload, before.Length);
+                after.CopyTo(payload, before.Length + vtab.Length);
+                return payload;
+            },
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "SMUG-TE-FORMFEED",
+            Description = "Form feed before 'chunked' in TE value — control char obfuscation vector",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
+            PayloadFactory = ctx =>
+            {
+                var before = Encoding.ASCII.GetBytes($"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: ");
+                byte[] ff = [0x0c];
+                var after = Encoding.ASCII.GetBytes("chunked\r\nContent-Length: 5\r\n\r\nhello");
+                var payload = new byte[before.Length + ff.Length + after.Length];
+                before.CopyTo(payload, 0);
+                ff.CopyTo(payload, before.Length);
+                after.CopyTo(payload, before.Length + ff.Length);
+                return payload;
+            },
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "SMUG-TE-NULL",
+            Description = "NUL byte appended to 'chunked' in TE value — C-string truncation attack",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.1",
+            PayloadFactory = ctx =>
+            {
+                var before = Encoding.ASCII.GetBytes($"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked");
+                byte[] nul = [0x00];
+                var after = Encoding.ASCII.GetBytes("\r\nContent-Length: 5\r\n\r\nhello");
+                var payload = new byte[before.Length + nul.Length + after.Length];
+                before.CopyTo(payload, 0);
+                nul.CopyTo(payload, before.Length);
+                after.CopyTo(payload, before.Length + nul.Length);
+                return payload;
+            },
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
             Id = "SMUG-CHUNK-LF-TRAILER",
             Description = "Bare LF in chunked trailer section termination must be rejected",
             Category = TestCategory.Smuggling,
@@ -783,6 +880,29 @@ public static class SmugglingSuite
             RfcReference = "RFC 9110 §6.5.2",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\nHost: evil.example.com\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "SMUG-TRAILER-AUTH",
+            Description = "Authorization header in chunked trailers — prohibited per RFC 9110 §6.5.1",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §6.5.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\nAuthorization: Bearer evil\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
                 CustomValidator = (response, state) =>
