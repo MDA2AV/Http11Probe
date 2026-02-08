@@ -1,7 +1,6 @@
 ---
 title: Add a Framework
 toc: false
-editURL: ""
 ---
 
 Http11Probe is designed so anyone can contribute their HTTP server and get compliance results without touching the test infrastructure.
