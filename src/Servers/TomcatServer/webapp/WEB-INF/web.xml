@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+    <servlet>
+        <servlet-name>ok</servlet-name>
+        <jsp-file>/ok.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ok</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>
