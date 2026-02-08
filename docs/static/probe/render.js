@@ -16,12 +16,22 @@ window.ProbeRender = (function () {
     var trackBg = isDark ? '#2a2f38' : '#e5e7eb';
     var thumbBg = isDark ? '#4b5563' : '#94a3b8';
     var thumbHover = isDark ? '#6b7280' : '#64748b';
+    var borderColor = isDark ? '#30363d' : '#d0d7de';
+    var rowHoverBg = isDark ? '#161b22' : '#f6f8fa';
+    var rowActiveBg = isDark ? '#1c2333' : '#ddf4ff';
+    var linkColor = isDark ? '#58a6ff' : '#0969da';
     var css = '.probe-scroll{overflow-x:auto}'
       + '.probe-scroll::-webkit-scrollbar{height:8px}'
       + '.probe-scroll::-webkit-scrollbar-track{background:' + trackBg + ';border-radius:4px}'
       + '.probe-scroll::-webkit-scrollbar-thumb{background:' + thumbBg + ';border-radius:4px}'
       + '.probe-scroll::-webkit-scrollbar-thumb:hover{background:' + thumbHover + '}'
-      + '.probe-scroll{scrollbar-width:thin;scrollbar-color:' + thumbBg + ' ' + trackBg + '}';
+      + '.probe-scroll{scrollbar-width:thin;scrollbar-color:' + thumbBg + ' ' + trackBg + '}'
+      + '.probe-table thead{border-bottom:2px solid ' + borderColor + '}'
+      + '.probe-table tbody tr{border-bottom:1px solid ' + borderColor + '}'
+      + '.probe-server-row{cursor:pointer;transition:background 0.15s}'
+      + '.probe-server-row:hover{background:' + rowHoverBg + '}'
+      + '.probe-server-row.probe-row-active{background:' + rowActiveBg + ' !important}'
+      + '.probe-table thead a{color:' + linkColor + ' !important;text-decoration:underline !important;text-underline-offset:2px}';
     var style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);
@@ -202,7 +212,7 @@ window.ProbeRender = (function () {
       return tid.replace(/^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-)/, '');
     });
 
-    var t = '<div class="probe-scroll"><table style="border-collapse:collapse;font-size:12px;white-space:nowrap;">';
+    var t = '<div class="probe-scroll"><table class="probe-table" style="border-collapse:collapse;font-size:12px;white-space:nowrap;">';
 
     // Column header row (diagonal labels)
     t += '<thead><tr>';
@@ -238,7 +248,7 @@ window.ProbeRender = (function () {
 
     // Server rows
     names.forEach(function (n) {
-      t += '<tr>';
+      t += '<tr class="probe-server-row">';
       t += '<td style="padding:4px 8px;font-weight:600;font-size:12px;">' + n + '</td>';
       orderedTests.forEach(function (tid) {
         var r = lookup[n] && lookup[n][tid];
@@ -258,6 +268,16 @@ window.ProbeRender = (function () {
       t += '<p style="font-size:0.8em;color:#656d76;margin-top:4px;">* Not scored &mdash; RFC-compliant behavior, shown for reference.</p>';
     }
     el.innerHTML = t;
+
+    // Row click-to-highlight (one at a time)
+    var rows = el.querySelectorAll('.probe-server-row');
+    rows.forEach(function (row) {
+      row.addEventListener('click', function () {
+        var wasActive = row.classList.contains('probe-row-active');
+        rows.forEach(function (r) { r.classList.remove('probe-row-active'); });
+        if (!wasActive) row.classList.add('probe-row-active');
+      });
+    });
   }
 
   // ── Language filter ────────────────────────────────────────────
