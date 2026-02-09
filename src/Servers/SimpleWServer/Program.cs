@@ -8,10 +8,6 @@ var server = new SimpleWServer(IPAddress.Any, port);
 server.MapGet("/", () => "OK");
 server.MapGet("/{path}", () => "OK");
 
-server.Start();
-
 Console.WriteLine($"SimpleW listening on http://localhost:{port}");
 
-var waitHandle = new ManualResetEvent(false);
-Console.CancelKeyPress += (_, e) => { e.Cancel = true; waitHandle.Set(); };
-waitHandle.WaitOne();
+await server.RunAsync();
