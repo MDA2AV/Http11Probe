@@ -4,6 +4,10 @@ layout: wide
 toc: false
 ---
 
+{{< callout type="warning" >}}
+**Glyph11** is an HTTP/1.1 parsing library currently in development and is included here only as a reference implementation. Its results should not be compared directly with production-grade servers.
+{{< /callout >}}
+
 HTTP/1.1 compliance comparison across frameworks. Each test sends a specific malformed or ambiguous request and checks the server's response against the **exact** expected status code. Updated on each manual probe run on `main`.
 
 ## Summary
@@ -22,10 +26,6 @@ HTTP/1.1 compliance comparison across frameworks. Each test sends a specific mal
 
 {{< callout type="info" >}}
 These results are from CI runs (`ubuntu-latest`). Click on the **Compliance**, **Smuggling**, or **Malformed Input** tabs above for detailed results per category.
-{{< /callout >}}
-
-{{< callout type="warning" >}}
-**Glyph11** is an HTTP/1.1 parsing library currently in development and is included here only as a reference implementation. Its results should not be compared directly with production-grade servers.
 {{< /callout >}}
 
 <script src="/Http11Probe/probe/data.js"></script>
