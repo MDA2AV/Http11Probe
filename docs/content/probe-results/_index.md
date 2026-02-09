@@ -24,6 +24,10 @@ HTTP/1.1 compliance comparison across frameworks. Each test sends a specific mal
 These results are from CI runs (`ubuntu-latest`). Click on the **Compliance**, **Smuggling**, or **Malformed Input** tabs above for detailed results per category.
 {{< /callout >}}
 
+{{< callout type="warning" >}}
+**Glyph11** is an HTTP/1.1 parsing library currently in development and is included here only as a reference implementation. Its results should not be compared directly with production-grade servers.
+{{< /callout >}}
+
 <script src="/Http11Probe/probe/data.js"></script>
 <script src="/Http11Probe/probe/render.js"></script>
 <script>

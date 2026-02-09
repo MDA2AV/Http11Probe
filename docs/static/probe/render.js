@@ -7,6 +7,14 @@ window.ProbeRender = (function () {
   var EXPECT_BG = '#444c56';
   var pillCss = 'text-align:center;padding:2px 4px;font-size:11px;font-weight:600;color:#fff;border-radius:3px;min-width:28px;display:inline-block;line-height:18px;';
 
+  // Servers temporarily hidden from results (undergoing major changes)
+  var BLACKLISTED_SERVERS = ['GenHTTP', 'SimpleW'];
+  function filterBlacklisted(servers) {
+    return servers.filter(function (sv) {
+      return BLACKLISTED_SERVERS.indexOf(sv.name) === -1;
+    });
+  }
+
   // ── Scrollbar styling (injected once) ──────────────────────────
   var scrollStyleInjected = false;
   function injectScrollStyle() {
@@ -201,6 +209,7 @@ window.ProbeRender = (function () {
   }
 
   function buildLookups(servers) {
+    servers = filterBlacklisted(servers);
     var names = servers.map(function (sv) { return sv.name; }).sort();
     var lookup = {};
     servers.forEach(function (sv) {
@@ -215,8 +224,8 @@ window.ProbeRender = (function () {
   function renderSummary(targetId, data) {
     var el = document.getElementById(targetId);
     if (!el) return;
-    var servers = data.servers;
-    if (!servers || servers.length === 0) {
+    var servers = filterBlacklisted(data.servers || []);
+    if (servers.length === 0) {
       el.innerHTML = '<p><em>No server results found.</em></p>';
       return;
     }
@@ -449,10 +458,11 @@ window.ProbeRender = (function () {
   // ── Language filter ────────────────────────────────────────────
   function renderLanguageFilter(targetId, data, onChange) {
     var el = document.getElementById(targetId);
-    if (!el || !data.servers || data.servers.length === 0) return;
+    var allServers = filterBlacklisted(data.servers || []);
+    if (!el || allServers.length === 0) return;
 
     var langs = {};
-    data.servers.forEach(function (sv) {
+    allServers.forEach(function (sv) {
       if (sv.language) langs[sv.language] = true;
     });
     var langList = Object.keys(langs).sort();
@@ -496,11 +506,11 @@ window.ProbeRender = (function () {
           }
         });
         if (!lang) {
-          onChange(data);
+          onChange({ commit: data.commit, servers: allServers });
         } else {
           var filtered = {
             commit: data.commit,
-            servers: data.servers.filter(function (sv) { return sv.language === lang; })
+            servers: allServers.filter(function (sv) { return sv.language === lang; })
           };
           onChange(filtered);
         }
