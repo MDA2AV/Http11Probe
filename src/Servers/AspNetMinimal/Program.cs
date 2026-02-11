@@ -4,6 +4,8 @@ builder.WebHost.UseUrls("http://+:8080");
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello from ASP.NET Minimal API");
+app.MapGet("/", () => "OK");
+
+app.MapPost("/", () => "OK");
 
 app.Run();
