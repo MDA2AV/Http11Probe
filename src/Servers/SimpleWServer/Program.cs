@@ -5,8 +5,11 @@ var port = args.Length > 0 && int.TryParse(args[0], out var p) ? p : 8080;
 
 var server = new SimpleWServer(IPAddress.Any, port);
 
+
 server.MapGet("/", () => "OK");
 server.MapGet("/{path}", () => "OK");
+server.MapPost("/", () => "OK");
+server.MapPost("/{path}", () => "OK");
 
 Console.WriteLine($"SimpleW listening on http://localhost:{port}");
 
