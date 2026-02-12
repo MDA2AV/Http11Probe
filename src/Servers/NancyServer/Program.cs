@@ -21,5 +21,7 @@ public class HomeModule : NancyModule
     {
         Get("/{path*}", _ => "OK");
         Get("/", _ => "OK");
+        Post("/{path*}", _ => "OK");
+        Post("/", _ => "OK");
     }
 }

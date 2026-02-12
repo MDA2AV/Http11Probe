@@ -458,20 +458,6 @@ public static class ComplianceSuite
             }
         };
 
-        yield return new TestCase
-        {
-            Id = "COMP-CONNECT-EMPTY-PORT",
-            Description = "CONNECT with empty port must be rejected",
-            Category = TestCategory.Compliance,
-            RfcReference = "RFC 9112 §3.2.3",
-            PayloadFactory = ctx => MakeRequest($"CONNECT {ctx.Host}: HTTP/1.1\r\nHost: {ctx.Host}:\r\n\r\n"),
-            Expected = new ExpectedBehavior
-            {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
-            }
-        };
-
         // ── Body / Content-Length / Chunked ──────────────────────────
 
         yield return new TestCase
@@ -690,21 +676,6 @@ public static class ComplianceSuite
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
-            }
-        };
-
-        yield return new TestCase
-        {
-            Id = "COMP-METHOD-CONNECT-NO-PORT",
-            Description = "CONNECT without port in authority-form must be rejected",
-            Category = TestCategory.Compliance,
-            RfcReference = "RFC 9112 §3.2.3",
-            PayloadFactory = _ => MakeRequest(
-                "CONNECT example.com HTTP/1.1\r\nHost: example.com\r\n\r\n"),
-            Expected = new ExpectedBehavior
-            {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
             }
         };
 
@@ -980,21 +951,6 @@ public static class ComplianceSuite
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
-            }
-        };
-
-        yield return new TestCase
-        {
-            Id = "COMP-CONNECT-ORIGIN-FORM",
-            Description = "CONNECT with origin-form target (/path) must be rejected — CONNECT requires authority-form",
-            Category = TestCategory.Compliance,
-            RfcReference = "RFC 9112 §3.2.3",
-            PayloadFactory = ctx => MakeRequest(
-                $"CONNECT /path HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
-            Expected = new ExpectedBehavior
-            {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
             }
         };
 

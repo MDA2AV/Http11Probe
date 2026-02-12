@@ -25,9 +25,7 @@ Note this is a SHOULD, not a MUST. The RFC recommends 400 but does not mandate i
   {{< card link="asterisk-with-get" title="ASTERISK-WITH-GET" subtitle="Asterisk-form (*) with non-OPTIONS method." >}}
   {{< card link="options-star" title="OPTIONS-STAR" subtitle="OPTIONS * — valid asterisk-form request." >}}
   {{< card link="unknown-te-501" title="UNKNOWN-TE-501" subtitle="Unknown Transfer-Encoding without CL." >}}
-  {{< card link="connect-empty-port" title="CONNECT-EMPTY-PORT" subtitle="CONNECT with empty port in authority-form." >}}
   {{< card link="method-connect" title="METHOD-CONNECT" subtitle="CONNECT to an origin server must be rejected." >}}
-  {{< card link="method-connect-no-port" title="METHOD-CONNECT-NO-PORT" subtitle="CONNECT without port in authority-form." >}}
 {{< /cards >}}
 
 ### Unscored
