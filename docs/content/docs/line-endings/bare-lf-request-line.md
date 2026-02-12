@@ -10,7 +10,7 @@ weight: 1
 | **Category** | Compliance |
 | **RFC** | [RFC 9112 Section 2.2](https://www.rfc-editor.org/rfc/rfc9112#section-2.2) |
 | **Requirement** | MAY |
-| **Expected** | `400` or close |
+| **Expected** | `400` or close (pass), `2xx` (warn) |
 
 ## What it sends
 
@@ -94,12 +94,12 @@ This explains the security motivation for rejecting bare LF: when a front-end pr
 
 ### Scored / Unscored justification
 
-This test is **scored (Pass/Fail)**. Although the RFC requirement level is MAY, Http11Probe enforces strict rejection:
+This test is **scored (Pass/Warn)**:
 
 - **Pass** for `400` or connection close --- strict rejection eliminates parser-differential attacks.
-- **Fail** for `2xx` --- the server accepted bare LF as a line terminator, which introduces a smuggling vector in multi-hop architectures.
+- **Warn** for `2xx` --- the server accepted bare LF as a line terminator. This is permitted by the RFC (MAY) but introduces a smuggling vector in multi-hop architectures.
 
-The scoring reflects Http11Probe's security-first philosophy: when the RFC gives discretion (MAY), the tool rewards the stricter posture because bare LF acceptance is a well-known source of parser disagreements that enable request smuggling.
+The strict posture is rewarded because bare LF acceptance is a well-known source of parser disagreements that enable request smuggling.
 
 ## Sources
 

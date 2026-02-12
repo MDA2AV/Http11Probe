@@ -10,7 +10,7 @@ weight: 2
 | **Category** | Compliance |
 | **RFC** | [RFC 9112 Section 2.2](https://www.rfc-editor.org/rfc/rfc9112#section-2.2) |
 | **Requirement** | MAY |
-| **Expected** | `400` or close |
+| **Expected** | `400` or close (pass), `2xx` (warn) |
 
 ## What it sends
 
@@ -93,12 +93,12 @@ This directly supports why bare LF in headers is a security concern: if the fron
 
 ### Scored / Unscored justification
 
-This test is **scored (Pass/Fail)**. Although the RFC requirement level is MAY, Http11Probe enforces strict rejection:
+This test is **scored (Pass/Warn)**:
 
 - **Pass** for `400` or connection close --- strict rejection prevents header boundary disagreements between hops.
-- **Fail** for `2xx` --- the server accepted bare LF in a header, which introduces a smuggling vector in multi-hop architectures.
+- **Warn** for `2xx` --- the server accepted bare LF in a header. This is permitted by the RFC (MAY) but introduces a smuggling vector in multi-hop architectures.
 
-The scoring reflects Http11Probe's security-first philosophy: when the RFC gives discretion (MAY), the tool rewards the stricter posture. Header-level bare LF is arguably more dangerous than request-line bare LF because header boundaries directly control how Content-Length, Transfer-Encoding, and Host are parsed --- all of which are smuggling-critical fields.
+The strict posture is rewarded because header-level bare LF is particularly sensitive --- header boundaries directly control how Content-Length, Transfer-Encoding, and Host are parsed, all of which are smuggling-critical fields.
 
 ## Sources
 

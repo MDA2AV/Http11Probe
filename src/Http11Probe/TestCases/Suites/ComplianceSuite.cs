@@ -22,28 +22,42 @@ public static class ComplianceSuite
         yield return new TestCase
         {
             Id = "RFC9112-2.2-BARE-LF-REQUEST-LINE",
-            Description = "Bare LF in request line must be rejected",
+            Description = "Bare LF in request line should be rejected, but MAY be accepted",
             Category = TestCategory.Compliance,
             RfcReference = "RFC 9112 §2.2",
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
+                Description = "400 or close (pass), 2xx (warn)",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 400) return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300) return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
             }
         };
 
         yield return new TestCase
         {
             Id = "RFC9112-2.2-BARE-LF-HEADER",
-            Description = "Bare LF in header must be rejected",
+            Description = "Bare LF in header should be rejected, but MAY be accepted",
             Category = TestCategory.Compliance,
             RfcReference = "RFC 9112 §2.2",
             PayloadFactory = ctx => MakeRequest($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\nX-Test: value\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
+                Description = "400 or close (pass), 2xx (warn)",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 400) return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300) return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
             }
         };
 
