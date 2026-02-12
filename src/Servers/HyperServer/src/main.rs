@@ -9,7 +9,14 @@ use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
 
-async fn handle(_req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn handle(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
+    if req.method() == hyper::Method::POST {
+        let body = match http_body_util::BodyExt::collect(req.into_body()).await {
+            Ok(collected) => collected.to_bytes(),
+            Err(_) => Bytes::new(),
+        };
+        return Ok(Response::new(Full::new(body)));
+    }
     Ok(Response::new(Full::new(Bytes::from("OK"))))
 }
 

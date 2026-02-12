@@ -5,7 +5,12 @@ window.ProbeRender = (function () {
   var FAIL_BG = '#cf222e';
   var SKIP_BG = '#656d76';
   var EXPECT_BG = '#444c56';
-  var pillCss = 'text-align:center;padding:2px 4px;font-size:11px;font-weight:600;color:#fff;border-radius:3px;min-width:28px;display:inline-block;line-height:18px;';
+  var pillCss = 'text-align:center;padding:2px 4px;font-size:11px;font-weight:600;color:#fff;border-radius:3px;min-width:28px;display:inline-block;line-height:18px;cursor:default;';
+
+  function escapeAttr(s) {
+    if (!s) return '';
+    return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
 
   // Servers temporarily hidden from results (undergoing major changes)
   var BLACKLISTED_SERVERS = ['GenHTTP'];
@@ -44,10 +49,100 @@ window.ProbeRender = (function () {
       + 'html.dark .probe-table tbody tr{border-bottom-color:#30363d}'
       + 'html.dark .probe-server-row:hover{background:#161b22}'
       + 'html.dark .probe-server-row.probe-row-active{background:#2a3a50 !important}'
-      + 'html.dark .probe-table thead a{color:#58a6ff !important}';
+      + 'html.dark .probe-table thead a{color:#58a6ff !important}'
+      // Tooltip (hover)
+      + '.probe-tooltip{position:fixed;z-index:9999;background:#1c1c1c;color:#e0e0e0;font-family:monospace;font-size:11px;'
+      + 'white-space:pre;padding:8px 10px;border-radius:6px;max-width:500px;max-height:300px;overflow:auto;'
+      + 'pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.3);line-height:1.4}'
+      + '.probe-tooltip .probe-note{color:#f0c674;font-family:sans-serif;font-weight:600;font-size:11px;margin-bottom:6px;white-space:normal}'
+      + '.probe-tooltip .probe-label{color:#81a2be;font-family:sans-serif;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}'
+      + '.probe-tooltip .probe-label:not(:first-child){margin-top:8px;padding-top:8px;border-top:1px solid #333}'
+      // Modal (click)
+      + '.probe-modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}'
+      + '.probe-modal{background:#1c1c1c;color:#e0e0e0;font-family:monospace;font-size:12px;white-space:pre;'
+      + 'padding:16px 20px;border-radius:8px;max-width:700px;max-height:80vh;overflow:auto;'
+      + 'box-shadow:0 8px 32px rgba(0,0,0,0.5);line-height:1.5;position:relative;min-width:300px}'
+      + '.probe-modal .probe-note{color:#f0c674;font-family:sans-serif;font-weight:600;font-size:13px;margin-bottom:10px;white-space:normal}'
+      + '.probe-modal .probe-label{color:#81a2be;font-family:sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}'
+      + '.probe-modal .probe-label:not(:first-child){margin-top:12px;padding-top:12px;border-top:1px solid #333}'
+      + '.probe-modal-close{position:sticky;top:0;float:right;background:none;border:none;color:#808080;font-size:20px;'
+      + 'cursor:pointer;padding:0 4px;line-height:1;font-family:sans-serif}'
+      + '.probe-modal-close:hover{color:#fff}';
     var style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);
+
+    // Tooltip hover handler (delegated)
+    var tip = null;
+    document.addEventListener('mouseover', function (e) {
+      var target = e.target.closest('[data-tooltip]');
+      if (!target) return;
+      if (tip) { tip.remove(); tip = null; }
+      var text = target.getAttribute('data-tooltip');
+      if (!text) return;
+      tip = document.createElement('div');
+      tip.className = 'probe-tooltip';
+      var note = target.getAttribute('data-note');
+      var req = target.getAttribute('data-request');
+      var html = '';
+      if (note) html += '<div class="probe-note">' + escapeAttr(note) + '</div>';
+      if (req) html += '<div class="probe-label">Request</div>' + escapeAttr(req);
+      if (text) html += '<div class="probe-label">Response</div>' + escapeAttr(text);
+      tip.innerHTML = html;
+      document.body.appendChild(tip);
+      var rect = target.getBoundingClientRect();
+      var tipRect = tip.getBoundingClientRect();
+      var left = rect.left + rect.width / 2 - tipRect.width / 2;
+      if (left < 4) left = 4;
+      if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - 4 - tipRect.width;
+      var top = rect.top - tipRect.height - 6;
+      if (top < 4) top = rect.bottom + 6;
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    });
+    document.addEventListener('mouseout', function (e) {
+      var target = e.target.closest('[data-tooltip]');
+      if (target && tip) { tip.remove(); tip = null; }
+    });
+
+    // Modal click handler (delegated)
+    document.addEventListener('click', function (e) {
+      var target = e.target.closest('[data-tooltip]');
+      if (!target) return;
+      var text = target.getAttribute('data-tooltip');
+      var req = target.getAttribute('data-request');
+      if (!text && !req) return;
+      // Dismiss hover tooltip
+      if (tip) { tip.remove(); tip = null; }
+
+      var note = target.getAttribute('data-note');
+      var html = '<button class="probe-modal-close" title="Close">&times;</button>';
+      if (note) html += '<div class="probe-note">' + escapeAttr(note) + '</div>';
+      if (req) html += '<div class="probe-label">Request</div>' + escapeAttr(req);
+      if (text) html += '<div class="probe-label">Response</div>' + escapeAttr(text);
+
+      var overlay = document.createElement('div');
+      overlay.className = 'probe-modal-overlay';
+      var modal = document.createElement('div');
+      modal.className = 'probe-modal';
+      modal.innerHTML = html;
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      // Close on X button
+      modal.querySelector('.probe-modal-close').addEventListener('click', function () {
+        overlay.remove();
+      });
+      // Close on overlay click (outside modal)
+      overlay.addEventListener('click', function (ev) {
+        if (ev.target === overlay) overlay.remove();
+      });
+      // Close on Escape
+      function onKey(ev) {
+        if (ev.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); }
+      }
+      document.addEventListener('keydown', onKey);
+    });
   }
 
   // ── Test ID → doc page URL mapping ─────────────────────────────
@@ -197,8 +292,14 @@ window.ProbeRender = (function () {
     return TEST_URLS[tid] || '';
   }
 
-  function pill(bg, label) {
-    return '<span style="' + pillCss + 'background:' + bg + ';">' + label + '</span>';
+  function pill(bg, label, tooltipRaw, tooltipNote, tooltipReq) {
+    var extra = '';
+    var hasData = tooltipRaw || tooltipReq;
+    if (hasData) extra += ' data-tooltip="' + escapeAttr(tooltipRaw || '') + '"';
+    if (tooltipNote) extra += ' data-note="' + escapeAttr(tooltipNote) + '"';
+    if (tooltipReq) extra += ' data-request="' + escapeAttr(tooltipReq) + '"';
+    var cursor = hasData ? 'cursor:pointer;' : 'cursor:default;';
+    return '<span style="' + pillCss + cursor + 'background:' + bg + ';"' + extra + '>' + label + '</span>';
   }
 
   function verdictBg(v) {
@@ -396,7 +497,7 @@ window.ProbeRender = (function () {
           t += '<td style="text-align:center;padding:2px 3px;' + opacity + '">' + pill(SKIP_BG, '\u2014') + '</td>';
           return;
         }
-        t += '<td style="text-align:center;padding:2px 3px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got) + '</td>';
+        t += '<td style="text-align:center;padding:2px 3px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest) + '</td>';
       });
       t += '</tr>';
     });

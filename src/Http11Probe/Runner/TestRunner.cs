@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Http11Probe.Client;
 using Http11Probe.Response;
 using Http11Probe.TestCases;
@@ -78,6 +79,7 @@ public sealed class TestRunner
 
             // Send the primary payload
             var payload = testCase.PayloadFactory(context);
+            var rawRequest = Encoding.ASCII.GetString(payload, 0, Math.Min(payload.Length, 8192));
             await client.SendAsync(payload);
 
             // Read primary response
@@ -105,6 +107,7 @@ public sealed class TestRunner
             }
 
             var verdict = testCase.Expected.Evaluate(response, connectionState);
+            var behavioralNote = testCase.BehavioralAnalyzer?.Invoke(response);
 
             return new TestResult
             {
@@ -113,6 +116,8 @@ public sealed class TestRunner
                 Response = response,
                 FollowUpResponse = followUpResponse,
                 ConnectionState = connectionState,
+                BehavioralNote = behavioralNote,
+                RawRequest = rawRequest,
                 Duration = sw.Elapsed
             };
         }

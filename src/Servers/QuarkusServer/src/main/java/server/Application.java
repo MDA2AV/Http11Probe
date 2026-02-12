@@ -1,5 +1,8 @@
 package server;
 
+import java.io.InputStream;
+import java.io.IOException;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -19,7 +22,7 @@ public class Application {
     @POST
     @Path("{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String catchAllPost() {
-        return "OK";
+    public byte[] catchAllPost(InputStream body) throws IOException {
+        return body.readAllBytes();
     }
 }

@@ -141,6 +141,9 @@ static async Task HandleClientAsync(TcpClient client, CancellationToken ct)
                 reader.AdvanceTo(headerBuffer.GetPosition(headerByteCount));
 
                 // ── Phase 4: consume body ──────────────────────────
+                var bodyBytes = new MemoryStream();
+                const int maxCapture = 4096;
+
                 switch (framing.Framing)
                 {
                     case BodyFraming.ContentLength:
@@ -151,6 +154,14 @@ static async Task HandleClientAsync(TcpClient client, CancellationToken ct)
                             var result = await reader.ReadAsync(ct);
                             var buffer = result.Buffer;
                             long available = Math.Min(buffer.Length, remaining);
+
+                            if (bodyBytes.Length < maxCapture)
+                            {
+                                var toCapture = (int)Math.Min(available, maxCapture - bodyBytes.Length);
+                                foreach (var seg in buffer.Slice(0, toCapture))
+                                    bodyBytes.Write(seg.Span);
+                            }
+
                             remaining -= available;
                             reader.AdvanceTo(buffer.GetPosition(available));
 
@@ -188,8 +199,15 @@ static async Task HandleClientAsync(TcpClient client, CancellationToken ct)
                             int totalConsumed = 0;
                             while (true)
                             {
-                                var cr = chunked.TryReadChunk(span[totalConsumed..], out var consumed, out _, out _);
+                                var localSpan = span[totalConsumed..];
+                                var cr = chunked.TryReadChunk(localSpan, out var consumed, out var dataOffset, out var dataLength);
                                 totalConsumed += consumed;
+
+                                if (cr == ChunkResult.Chunk && dataLength > 0 && bodyBytes.Length < maxCapture)
+                                {
+                                    var toCapture = Math.Min(dataLength, maxCapture - (int)bodyBytes.Length);
+                                    bodyBytes.Write(localSpan.Slice(dataOffset, toCapture));
+                                }
 
                                 if (cr == ChunkResult.Completed)
                                 {
@@ -221,7 +239,8 @@ static async Task HandleClientAsync(TcpClient client, CancellationToken ct)
                 }
 
                 // ── Phase 5: send response ─────────────────────────
-                var responseBytes = BuildResponse(method, path);
+                var capturedBody = bodyBytes.Length > 0 ? Encoding.ASCII.GetString(bodyBytes.ToArray()) : null;
+                var responseBytes = BuildResponse(method, path, capturedBody);
                 await stream.WriteAsync(responseBytes, ct);
             }
         }
@@ -244,9 +263,11 @@ static async Task HandleClientAsync(TcpClient client, CancellationToken ct)
     }
 }
 
-static byte[] BuildResponse(string method, string path)
+static byte[] BuildResponse(string method, string path, string? echoBody)
 {
-    var body = $"Hello from GlyphServer\r\nMethod: {method}\r\nPath: {path}\r\n";
+    var body = method == "POST" && echoBody is not null
+        ? echoBody
+        : $"Hello from GlyphServer\r\nMethod: {method}\r\nPath: {path}\r\n";
     return MakeResponse(200, "OK", body);
 }
 

@@ -77,13 +77,30 @@ public static class ResponseParser
             pos = nextLineEnd + 1;
         }
 
+        // Extract body after \r\n\r\n
+        string? body = null;
+        var headerEnd = text.IndexOf("\r\n\r\n", StringComparison.Ordinal);
+        if (headerEnd >= 0)
+        {
+            var bodyStart = headerEnd + 4;
+            if (bodyStart < text.Length)
+            {
+                var bodyText = text[bodyStart..];
+                body = bodyText.Length > 4096 ? bodyText[..4096] : bodyText;
+            }
+        }
+
+        var rawResponse = text.Length > 8192 ? text[..8192] : text;
+
         return new HttpResponse
         {
             StatusCode = statusCode,
             ReasonPhrase = reasonPhrase,
             HttpVersion = httpVersion,
             Headers = headers,
-            IsEmpty = false
+            IsEmpty = false,
+            RawResponse = rawResponse,
+            Body = body
         };
     }
 }

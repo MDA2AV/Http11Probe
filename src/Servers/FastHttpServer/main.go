@@ -14,6 +14,10 @@ func main() {
 
 	handler := func(ctx *fasthttp.RequestCtx) {
 		ctx.SetStatusCode(200)
+		if string(ctx.Method()) == "POST" {
+			ctx.SetBody(ctx.Request.Body())
+			return
+		}
 		ctx.SetBodyString("OK")
 	}
 

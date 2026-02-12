@@ -21,7 +21,10 @@ class OkHttpSession : HttpSession
 
     protected override void OnReceivedRequest(HttpRequest request)
     {
-        SendResponseAsync(Response.MakeOkResponse(200).SetBody("OK"));
+        if (request.Method == "POST" && request.Body.Length > 0)
+            SendResponseAsync(Response.MakeOkResponse(200).SetBody(request.Body));
+        else
+            SendResponseAsync(Response.MakeOkResponse(200).SetBody("OK"));
     }
 
     protected override void OnReceivedRequestError(HttpRequest request, string error)

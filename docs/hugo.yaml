@@ -41,8 +41,13 @@ menu:
       weight: 8
       params:
         type: theme-toggle
-    - name: GitHub
+    - name: Discord
       weight: 9
+      url: https://discord.gg/H84B5ZqDXR
+      params:
+        icon: discord
+    - name: GitHub
+      weight: 10
       url: https://github.com/MDA2AV/Http11Probe
       params:
         icon: github

@@ -1,7 +1,16 @@
 use ntex::web;
+use ntex::util::Bytes;
 
-async fn ok() -> &'static str {
-    "OK"
+async fn handler(req: web::HttpRequest, body: Bytes) -> web::HttpResponse {
+    if req.method() == ntex::http::Method::POST {
+        web::HttpResponse::Ok()
+            .content_type("text/plain")
+            .body(body)
+    } else {
+        web::HttpResponse::Ok()
+            .content_type("text/plain")
+            .body("OK")
+    }
 }
 
 #[ntex::main]
@@ -12,7 +21,7 @@ async fn main() -> std::io::Result<()> {
         .unwrap_or(8080);
 
     web::server(|| {
-        web::App::new().default_service(web::to(ok))
+        web::App::new().default_service(web::to(handler))
     })
     .bind(("0.0.0.0", port))?
     .run()

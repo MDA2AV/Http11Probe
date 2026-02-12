@@ -1,3 +1,5 @@
+using Http11Probe.Response;
+
 namespace Http11Probe.TestCases;
 
 public sealed class TestCase
@@ -11,4 +13,5 @@ public sealed class TestCase
     public required ExpectedBehavior Expected { get; init; }
     public bool RequiresConnectionReuse { get; init; }
     public bool Scored { get; init; } = true;
+    public Func<HttpResponse?, string?>? BehavioralAnalyzer { get; init; }
 }

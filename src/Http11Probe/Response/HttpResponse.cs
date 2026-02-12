@@ -7,4 +7,6 @@ public sealed class HttpResponse
     public required string HttpVersion { get; init; }
     public required IReadOnlyDictionary<string, string> Headers { get; init; }
     public bool IsEmpty { get; init; }
+    public string? RawResponse { get; init; }
+    public string? Body { get; init; }
 }

@@ -1,10 +1,56 @@
 using System.Text;
 using Http11Probe.Client;
+using Http11Probe.Response;
 
 namespace Http11Probe.TestCases.Suites;
 
 public static class SmugglingSuite
 {
+    // ── Behavioral analyzers ────────────────────────────────────
+    // Examine the echoed body to determine which framing the server used.
+    // Static-config servers (Nginx, Apache, etc.) always return "OK" and cannot echo.
+
+    private const string StaticNote = "Static response — server does not echo POST body";
+
+    private static bool IsStaticResponse(string body) => body == "OK";
+
+    private static string? AnalyzeClTeBoth(HttpResponse? r)
+    {
+        if (r is null || r.StatusCode is < 200 or >= 300) return null;
+        var body = (r.Body ?? "").TrimEnd('\r', '\n');
+        if (IsStaticResponse(body)) return StaticNote;
+        if (body.Length == 0) return "Used TE (chunked 0-length → empty body)";
+        if (body.Contains("0\r\n\r\n") || body == "0\r\n\r") return "Used CL (read 6 raw bytes including chunk terminator)";
+        return $"Body: {Truncate(body)}";
+    }
+
+    private static string? AnalyzeDuplicateCl(HttpResponse? r)
+    {
+        // Payload: "helloworld" with CL:5 and CL:10
+        // CL:5 → "hello", CL:10 → "helloworld"
+        if (r is null || r.StatusCode is < 200 or >= 300) return null;
+        var body = (r.Body ?? "").TrimEnd('\r', '\n');
+        if (IsStaticResponse(body)) return StaticNote;
+        if (body == "hello") return "Used first CL (5 bytes)";
+        if (body == "helloworld") return "Used second CL (10 bytes)";
+        if (body.Length == 0) return "Empty body (server consumed no body)";
+        return $"Body: {Truncate(body)}";
+    }
+
+    private static string? AnalyzeTeWithClFallback(HttpResponse? r)
+    {
+        // Tests with TE variant + CL:5 + body "hello"
+        // If server used CL → body is "hello"; if TE recognized → empty (chunked parse of "hello")
+        if (r is null || r.StatusCode is < 200 or >= 300) return null;
+        var body = (r.Body ?? "").TrimEnd('\r', '\n');
+        if (IsStaticResponse(body)) return StaticNote;
+        if (body == "hello") return "Used CL (ignored TE variant)";
+        if (body.Length == 0) return "Used TE (treated as chunked)";
+        return $"Body: {Truncate(body)}";
+    }
+
+    private static string Truncate(string s) => s.Length > 40 ? s[..40] + "..." : s;
+
     public static IEnumerable<TestCase> GetTestCases()
     {
         yield return new TestCase
@@ -15,6 +61,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 6\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n"),
+            BehavioralAnalyzer = AnalyzeClTeBoth,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -39,7 +86,8 @@ public static class SmugglingSuite
             Category = TestCategory.Smuggling,
             RfcReference = "RFC 9110 §8.6",
             PayloadFactory = ctx => MakeRequest(
-                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nContent-Length: 10\r\n\r\nhello"),
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nContent-Length: 10\r\n\r\nhelloworld"),
+            BehavioralAnalyzer = AnalyzeDuplicateCl,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -79,6 +127,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: xchunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -94,6 +143,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked \r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -109,6 +159,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §5",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding : chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -225,6 +276,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked, chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -273,6 +325,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: Chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -329,6 +382,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.0\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -407,6 +461,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: \r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -422,6 +477,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9110 §5.6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: , chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -447,6 +503,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\nTransfer-Encoding: identity\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -670,6 +727,7 @@ public static class SmugglingSuite
                 after.CopyTo(payload, before.Length + vtab.Length);
                 return payload;
             },
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -694,6 +752,7 @@ public static class SmugglingSuite
                 after.CopyTo(payload, before.Length + ff.Length);
                 return payload;
             },
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -718,6 +777,7 @@ public static class SmugglingSuite
                 after.CopyTo(payload, before.Length + nul.Length);
                 return payload;
             },
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -762,6 +822,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §7",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: identity\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -795,6 +856,7 @@ public static class SmugglingSuite
             Scored = false,
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer_Encoding: chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -844,6 +906,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §7",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked;ext=val\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -1129,6 +1192,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §5.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding:\r\n chunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400)
@@ -1143,6 +1207,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9110 §5.6.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked,\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",
@@ -1168,6 +1233,7 @@ public static class SmugglingSuite
             RfcReference = "RFC 9110 §5.5",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding:\tchunked\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
                 Description = "400 or 2xx",

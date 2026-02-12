@@ -41,7 +41,10 @@ public static class JsonReporter
                 statusCode = r.Response?.StatusCode,
                 connectionState = r.ConnectionState.ToString(),
                 error = r.ErrorMessage,
-                durationMs = r.Duration.TotalMilliseconds
+                durationMs = r.Duration.TotalMilliseconds,
+                rawRequest = r.RawRequest,
+                rawResponse = r.Response?.RawResponse,
+                behavioralNote = r.BehavioralNote
             })
         };
 
