@@ -16,10 +16,15 @@ public class Application extends Handler.Abstract {
             ByteBuffer.wrap("OK".getBytes(StandardCharsets.UTF_8)).asReadOnlyBuffer();
 
     @Override
-    public boolean handle(Request request, Response response, Callback callback) {
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
         response.setStatus(200);
         response.getHeaders().put("Content-Type", "text/plain");
-        response.write(true, OK_BODY.slice(), callback);
+        if ("POST".equals(request.getMethod())) {
+            byte[] body = Request.asInputStream(request).readAllBytes();
+            response.write(true, ByteBuffer.wrap(body), callback);
+        } else {
+            response.write(true, OK_BODY.slice(), callback);
+        }
         return true;
     }
 

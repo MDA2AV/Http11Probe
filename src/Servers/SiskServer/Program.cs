@@ -9,6 +9,11 @@ using var app = HttpServer.CreateBuilder()
 
 app.Router.SetRoute(RouteMethod.Any, Route.AnyPath, request =>
 {
+    if (request.Method == HttpMethod.Post && request.Body is not null)
+    {
+        var body = request.Body;
+        return new HttpResponse(200).WithContent(body);
+    }
     return new HttpResponse(200).WithContent("OK");
 });
 

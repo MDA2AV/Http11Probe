@@ -21,7 +21,13 @@ public class HomeModule : NancyModule
     {
         Get("/{path*}", _ => "OK");
         Get("/", _ => "OK");
-        Post("/{path*}", _ => "OK");
-        Post("/", _ => "OK");
+        Post("/{path*}", _ => EchoBody());
+        Post("/", _ => EchoBody());
+    }
+
+    private string EchoBody()
+    {
+        using var reader = new System.IO.StreamReader(Request.Body);
+        return reader.ReadToEnd();
     }
 }

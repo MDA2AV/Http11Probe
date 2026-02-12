@@ -17,14 +17,24 @@ impl ProxyHttp for OkProxy {
         session: &mut Session,
         _ctx: &mut Self::CTX,
     ) -> Result<bool> {
+        let is_post = session.req_header().method == pingora::http::Method::POST;
+        let body = if is_post {
+            let mut buf = Vec::new();
+            while let Some(chunk) = session.read_request_body().await? {
+                buf.extend_from_slice(&chunk);
+            }
+            Bytes::from(buf)
+        } else {
+            Bytes::from_static(b"OK")
+        };
         let mut header = ResponseHeader::build(200, None)?;
         header.insert_header("Content-Type", "text/plain")?;
-        header.insert_header("Content-Length", "2")?;
+        header.insert_header("Content-Length", &body.len().to_string())?;
         session
             .write_response_header(Box::new(header), false)
             .await?;
         session
-            .write_response_body(Some(Bytes::from_static(b"OK")), true)
+            .write_response_body(Some(body), true)
             .await?;
         Ok(true)
     }

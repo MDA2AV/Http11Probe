@@ -156,6 +156,9 @@ jobs:
                     'connectionState': conn, 'reason': reason,
                     'scored': scored,
                     'durationMs': r.get('durationMs', 0),
+                    'rawRequest': r.get('rawRequest'),
+                    'rawResponse': r.get('rawResponse'),
+                    'behavioralNote': r.get('behavioralNote'),
                 })
 
             scored_results = [r for r in results if r['scored']]

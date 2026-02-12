@@ -1,5 +1,5 @@
 import sys
-from flask import Flask
+from flask import Flask, request
 from werkzeug.routing import Rule
 
 app = Flask(__name__)
@@ -9,6 +9,8 @@ app.url_map.add(Rule('/<path:path>', endpoint='catch_all'))
 
 @app.endpoint('catch_all')
 def catch_all(path):
+    if request.method == 'POST':
+        return request.get_data(as_text=True)
     return "OK"
 
 if __name__ == "__main__":

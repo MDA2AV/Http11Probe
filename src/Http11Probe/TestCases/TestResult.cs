@@ -11,5 +11,7 @@ public sealed class TestResult
     public HttpResponse? FollowUpResponse { get; init; }
     public ConnectionState ConnectionState { get; init; }
     public string? ErrorMessage { get; init; }
+    public string? BehavioralNote { get; init; }
+    public string? RawRequest { get; init; }
     public TimeSpan Duration { get; init; }
 }

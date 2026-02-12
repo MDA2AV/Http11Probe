@@ -8,8 +8,8 @@ var server = new SimpleWServer(IPAddress.Any, port);
 
 server.MapGet("/", () => "OK");
 server.MapGet("/{path}", () => "OK");
-server.MapPost("/", () => "OK");
-server.MapPost("/{path}", () => "OK");
+server.MapPost("/", (HttpSession session) => session.Request.BodyString);
+server.MapPost("/{path}", (HttpSession session) => session.Request.BodyString);
 
 Console.WriteLine($"SimpleW listening on http://localhost:{port}");
 
