@@ -1,7 +1,7 @@
 ---
 title: Understanding HTTP
 description: "What HTTP is, how HTTP/1.1 works in depth, its history from 0.9 to 3, and alternatives."
-weight: 2
+weight: 1
 sidebar:
   open: false
 ---

@@ -11,6 +11,7 @@ All notable changes to Http11Probe are documented in this file.
 - **Collapsible sub-groups** — group headers in result tables are now clickable to collapse/expand, with a chevron indicator and a "Collapse All / Expand All" toggle button
 - **Row-click detail popup** — clicking a server row opens a modal showing that server's results for the current table in a vertical layout (Test, Expected, Got, Description) with section and table name in the header
 - **Truncation notice** — tooltip and modal now show a `[Truncated]` notice at the top when raw request/response data exceeds the 8,192-byte display limit
+- **Filter box** — text input above result tables to filter by server name, language, or test name; supports multiple comma-separated keywords
 
 ### Changed
 - **Horizontal column headers** — test name headers are now displayed horizontally instead of rotated at -55°, improving readability

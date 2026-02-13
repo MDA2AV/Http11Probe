@@ -111,7 +111,15 @@ window.ProbeRender = (function () {
       // Touch-friendly buttons
       + '@media(pointer:coarse){.probe-lang-btn,.probe-cat-btn,.probe-toggle-all{padding:8px 16px;font-size:13px;min-height:36px}}'
       // Stronger sticky shadow on mobile
-      + '@media(max-width:640px){.probe-table .probe-sticky-col{box-shadow:3px 0 6px rgba(0,0,0,0.1)}html.dark .probe-table .probe-sticky-col{box-shadow:3px 0 6px rgba(0,0,0,0.3)}}';
+      + '@media(max-width:640px){.probe-table .probe-sticky-col{box-shadow:3px 0 6px rgba(0,0,0,0.1)}html.dark .probe-table .probe-sticky-col{box-shadow:3px 0 6px rgba(0,0,0,0.3)}}'
+      // Filter input
+      + '.probe-filter-wrap{margin-bottom:8px;display:flex;align-items:center;gap:8px}'
+      + '.probe-filter-input{width:100%;max-width:340px;padding:6px 10px;font-size:13px;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#24292f;outline:none;transition:border-color 0.15s,box-shadow 0.15s}'
+      + '.probe-filter-input:focus{border-color:#0969da;box-shadow:0 0 0 3px rgba(9,105,218,0.15)}'
+      + '.probe-filter-input::placeholder{color:#8b949e}'
+      + 'html.dark .probe-filter-input{background:#161b22;color:#c9d1d9;border-color:#30363d}'
+      + 'html.dark .probe-filter-input:focus{border-color:#1f6feb;box-shadow:0 0 0 3px rgba(31,111,235,0.2)}'
+      + '.probe-filter-count{font-size:12px;color:#656d76;white-space:nowrap}';
     var style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);
@@ -578,7 +586,7 @@ window.ProbeRender = (function () {
       var opacity = isUnscored ? 'opacity:0.55;' : '';
       var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
       var url = testUrl(tid);
-      t += '<th class="' + sepCls + '" style="padding:6px 8px;vertical-align:bottom;white-space:nowrap;' + opacity + '">';
+      t += '<th data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="padding:6px 8px;vertical-align:bottom;white-space:nowrap;' + opacity + '">';
       if (url) {
         t += '<a href="' + url + '" style="font-size:10.5px;font-weight:600;letter-spacing:0.3px;color:inherit;text-decoration:none;" title="' + escapeAttr(first.description) + '">' + shortLabels[i];
       } else {
@@ -598,7 +606,7 @@ window.ProbeRender = (function () {
       var isUnscored = first.scored === false;
       var opacity = isUnscored ? 'opacity:0.55;' : '';
       var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
-      t += '<td class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
+      t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
     });
     t += '</tr>';
 
@@ -606,8 +614,8 @@ window.ProbeRender = (function () {
     var serverLangs = {};
     if (ctx.servers) ctx.servers.forEach(function (sv) { serverLangs[sv.name] = sv.language; });
     names.forEach(function (n) {
-      t += '<tr class="probe-server-row" data-server="' + escapeAttr(n) + '">';
       var lang = serverLangs[n];
+      t += '<tr class="probe-server-row" data-server="' + escapeAttr(n) + '" data-language="' + escapeAttr(lang || '') + '">';
       var langSuffix = lang ? ' <span class="probe-lang-suffix" style="font-weight:400;color:#656d76;font-size:10px;">(' + lang + ')</span>' : '';
       var srvUrl = serverUrl(n);
       var srvName = srvUrl
@@ -620,10 +628,10 @@ window.ProbeRender = (function () {
         var opacity = isUnscored ? 'opacity:0.55;' : '';
         var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
         if (!r) {
-          t += '<td class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(SKIP_BG, '\u2014') + '</td>';
+          t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(SKIP_BG, '\u2014') + '</td>';
           return;
         }
-        t += '<td class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest) + '</td>';
+        t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest) + '</td>';
       });
       t += '</tr>';
     });
@@ -814,7 +822,8 @@ window.ProbeRender = (function () {
       allGroups.push({ key: 'other', label: 'Other', testIds: ungrouped });
     }
 
-    var html = '<button class="probe-toggle-all" data-target="' + targetId + '">Collapse All</button>';
+    var html = '<div class="probe-filter-wrap"><input class="probe-filter-input" type="text" placeholder="Filter by server or test name (comma-separated)\u2026"><span class="probe-filter-count"></span></div>';
+    html += '<button class="probe-toggle-all" data-target="' + targetId + '">Collapse All</button>';
     allGroups.forEach(function (g) {
       var divId = targetId + '-' + g.key;
       html += '<h3 class="probe-group-header" data-group="' + divId + '">'
@@ -828,6 +837,70 @@ window.ProbeRender = (function () {
       renderTable(divId, categoryKey, ctx, g.testIds, catLabel + ' \u2014 ' + g.label);
     });
     wireCollapsible(el, targetId);
+
+    // Filter handler
+    var filterInput = el.querySelector('.probe-filter-input');
+    var filterCount = el.querySelector('.probe-filter-count');
+    if (filterInput) {
+      function matchesAny(text, keywords) {
+        for (var k = 0; k < keywords.length; k++) {
+          if (text.indexOf(keywords[k]) !== -1) return true;
+        }
+        return false;
+      }
+
+      filterInput.addEventListener('input', function () {
+        var raw = filterInput.value.toLowerCase();
+        var keywords = raw.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var rows = el.querySelectorAll('.probe-server-row');
+        var allCols = el.querySelectorAll('[data-test-label]');
+        var thCols = el.querySelectorAll('thead [data-test-label]');
+
+        if (keywords.length === 0) {
+          rows.forEach(function (r) { r.style.display = ''; });
+          allCols.forEach(function (c) { c.style.display = ''; });
+          if (filterCount) filterCount.textContent = '';
+          return;
+        }
+
+        // Count matching servers
+        var serverMatches = 0;
+        rows.forEach(function (r) {
+          var name = (r.getAttribute('data-server') || '').toLowerCase();
+          var lang = (r.getAttribute('data-language') || '').toLowerCase();
+          if (matchesAny(name, keywords) || matchesAny(lang, keywords)) serverMatches++;
+        });
+
+        // Count matching test columns
+        var colMatchSet = {};
+        thCols.forEach(function (th) {
+          var label = th.getAttribute('data-test-label').toLowerCase();
+          if (matchesAny(label, keywords)) colMatchSet[th.getAttribute('data-test-label')] = true;
+        });
+        var colMatches = Object.keys(colMatchSet).length;
+
+        // Apply row filter (skip if no server matches — show all)
+        rows.forEach(function (r) {
+          var name = (r.getAttribute('data-server') || '').toLowerCase();
+          var lang = (r.getAttribute('data-language') || '').toLowerCase();
+          r.style.display = (serverMatches === 0 || matchesAny(name, keywords) || matchesAny(lang, keywords)) ? '' : 'none';
+        });
+
+        // Apply column filter (skip if no column matches — show all)
+        allCols.forEach(function (c) {
+          var label = c.getAttribute('data-test-label');
+          c.style.display = (colMatches === 0 || colMatchSet[label]) ? '' : 'none';
+        });
+
+        // Update count label
+        if (filterCount) {
+          var parts = [];
+          if (serverMatches > 0) parts.push(serverMatches + ' server' + (serverMatches !== 1 ? 's' : ''));
+          if (colMatches > 0) parts.push(colMatches + ' test' + (colMatches !== 1 ? 's' : ''));
+          filterCount.textContent = parts.length > 0 ? parts.join(', ') : 'No matches';
+        }
+      });
+    }
   }
 
   // ── Language filter ────────────────────────────────────────────

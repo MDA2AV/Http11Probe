@@ -10,9 +10,12 @@ These tests validate that HTTP/1.1 servers correctly implement the protocol requ
 
 Each test sends a request that violates a specific **MUST** or **MUST NOT** requirement from the RFCs. A compliant server should reject these with a `400 Bad Request` (or close the connection). Accepting the request silently means the server is non-compliant and potentially vulnerable to downstream attacks.
 
-{{< callout type="info" >}}
-Click a **server name** to view its Dockerfile and source code. Click a **row** to expand all results for that server. Click a **result cell** to see the full HTTP request and response.
-{{< /callout >}}
+<style>h1.hx\:mt-2{display:none}.probe-hint{background:#ddf4ff;border:1px solid #54aeff;border-radius:6px;padding:10px 14px;font-size:13px;color:#0969da;font-weight:500}html.dark .probe-hint{background:#1c2333;border-color:#1f6feb;color:#58a6ff}</style>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+<div class="probe-hint"><strong style="font-size:14px;">Server Name</strong><br>Click to view Dockerfile and source code</div>
+<div class="probe-hint"><strong style="font-size:14px;">Table Row</strong><br>Click to expand all results for that server</div>
+<div class="probe-hint"><strong style="font-size:14px;">Result Cell</strong><br>Click to see the full HTTP request and response</div>
+</div>
 
 <div id="lang-filter"></div>
 <div id="table-compliance"><p><em>Loading...</em></p></div>
