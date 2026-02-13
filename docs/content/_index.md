@@ -40,6 +40,7 @@ Http11Probe sends a suite of crafted HTTP requests to each server and checks whe
   {{< card link="compliance" title="Compliance" subtitle="RFC 9110/9112 protocol requirements — line endings, request-line format, header syntax, Host validation, Content-Length parsing." icon="check-circle" >}}
   {{< card link="smuggling" title="Smuggling" subtitle="CL/TE ambiguity, duplicate Content-Length, obfuscated Transfer-Encoding, pipeline injection vectors." icon="shield-exclamation" >}}
   {{< card link="malformed-input" title="Robustness" subtitle="Binary garbage, oversized fields, too many headers, control characters, integer overflow, incomplete requests." icon="lightning-bolt" >}}
+  {{< card link="normalization" title="Normalization" subtitle="Header normalization behavior — underscore-to-hyphen, space before colon, tab in name, case folding on Transfer-Encoding." icon="adjustments" >}}
 {{< /cards >}}
 
 <div style="height:60px"></div>

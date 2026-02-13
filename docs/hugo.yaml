@@ -15,39 +15,53 @@ markup:
 
 menu:
   main:
-    - name: Probe Results
+    - name: Leaderboards
       pageRef: /probe-results
       weight: 1
-    - name: Compliance
-      pageRef: /compliance
+    - name: Simple Tests
       weight: 2
+    - name: Compliance
+      parent: Simple Tests
+      pageRef: /compliance
+      weight: 1
     - name: Smuggling
+      parent: Simple Tests
       pageRef: /smuggling
-      weight: 3
+      weight: 2
     - name: Malformed Input
+      parent: Simple Tests
       pageRef: /malformed-input
+      weight: 3
+    - name: Normalization
+      parent: Simple Tests
+      pageRef: /normalization
       weight: 4
+    - name: Sequence Tests
+      weight: 3
+    - name: Coming Soon
+      parent: Sequence Tests
+      weight: 1
     - name: Glossary
       pageRef: /docs
-      weight: 5
+      weight: 4
     - name: Add a Framework
       pageRef: /add-a-framework
-      weight: 6
+      weight: 5
     - name: Search
-      weight: 7
+      weight: 6
       params:
         type: search
     - name: Theme Toggle
-      weight: 8
+      weight: 7
       params:
         type: theme-toggle
     - name: Discord
-      weight: 9
+      weight: 8
       url: https://discord.gg/H84B5ZqDXR
       params:
         icon: discord
     - name: GitHub
-      weight: 10
+      weight: 9
       url: https://github.com/MDA2AV/Http11Probe
       params:
         icon: github

@@ -13,7 +13,7 @@ HTTP/1.1 compliance comparison across frameworks. Each test sends a specific mal
 ## Summary
 
 {{< callout type="info" >}}
-These results are from CI runs (`ubuntu-latest`). Click a **server name** to view its Dockerfile and source code. Click on the **Compliance**, **Smuggling**, or **Malformed Input** tabs above for detailed results per category, where you can click any **result cell** to see the full HTTP request and response.
+These results are from CI runs (`ubuntu-latest`). Click a **server name** to view its Dockerfile and source code. Click on the **Compliance**, **Smuggling**, **Malformed Input**, or **Normalization** tabs above for detailed results per category, where you can click any **result cell** to see the full HTTP request and response.
 {{< /callout >}}
 
 <div id="lang-filter" style="margin-bottom:6px;"></div>

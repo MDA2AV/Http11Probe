@@ -73,28 +73,13 @@ html.dark .hextra-card:hover {
 
 /* ── Nav ─────────────────────────────────────────────────────── */
 
-/* Probe Results — primary nav item */
+/* Leaderboards — primary nav item */
 a[href$="/probe-results"],
 a[href$="/probe-results/"] {
   font-weight: 700 !important;
   font-size: 1.1em !important;
 }
 
-/* Separator before Glossary */
-a[href$="/docs"],
-a[href$="/docs/"] {
-  margin-left: 12px !important;
-  padding-left: 14px !important;
-  border-left: 1px solid rgba(128, 128, 128, 0.3) !important;
-}
-
-/* Separator before Add a Framework */
-a[href$="/add-a-framework"],
-a[href$="/add-a-framework/"] {
-  margin-left: 12px !important;
-  padding-left: 14px !important;
-  border-left: 1px solid rgba(128, 128, 128, 0.3) !important;
-}
 
 /* ── Code blocks: fix dark-mode readability ─────────────────── */
 

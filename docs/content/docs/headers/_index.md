@@ -1,7 +1,7 @@
 ---
 title: Header Syntax
 description: "Header Syntax — Http11Probe documentation"
-weight: 4
+weight: 6
 sidebar:
   open: false
 ---

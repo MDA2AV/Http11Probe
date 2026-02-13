@@ -1,7 +1,7 @@
 ---
 title: Upgrade / WebSocket
 description: "Upgrade / WebSocket — Http11Probe documentation"
-weight: 9
+weight: 12
 sidebar:
   open: false
 ---
