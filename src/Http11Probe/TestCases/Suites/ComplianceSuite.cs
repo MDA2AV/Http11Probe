@@ -431,18 +431,19 @@ public static class ComplianceSuite
             Id = "COMP-ABSOLUTE-FORM",
             Description = "Absolute-form request-target — server should accept per RFC",
             Category = TestCategory.Compliance,
+            Scored = false,
             RfcReference = "RFC 9112 §3.2.2",
             PayloadFactory = ctx => MakeRequest($"GET http://{ctx.HostHeader}/ HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                Description = "400 or 2xx",
+                Description = "2xx preferred; 400 warns",
                 CustomValidator = (response, state) =>
                 {
                     if (response is null)
-                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode == 400)
-                        return TestVerdict.Pass;
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
                     if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    if (response.StatusCode == 400)
                         return TestVerdict.Warn;
                     return TestVerdict.Fail;
                 }
@@ -756,13 +757,15 @@ public static class ComplianceSuite
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5;ext=value\r\nhello\r\n0\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                Description = "2xx or 400",
+                Description = "2xx preferred; 400 warns",
                 CustomValidator = (response, state) =>
                 {
                     if (response is null)
-                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    if (response.StatusCode is >= 200 and < 300 || response.StatusCode == 400)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+                    if (response.StatusCode is >= 200 and < 300)
                         return TestVerdict.Pass;
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Warn;
                     return TestVerdict.Fail;
                 }
             }
@@ -778,7 +781,7 @@ public static class ComplianceSuite
                 $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 99\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                Description = "426 or 2xx",
+                Description = "non-101 (426 preferred)",
                 CustomValidator = (response, state) =>
                 {
                     if (response is null)
@@ -787,9 +790,10 @@ public static class ComplianceSuite
                         return TestVerdict.Fail;
                     if (response.StatusCode == 426)
                         return TestVerdict.Pass;
+                    // Some servers ignore Upgrade entirely and process the GET.
                     if (response.StatusCode is >= 200 and < 300)
                         return TestVerdict.Warn;
-                    return TestVerdict.Fail;
+                    return TestVerdict.Pass;
                 }
             }
         };

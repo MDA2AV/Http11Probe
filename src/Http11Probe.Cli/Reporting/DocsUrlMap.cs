@@ -80,6 +80,7 @@ internal static class DocsUrlMap
     // Special cases where the doc filename doesn't match the ID suffix
     private static readonly Dictionary<string, string> SpecialSlugs = new(StringComparer.OrdinalIgnoreCase)
     {
+        ["COMP-BASELINE"] = "baseline",
         ["MAL-CHUNK-EXT-64K"] = "malformed-input/chunk-extension-long",
         ["SMUG-TRANSFER_ENCODING"] = "smuggling/transfer-encoding-underscore",
     };

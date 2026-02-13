@@ -10,7 +10,7 @@ weight: 10
 | **Category** | Compliance |
 | **RFC** | [RFC 9112 Section 7.1.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1.1) |
 | **Requirement** | MUST ignore unrecognized extensions |
-| **Expected** | `2xx` or `400` |
+| **Expected** | `2xx` = Pass, `400` = Warn |
 
 ## What it sends
 
@@ -75,9 +75,11 @@ chunk-ext-val  = token / quoted-string
 4. However, the RFC also says servers "ought to limit the total length of chunk extensions" and may generate a 4xx response if limits are exceeded. This introduces a legitimate reason for a `400` response.
 5. The extension in this test (`ext=value`) is short (9 bytes), so a length-limit rejection would be unreasonable. But the RFC permits it in principle.
 
-### Scored / Unscored justification
+### Scoring justification
 
-**Unscored.** The MUST keyword applies to *ignoring unrecognized* extensions, which implies the server should parse and skip them. However, the RFC also explicitly permits servers to reject requests with excessive chunk extensions via a 4xx response. Because the boundary between "acceptable" and "excessive" is left to the server's discretion, there is room for a compliant server to reject even short extensions. The test uses SHOULD accept (`2xx` = Pass, `400` = Warn) to acknowledge that `2xx` is the preferred behavior while `400` is not a clear violation.
+This test is **scored** because the payload uses a short, syntactically valid chunk extension. For this input, RFC 9112 §7.1.1 says recipients MUST ignore unrecognized extensions and continue processing.  
+`2xx` is Pass.  
+`400` is Warn (strict behavior seen in the wild, but not the preferred RFC behavior for this specific payload).
 
 ### Edge cases
 

@@ -9,8 +9,8 @@ weight: 50
 | **Test ID** | `SMUG-TE-OBS-FOLD` |
 | **Category** | Smuggling |
 | **RFC** | [RFC 9112 §5.2](https://www.rfc-editor.org/rfc/rfc9112#section-5.2) |
-| **Requirement** | MUST |
-| **Expected** | `400` |
+| **Requirement** | MUST reject or unfold obs-fold |
+| **Expected** | `400`, or `2xx` with connection close |
 
 ## What it sends
 
@@ -37,7 +37,7 @@ When obs-fold is used on the Transfer-Encoding header with Content-Length also p
 
 ## Why it matters
 
-This is a high-confidence smuggling vector. The obs-fold mechanism was deprecated precisely because of parser disagreements. When applied to Transfer-Encoding — the header that determines message framing — it creates a situation where one parser uses chunked encoding and another uses Content-Length, enabling request smuggling. The RFC requires rejection (MUST), and no `AllowConnectionClose` alternative is acceptable because the server must actively reject the malformed header rather than simply closing the connection.
+This is a high-confidence smuggling vector. The obs-fold mechanism was deprecated precisely because of parser disagreements. When applied to Transfer-Encoding, one parser can unfold to `chunked` while another ignores it and falls back to Content-Length.
 
 ## Deep Analysis
 
@@ -71,10 +71,11 @@ The `obs-fold` rule (obsolete line folding) allows a field value to be continued
 
 ### Scored / Unscored Justification
 
-This test is **scored** (MUST reject with `400`). RFC 9112 section 5.2 provides a MUST-level requirement for servers receiving obs-fold. While the RFC allows two options (reject or unfold), this test expects strict `400` rejection because the obs-fold is applied to the Transfer-Encoding header -- the header that determines message framing. Allowing an unfolded interpretation when Content-Length is also present would require the server to then handle the CL/TE dual-header scenario, adding further complexity and risk. No `AllowConnectionClose` alternative is acceptable because the server must actively reject the malformed header.
+This test is **scored**. RFC 9112 §5.2 gives two compliant server behaviors: reject with `400`, or replace obs-fold with SP and continue. If unfolded, the message still carries both TE and CL, so RFC 9112 §6.1 requires closing the connection after responding.
 
-- **Pass (400):** The server correctly rejects the obs-fold per the MUST requirement.
-- **Fail (2xx or close):** The server either silently accepted the folded header or merely closed the connection without the required `400` response.
+- **Pass:** `400`.
+- **Warn:** `2xx` with connection close (accepted unfold path).
+- **Fail:** `2xx` without connection close.
 
 ### Smuggling Attack Scenarios
 

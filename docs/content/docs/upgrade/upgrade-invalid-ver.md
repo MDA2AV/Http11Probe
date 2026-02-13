@@ -9,7 +9,7 @@ weight: 4
 | **Test ID** | `COMP-UPGRADE-INVALID-VER` |
 | **Category** | Compliance |
 | **RFC** | [RFC 6455 Section 4.4](https://www.rfc-editor.org/rfc/rfc6455#section-4.4) |
-| **Requirement** | SHOULD return 426 |
+| **Requirement** | MUST abort handshake (426 preferred) |
 | **Expected** | `426` or non-`101` |
 
 ## What it sends

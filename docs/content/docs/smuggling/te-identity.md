@@ -10,7 +10,7 @@ weight: 30
 | **Category** | Smuggling |
 | **RFC** | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) |
 | **Requirement** | MUST reject |
-| **Expected** | `400` or close |
+| **Expected** | `400`/`501` or close |
 
 ## What it sends
 
@@ -76,7 +76,7 @@ The token `identity` is syntactically valid per the ABNF (it consists entirely o
 
 This test is **scored** (MUST reject). Although the SHOULD in RFC 9112 section 6.1 for unrecognized transfer codings is not a MUST, the combined presence of Transfer-Encoding and Content-Length triggers the MUST-level requirement in section 6.1 to close the connection. The server cannot safely process `Transfer-Encoding: identity` because it is not a recognized coding, and the dual-header scenario mandates connection closure at minimum.
 
-- **Pass (400 or close):** The server correctly rejects the unknown transfer coding or closes the connection per the dual-header rule.
+- **Pass (400/501 or close):** The server rejects the unknown transfer coding or closes the connection per the dual-header rule.
 - **Fail (2xx):** The server accepted a request with an unrecognized transfer coding and conflicting Content-Length, violating the connection-closure requirement.
 
 ### Smuggling Attack Scenarios
