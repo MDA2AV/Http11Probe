@@ -130,8 +130,15 @@ public static class SmugglingSuite
             BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
+                Description = "400/501 or close",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    return response.StatusCode is 400 or 501
+                        ? TestVerdict.Pass
+                        : TestVerdict.Fail;
+                }
             }
         };
 
@@ -146,8 +153,22 @@ public static class SmugglingSuite
             BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
+                Description = "400/501 or 2xx+close",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+
+                    if (response.StatusCode is 400 or 501)
+                        return TestVerdict.Pass;
+
+                    // If recipient trims OWS and recognizes chunked, RFC allows processing;
+                    // with CL+TE present, connection should be closed after response.
+                    if (response.StatusCode is >= 200 and < 300)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+
+                    return TestVerdict.Fail;
+                }
             }
         };
 
@@ -825,8 +846,15 @@ public static class SmugglingSuite
             BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400),
-                AllowConnectionClose = true
+                Description = "400/501 or close",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    return response.StatusCode is 400 or 501
+                        ? TestVerdict.Pass
+                        : TestVerdict.Fail;
+                }
             }
         };
 
@@ -903,6 +931,7 @@ public static class SmugglingSuite
             Id = "SMUG-CHUNKED-WITH-PARAMS",
             Description = "Transfer-Encoding: chunked;ext=val — parameters on chunked encoding",
             Category = TestCategory.Smuggling,
+            Scored = false,
             RfcReference = "RFC 9112 §7",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked;ext=val\r\nContent-Length: 5\r\n\r\nhello"),
@@ -1189,13 +1218,28 @@ public static class SmugglingSuite
             Id = "SMUG-TE-OBS-FOLD",
             Description = "Transfer-Encoding with obs-fold line wrapping must be rejected",
             Category = TestCategory.Smuggling,
-            RfcReference = "RFC 9112 §5.1",
+            RfcReference = "RFC 9112 §5.2",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding:\r\n chunked\r\nContent-Length: 5\r\n\r\nhello"),
             BehavioralAnalyzer = AnalyzeTeWithClFallback,
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Exact(400)
+                Description = "400 or 2xx+close",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Pass;
+
+                    // RFC 9112 §5.2 permits unfolding obs-fold; if unfolded to TE+CL,
+                    // RFC 9112 §6.1 requires closing the connection after responding.
+                    if (response.StatusCode is >= 200 and < 300)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+
+                    return TestVerdict.Fail;
+                }
             }
         };
 

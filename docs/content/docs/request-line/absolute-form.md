@@ -10,7 +10,7 @@ weight: 9
 | **Category** | Compliance |
 | **RFC** | [RFC 9112 Section 3.2.2](https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2) |
 | **Requirement** | MUST accept (server) |
-| **Expected** | `400` or `2xx` |
+| **Expected** | `2xx` = Pass, `400` = Warn (unscored) |
 
 ## What it sends
 
@@ -35,8 +35,8 @@ Although the RFC says servers MUST accept absolute-form, in practice most non-pr
 
 ## Why it matters
 
-**Pass:** Server rejects with `400` (common origin-server behavior).
-**Warn:** Server accepts with `2xx` (RFC-compliant, accepts absolute-form).
+**Pass:** Server accepts with `2xx` (RFC-compliant).
+**Warn:** Server rejects with `400` (common in practice, but non-compliant with MUST accept).
 
 ## Deep Analysis
 
@@ -74,7 +74,7 @@ The `absolute-form` production requires a complete `absolute-URI` as defined in 
 
 ### Scoring Justification
 
-**Unscored.** Although the RFC uses "MUST accept," this requirement primarily targets proxy servers. An origin server that rejects absolute-form (returning `400`) is technically non-compliant but is not creating a security vulnerability -- it is simply refusing a request format it was not designed to handle. Both `400` and `2xx` are treated as acceptable outcomes.
+**Unscored.** RFC 9112 uses a server-side MUST to accept absolute-form. In practice, many origin stacks still reject it. To preserve interoperability visibility without hard-failing broad classes of servers, this test is unscored: `2xx` is Pass and `400` is Warn.
 
 ### Edge Cases
 

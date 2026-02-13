@@ -87,9 +87,21 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="chunk-spill" title="CHUNK-SPILL" subtitle="Chunk declares size 5 but sends 7 bytes." >}}
   {{< card link="chunk-lf-term" title="CHUNK-LF-TERM" subtitle="Bare LF as chunk data terminator." >}}
   {{< card link="chunk-ext-ctrl" title="CHUNK-EXT-CTRL" subtitle="NUL byte in chunk extension." >}}
+  {{< card link="chunk-ext-cr" title="CHUNK-EXT-CR" subtitle="Bare CR inside chunk extension metadata." >}}
   {{< card link="chunk-lf-trailer" title="CHUNK-LF-TRAILER" subtitle="Bare LF in trailer section termination." >}}
   {{< card link="te-identity" title="TE-IDENTITY" subtitle="Transfer-Encoding: identity (deprecated) with CL." >}}
+  {{< card link="te-vtab" title="TE-VTAB" subtitle="Vertical tab before chunked token." >}}
+  {{< card link="te-formfeed" title="TE-FORMFEED" subtitle="Form-feed before chunked token." >}}
+  {{< card link="te-null" title="TE-NULL" subtitle="NUL byte appended to chunked token." >}}
   {{< card link="chunk-negative" title="CHUNK-NEGATIVE" subtitle="Negative chunk size (-1)." >}}
+  {{< card link="chunk-bare-cr-term" title="CHUNK-BARE-CR-TERM" subtitle="Bare CR as chunk size line terminator." >}}
+  {{< card link="cl-underscore" title="CL-UNDERSCORE" subtitle="Content-Length with underscore digit separator (1_0)." >}}
+  {{< card link="cl-negative-zero" title="CL-NEGATIVE-ZERO" subtitle="Content-Length: -0 — not valid 1*DIGIT." >}}
+  {{< card link="cl-double-zero" title="CL-DOUBLE-ZERO" subtitle="Content-Length: 00 — leading zero ambiguity." >}}
+  {{< card link="cl-leading-zeros-octal" title="CL-LEADING-ZEROS-OCTAL" subtitle="Content-Length: 0200 — octal vs decimal disagreement." >}}
+  {{< card link="te-obs-fold" title="TE-OBS-FOLD" subtitle="Transfer-Encoding with obs-fold line wrapping." >}}
+  {{< card link="te-trailing-comma" title="TE-TRAILING-COMMA" subtitle="Transfer-Encoding: chunked, — trailing comma." >}}
+  {{< card link="multiple-host-comma" title="MULTIPLE-HOST-COMMA" subtitle="Host with comma-separated values." >}}
 {{< /cards >}}
 
 ### Unscored
@@ -97,7 +109,6 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
 {{< cards >}}
   {{< card link="cl-trailing-space" title="CL-TRAILING-SPACE" subtitle="Trailing space in CL value. OWS trimming is valid." >}}
   {{< card link="cl-extra-leading-sp" title="CL-EXTRA-LEADING-SP" subtitle="Extra space after CL colon. OWS is valid." >}}
-  {{< card link="header-injection" title="HEADER-INJECTION" subtitle="CRLF injection in header value." >}}
   {{< card link="te-double-chunked" title="TE-DOUBLE-CHUNKED" subtitle="Duplicate 'chunked' TE with CL." >}}
   {{< card link="te-case-mismatch" title="TE-CASE-MISMATCH" subtitle="'Chunked' vs 'chunked'. Case is valid per RFC." >}}
   {{< card link="transfer-encoding-underscore" title="TRANSFER_ENCODING" subtitle="Underscore instead of hyphen in header name." >}}
@@ -107,6 +118,10 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="trailer-cl" title="TRAILER-CL" subtitle="Content-Length in chunked trailers (prohibited)." >}}
   {{< card link="trailer-te" title="TRAILER-TE" subtitle="Transfer-Encoding in chunked trailers (prohibited)." >}}
   {{< card link="trailer-host" title="TRAILER-HOST" subtitle="Host header in chunked trailers (must not route)." >}}
+  {{< card link="trailer-auth" title="TRAILER-AUTH" subtitle="Authorization in chunked trailers (prohibited)." >}}
+  {{< card link="trailer-content-type" title="TRAILER-CONTENT-TYPE" subtitle="Content-Type in chunked trailers (prohibited)." >}}
   {{< card link="head-cl-body" title="HEAD-CL-BODY" subtitle="HEAD with Content-Length and body." >}}
   {{< card link="options-cl-body" title="OPTIONS-CL-BODY" subtitle="OPTIONS with Content-Length and body." >}}
+  {{< card link="te-tab-before-value" title="TE-TAB-BEFORE-VALUE" subtitle="Tab as OWS before Transfer-Encoding value." >}}
+  {{< card link="absolute-uri-host-mismatch" title="ABSOLUTE-URI-HOST-MISMATCH" subtitle="Absolute-form URI with different Host header." >}}
 {{< /cards >}}

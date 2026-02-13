@@ -9,8 +9,8 @@ weight: 6
 | **Test ID** | `SMUG-TE-TRAILING-SPACE` |
 | **Category** | Smuggling |
 | **RFC** | [RFC 9110 §5.5](https://www.rfc-editor.org/rfc/rfc9110#section-5.5), [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) |
-| **Requirement** | MUST reject |
-| **Expected** | `400` or close |
+| **Requirement** | MAY reject or process with TE; MUST close connection if CL+TE is processed |
+| **Expected** | `400`/`501`, or `2xx` with connection close |
 
 ## What it sends
 
@@ -77,10 +77,11 @@ The `field-line` rule includes trailing `OWS` after `field-value`. Per RFC 9112 
 
 ### Scored / Unscored Justification
 
-This test is **scored** (MUST reject). The combined presence of Transfer-Encoding and Content-Length triggers the MUST-level connection-closure requirement in RFC 9112 section 6.1. While RFC 9110 section 5.5 requires stripping trailing whitespace (which would make the value `chunked`), the trailing space creates a practical ambiguity that many parsers handle inconsistently. The server MUST at minimum close the connection after responding to a request with both TE and CL.
+This test is **scored**. RFC 9110 §5.5 requires trimming trailing OWS before field-value evaluation, so `chunked ` can become `chunked`. RFC 9112 §6.1 then applies the CL+TE rule: reject, or process with TE and close the connection.
 
-- **Pass (400 or close):** The server correctly rejects the request or closes the connection per the dual-header rules.
-- **Fail (2xx):** The server processed the request without closing the connection, violating the MUST requirement in section 6.1.
+- **Pass:** `400`/`501` (strict rejection path).
+- **Warn:** `2xx` with connection close (lenient parse path, still RFC-safe on connection handling).
+- **Fail:** `2xx` without connection close.
 
 ### Smuggling Attack Scenarios
 

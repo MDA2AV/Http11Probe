@@ -10,7 +10,7 @@ weight: 5
 | **Category** | Smuggling |
 | **RFC** | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) |
 | **Requirement** | MUST reject |
-| **Expected** | `400` or close |
+| **Expected** | `400`/`501` or close |
 
 ## What it sends
 
@@ -74,7 +74,7 @@ The token `xchunked` is syntactically valid per the ABNF -- it consists entirely
 
 This test is **scored** (MUST reject). The MUST-level connection-closure requirement in RFC 9112 section 6.1 applies to all requests containing both Transfer-Encoding and Content-Length. Additionally, `xchunked` is not a recognized transfer coding, so the SHOULD-level guidance to respond with `501` reinforces rejection. The server cannot safely process a body framed with an unknown coding.
 
-- **Pass (400 or close):** The server correctly rejects the unknown transfer coding or closes the connection per the dual-header rule.
+- **Pass (400/501 or close):** The server rejects the unknown transfer coding or closes the connection per the dual-header rule.
 - **Fail (2xx):** The server accepted a request with an unrecognized transfer coding and conflicting Content-Length, violating the connection-closure requirement.
 
 ### Smuggling Attack Scenarios
