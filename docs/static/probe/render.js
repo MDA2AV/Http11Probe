@@ -13,7 +13,7 @@ window.ProbeRender = (function () {
   }
 
   // Servers temporarily hidden from results (undergoing major changes)
-  var BLACKLISTED_SERVERS = ['GenHTTP'];
+  var BLACKLISTED_SERVERS = [];
   function filterBlacklisted(servers) {
     return servers.filter(function (sv) {
       return BLACKLISTED_SERVERS.indexOf(sv.name) === -1;
