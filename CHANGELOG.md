@@ -7,6 +7,16 @@ All notable changes to Http11Probe are documented in this file.
 ### Added
 - **Server configuration pages** — per-server docs pages showing Dockerfile, source code, and config files for all 36 tested servers (`docs/content/servers/`)
 - **Clickable server names** — server names in the probe results table and summary bar chart now link to their configuration page
+- **Sticky first column** — server name column stays pinned to the left edge while scrolling horizontally through result tables
+- **Collapsible sub-groups** — group headers in result tables are now clickable to collapse/expand, with a chevron indicator and a "Collapse All / Expand All" toggle button
+- **Row-click detail popup** — clicking a server row opens a modal showing that server's results for the current table in a vertical layout (Test, Expected, Got, Description) with section and table name in the header
+- **Truncation notice** — tooltip and modal now show a `[Truncated]` notice at the top when raw request/response data exceeds the 8,192-byte display limit
+
+### Changed
+- **Scrollable tooltips** — hover tooltips are now interactive and scrollable for large payloads (removed `pointer-events:none`, increased `max-height` to `60vh`)
+- **Larger click modal** — expanded from `max-width:700px` to `90vw` and `max-height` from `80vh` to `85vh` to better accommodate large request/response data
+- Raw request capture now includes truncation metadata when payload exceeds 8,192 bytes (`TestRunner.cs`)
+- Raw response capture now includes truncation metadata when response exceeds 8,192 bytes (`ResponseParser.cs`)
 
 ## [2026-02-12]
 
