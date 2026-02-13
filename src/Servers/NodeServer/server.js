@@ -3,8 +3,13 @@ const http = require('http');
 const port = parseInt(process.argv[2] || '8080', 10);
 
 const server = http.createServer((req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    if (url.pathname === '/echo') {
+    let pathname;
+    try {
+        pathname = new URL(req.url, `http://${req.headers.host || 'localhost'}`).pathname;
+    } catch {
+        pathname = req.url;
+    }
+    if (pathname === '/echo') {
         let body = '';
         for (const [name, value] of Object.entries(req.headers)) {
             if (Array.isArray(value)) value.forEach(v => body += name + ': ' + v + '\n');
