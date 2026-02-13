@@ -13,6 +13,21 @@ All notable changes to Http11Probe are documented in this file.
 - **Truncation notice** — tooltip and modal now show a `[Truncated]` notice at the top when raw request/response data exceeds the 8,192-byte display limit
 
 ### Changed
+- **Horizontal column headers** — test name headers are now displayed horizontally instead of rotated at -55°, improving readability
+- **Zebra striping** — alternating row backgrounds for easier scanning
+- **Softer borders** — lighter table borders in both light and dark mode, plus vertical separators between test columns
+- **Expected row styling** — CSS-only background with dark mode support (fixes light gray leak in dark mode), thicker bottom border for visual separation
+- **Scored/unscored separator** — heavier vertical border line between scored and unscored test columns
+- **Larger pills** — increased padding, min-width, and border-radius for result badges
+- **Improved readability** — larger base font (13px), bigger column headers with heavier weight and letter-spacing, more cell padding throughout
+- **Group header refinement** — added padding and bottom border to collapsible group headers
+- **Toggle button polish** — reduced border-radius from pill to button shape
+- **Scroll overflow hint** — "Scroll to see all tests" label and right-edge fade gradient appear when tables overflow horizontally
+- **Language suffix dark mode** — improved contrast for language labels in dark mode
+- **Mobile bottom-sheet modal** — modal slides up from bottom on small screens with full width and rounded top corners
+- **Touch-friendly targets** — larger buttons and invisible hit-area expansion on pills for touch devices
+- **Smooth momentum scroll** — added `-webkit-overflow-scrolling:touch` for iOS
+- **Stronger sticky shadow on mobile** — increased shadow intensity for the pinned server name column
 - **Scrollable tooltips** — hover tooltips are now interactive and scrollable for large payloads (removed `pointer-events:none`, increased `max-height` to `60vh`)
 - **Larger click modal** — expanded from `max-width:700px` to `90vw` and `max-height` from `80vh` to `85vh` to better accommodate large request/response data
 - Raw request capture now includes truncation metadata when payload exceeds 8,192 bytes (`TestRunner.cs`)

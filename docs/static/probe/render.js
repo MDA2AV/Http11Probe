@@ -5,7 +5,7 @@ window.ProbeRender = (function () {
   var FAIL_BG = '#cf222e';
   var SKIP_BG = '#656d76';
   var EXPECT_BG = '#444c56';
-  var pillCss = 'text-align:center;padding:2px 4px;font-size:11px;font-weight:600;color:#fff;border-radius:3px;min-width:28px;display:inline-block;line-height:18px;cursor:default;';
+  var pillCss = 'text-align:center;padding:3px 6px;font-size:11px;font-weight:600;color:#fff;border-radius:4px;min-width:32px;display:inline-block;line-height:18px;cursor:default;';
 
   function escapeAttr(s) {
     if (!s) return '';
@@ -27,7 +27,7 @@ window.ProbeRender = (function () {
     scrollStyleInjected = true;
     var css = ''
       // Scrollbar — light
-      + '.probe-scroll{overflow-x:auto;scrollbar-width:thin;scrollbar-color:#94a3b8 #e5e7eb}'
+      + '.probe-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#94a3b8 #e5e7eb}'
       + '.probe-scroll::-webkit-scrollbar{height:8px}'
       + '.probe-scroll::-webkit-scrollbar-track{background:#e5e7eb;border-radius:4px}'
       + '.probe-scroll::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:4px}'
@@ -38,15 +38,21 @@ window.ProbeRender = (function () {
       + 'html.dark .probe-scroll::-webkit-scrollbar-thumb{background:#4b5563}'
       + 'html.dark .probe-scroll::-webkit-scrollbar-thumb:hover{background:#6b7280}'
       // Table rows — light
-      + '.probe-table thead{border-bottom:2px solid #afb8c1}'
-      + '.probe-table tbody tr{border-bottom:1px solid #afb8c1}'
+      + '.probe-table thead{border-bottom:2px solid #d0d7de}'
+      + '.probe-table tbody tr{border-bottom:1px solid #e1e4e8}'
+      + '.probe-table th+th,.probe-table td+td{border-left:1px solid #e1e4e8}'
       + '.probe-server-row{cursor:pointer;transition:background 0.15s}'
+      + '.probe-server-row:nth-child(even){background:#f8f9fb}'
+      + '.probe-server-row:nth-child(even) .probe-sticky-col{background:#f8f9fb}'
       + '.probe-server-row:hover{background:#eef1f5}'
       + '.probe-server-row.probe-row-active{background:#c8ddf0 !important}'
       + '.probe-table thead a{color:#0969da !important;text-decoration:underline !important;text-underline-offset:2px}'
       // Table rows — dark
       + 'html.dark .probe-table thead{border-bottom-color:#30363d}'
-      + 'html.dark .probe-table tbody tr{border-bottom-color:#30363d}'
+      + 'html.dark .probe-table tbody tr{border-bottom-color:#262c36}'
+      + 'html.dark .probe-table th+th,html.dark .probe-table td+td{border-left-color:#262c36}'
+      + 'html.dark .probe-server-row:nth-child(even){background:#1e242c}'
+      + 'html.dark .probe-server-row:nth-child(even) .probe-sticky-col{background:#1e242c}'
       + 'html.dark .probe-server-row:hover{background:#161b22}'
       + 'html.dark .probe-server-row.probe-row-active{background:#2a3a50 !important}'
       + 'html.dark .probe-table thead a{color:#58a6ff !important}'
@@ -71,25 +77,41 @@ window.ProbeRender = (function () {
       // Sticky first column — light
       + '.probe-table .probe-sticky-col{position:sticky;left:0;z-index:2;background:#fff;box-shadow:2px 0 4px rgba(0,0,0,0.06)}'
       + '.probe-table thead .probe-sticky-col{z-index:3}'
-      + 'tr[data-expected-row] .probe-sticky-col{background:#f6f8fa}'
+      + 'tr[data-expected-row]{background:#f0f3f6;border-bottom:2px solid #d0d7de !important}'
+      + 'tr[data-expected-row] .probe-sticky-col{background:#f0f3f6}'
       + '.probe-server-row:hover .probe-sticky-col{background:#eef1f5}'
       + '.probe-server-row.probe-row-active .probe-sticky-col{background:#c8ddf0}'
       // Sticky first column — dark
       + 'html.dark .probe-table .probe-sticky-col{background:#1c2128;box-shadow:2px 0 4px rgba(0,0,0,0.2)}'
+      + 'html.dark tr[data-expected-row]{background:#21262d;border-bottom-color:#30363d !important}'
       + 'html.dark tr[data-expected-row] .probe-sticky-col{background:#21262d}'
       + 'html.dark .probe-server-row:hover .probe-sticky-col{background:#161b22}'
       + 'html.dark .probe-server-row.probe-row-active .probe-sticky-col{background:#2a3a50}'
       // Collapsible groups
-      + '.probe-group-header{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px}'
+      + '.probe-group-header{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e1e4e8;color:#24292f}'
+      + 'html.dark .probe-group-header{border-bottom-color:#30363d;color:#c9d1d9}'
       + '.probe-group-chevron{display:inline-block;transition:transform 0.2s;font-size:0.8em}'
       + '.probe-group-chevron.collapsed{transform:rotate(-90deg)}'
       + '.probe-group-body{overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:10000px;opacity:1}'
       + '.probe-group-body.collapsed{max-height:0;opacity:0}'
-      + '.probe-toggle-all{display:inline-block;padding:4px 12px;font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;'
+      + '.probe-toggle-all{display:inline-block;padding:5px 14px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;'
       + 'border:1px solid #d0d7de;background:#f6f8fa;color:#24292f;margin-bottom:8px;transition:all 0.15s}'
       + '.probe-toggle-all:hover{background:#eef1f5}'
       + 'html.dark .probe-toggle-all{border-color:#30363d;background:#21262d;color:#c9d1d9}'
-      + 'html.dark .probe-toggle-all:hover{background:#30363d}';
+      + 'html.dark .probe-toggle-all:hover{background:#30363d}'
+      // Scored/unscored separator
+      + '.probe-unscored-sep{border-left:2px solid #d0d7de}'
+      + 'html.dark .probe-unscored-sep{border-left-color:#30363d}'
+      // Language suffix dark contrast
+      + 'html.dark .probe-lang-suffix{color:#8b949e}'
+      // Touch targets
+      + '@media(pointer:coarse){.probe-table td{padding:4px 5px}[data-tooltip]{position:relative}[data-tooltip]::after{content:"";position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}}'
+      // Mobile modal (bottom sheet)
+      + '@media(max-width:640px){.probe-modal-overlay{align-items:flex-end}.probe-modal{width:100vw;border-radius:12px 12px 0 0;max-height:92vh}.probe-modal-close{font-size:24px;padding:4px 8px}}'
+      // Touch-friendly buttons
+      + '@media(pointer:coarse){.probe-lang-btn,.probe-cat-btn,.probe-toggle-all{padding:8px 16px;font-size:13px;min-height:36px}}'
+      // Stronger sticky shadow on mobile
+      + '@media(max-width:640px){.probe-table .probe-sticky-col{box-shadow:3px 0 6px rgba(0,0,0,0.1)}html.dark .probe-table .probe-sticky-col{box-shadow:3px 0 6px rgba(0,0,0,0.3)}}';
     var style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);
@@ -470,7 +492,7 @@ window.ProbeRender = (function () {
       var nameLabel = sUrl
         ? '<a href="' + sUrl + '" style="color:inherit;text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' + sv.name + '</a>'
         : sv.name;
-      if (sv.language) nameLabel += ' <span style="font-weight:400;color:#656d76;font-size:11px;">(' + sv.language + ')</span>';
+      if (sv.language) nameLabel += ' <span class="probe-lang-suffix" style="font-weight:400;color:#656d76;font-size:11px;">(' + sv.language + ')</span>';
       html += '<div style="min-width:150px;font-size:13px;font-weight:600;white-space:nowrap;">' + nameLabel + '</div>';
       var trackBg = document.documentElement.classList.contains('dark') ? '#2a2f38' : '#f0f0f0';
       html += '<div style="flex:1;height:22px;background:' + trackBg + ';border-radius:3px;overflow:hidden;display:flex;">';
@@ -544,37 +566,39 @@ window.ProbeRender = (function () {
       return tid.replace(/^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-|NORM-)/, '');
     });
 
-    var t = '<div class="probe-scroll"><table class="probe-table" style="border-collapse:collapse;font-size:12px;white-space:nowrap;">';
+    var unscoredStart = scoredTests.length;
+    var t = '<div class="probe-scroll"><table class="probe-table" style="border-collapse:collapse;font-size:13px;white-space:nowrap;">';
 
-    // Column header row (diagonal labels)
+    // Column header row (horizontal labels)
     t += '<thead><tr>';
-    t += '<th class="probe-sticky-col" style="padding:4px 8px;text-align:left;vertical-align:bottom;min-width:100px;"></th>';
+    t += '<th class="probe-sticky-col" style="padding:6px 10px;text-align:left;vertical-align:bottom;min-width:100px;"></th>';
     orderedTests.forEach(function (tid, i) {
       var first = lookup[names[0]][tid];
       var isUnscored = first.scored === false;
       var opacity = isUnscored ? 'opacity:0.55;' : '';
+      var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
       var url = testUrl(tid);
-      t += '<th style="padding:0;height:110px;width:30px;vertical-align:bottom;' + opacity + '">';
-      t += '<div style="width:30px;height:110px;position:relative;">';
+      t += '<th class="' + sepCls + '" style="padding:6px 8px;vertical-align:bottom;white-space:nowrap;' + opacity + '">';
       if (url) {
-        t += '<a href="' + url + '" style="font-size:10px;font-weight:500;color:inherit;text-decoration:none;position:absolute;bottom:6px;left:50%;transform-origin:bottom left;transform:rotate(-55deg);white-space:nowrap;" title="' + first.description + '">' + shortLabels[i];
+        t += '<a href="' + url + '" style="font-size:10.5px;font-weight:600;letter-spacing:0.3px;color:inherit;text-decoration:none;" title="' + escapeAttr(first.description) + '">' + shortLabels[i];
       } else {
-        t += '<span style="font-size:10px;font-weight:500;color:inherit;position:absolute;bottom:6px;left:50%;transform-origin:bottom left;transform:rotate(-55deg);white-space:nowrap;" title="' + first.description + '">' + shortLabels[i];
+        t += '<span style="font-size:10.5px;font-weight:600;letter-spacing:0.3px;" title="' + escapeAttr(first.description) + '">' + shortLabels[i];
       }
       if (isUnscored) t += '*';
       t += url ? '</a>' : '</span>';
-      t += '</div></th>';
+      t += '</th>';
     });
     t += '</tr></thead><tbody>';
 
     // Expected row
-    t += '<tr data-expected-row style="background:#f6f8fa;">';
-    t += '<td class="probe-sticky-col" style="padding:4px 8px;font-weight:700;font-size:11px;color:#656d76;">Expected</td>';
-    orderedTests.forEach(function (tid) {
+    t += '<tr data-expected-row>';
+    t += '<td class="probe-sticky-col" style="padding:6px 10px;font-weight:700;font-size:12px;color:#656d76;">Expected</td>';
+    orderedTests.forEach(function (tid, i) {
       var first = lookup[names[0]][tid];
       var isUnscored = first.scored === false;
       var opacity = isUnscored ? 'opacity:0.55;' : '';
-      t += '<td style="text-align:center;padding:2px 3px;' + opacity + '">' + pill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
+      var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
+      t += '<td class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
     });
     t += '</tr>';
 
@@ -584,21 +608,22 @@ window.ProbeRender = (function () {
     names.forEach(function (n) {
       t += '<tr class="probe-server-row" data-server="' + escapeAttr(n) + '">';
       var lang = serverLangs[n];
-      var langSuffix = lang ? ' <span style="font-weight:400;color:#656d76;font-size:10px;">(' + lang + ')</span>' : '';
+      var langSuffix = lang ? ' <span class="probe-lang-suffix" style="font-weight:400;color:#656d76;font-size:10px;">(' + lang + ')</span>' : '';
       var srvUrl = serverUrl(n);
       var srvName = srvUrl
         ? '<a href="' + srvUrl + '" style="color:inherit;text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' + n + '</a>'
         : n;
-      t += '<td class="probe-sticky-col" style="padding:4px 8px;font-weight:600;font-size:12px;white-space:nowrap;">' + srvName + langSuffix + '</td>';
-      orderedTests.forEach(function (tid) {
+      t += '<td class="probe-sticky-col" style="padding:6px 10px;font-weight:600;font-size:13px;white-space:nowrap;">' + srvName + langSuffix + '</td>';
+      orderedTests.forEach(function (tid, i) {
         var r = lookup[n] && lookup[n][tid];
         var isUnscored = lookup[names[0]][tid].scored === false;
         var opacity = isUnscored ? 'opacity:0.55;' : '';
+        var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
         if (!r) {
-          t += '<td style="text-align:center;padding:2px 3px;' + opacity + '">' + pill(SKIP_BG, '\u2014') + '</td>';
+          t += '<td class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(SKIP_BG, '\u2014') + '</td>';
           return;
         }
-        t += '<td style="text-align:center;padding:2px 3px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest) + '</td>';
+        t += '<td class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest) + '</td>';
       });
       t += '</tr>';
     });
@@ -608,6 +633,37 @@ window.ProbeRender = (function () {
       t += '<p style="font-size:0.8em;color:#656d76;margin-top:4px;">* Not scored &mdash; RFC-compliant behavior, shown for reference.</p>';
     }
     el.innerHTML = t;
+
+    // Overflow scroll hint + right-edge fade
+    var scrollEl = el.querySelector('.probe-scroll');
+    if (scrollEl && orderedTests.length > 3) {
+      var isDark = document.documentElement.classList.contains('dark');
+
+      // Hint label
+      var hint = document.createElement('div');
+      hint.style.cssText = 'text-align:right;font-size:14px;font-weight:600;color:#656d76;margin-bottom:6px;';
+      hint.innerHTML = '\u2B95 Scroll to see all tests';
+      scrollEl.parentNode.insertBefore(hint, scrollEl);
+
+      // Wrap scroll container so fade can sit on top
+      var wrapper = document.createElement('div');
+      wrapper.style.cssText = 'position:relative;';
+      scrollEl.parentNode.insertBefore(wrapper, scrollEl);
+      wrapper.appendChild(scrollEl);
+
+      // Fade overlay (sibling of scroll, not inside it)
+      var fadeEl = document.createElement('div');
+      fadeEl.style.cssText = 'position:absolute;top:0;right:0;bottom:0;width:120px;pointer-events:none;'
+        + 'background:linear-gradient(to right,transparent,' + (isDark ? 'rgba(28,33,40,0.95)' : 'rgba(255,255,255,0.92)') + ');'
+        + 'transition:opacity 0.3s;';
+      wrapper.appendChild(fadeEl);
+
+      scrollEl.addEventListener('scroll', function () {
+        var atEnd = scrollEl.scrollLeft + scrollEl.clientWidth >= scrollEl.scrollWidth - 1;
+        fadeEl.style.opacity = atEnd ? '0' : '1';
+      });
+
+    }
 
     // Row click → detail popup
     var rows = el.querySelectorAll('.probe-server-row');
@@ -761,7 +817,7 @@ window.ProbeRender = (function () {
     var html = '<button class="probe-toggle-all" data-target="' + targetId + '">Collapse All</button>';
     allGroups.forEach(function (g) {
       var divId = targetId + '-' + g.key;
-      html += '<h3 class="probe-group-header" data-group="' + divId + '" style="margin-top:1.5em;margin-bottom:0.3em;">'
+      html += '<h3 class="probe-group-header" data-group="' + divId + '">'
         + '<span class="probe-group-chevron">\u25BC</span>' + g.label + '</h3>';
       html += '<div class="probe-group-body" id="' + divId + '"></div>';
     });

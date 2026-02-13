@@ -15,7 +15,7 @@ Some tests are **unscored** (marked with `*`). These send payloads where the RFC
 {{< /callout >}}
 
 {{< callout type="info" >}}
-Click a **server name** to view its Dockerfile and source code. Click a **result cell** to see the full HTTP request and response.
+Click a **server name** to view its Dockerfile and source code. Click a **row** to expand all results for that server. Click a **result cell** to see the full HTTP request and response.
 {{< /callout >}}
 
 <div id="lang-filter"></div>
