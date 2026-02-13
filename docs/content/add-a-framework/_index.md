@@ -12,7 +12,9 @@ Your server must listen on **port 8080** and implement three endpoints:
 | Endpoint | Method | Behavior |
 |----------|--------|----------|
 | `/` | `GET` | Return `200 OK`. This is the baseline reachability check. |
+| `/` | `HEAD` | Return `200 OK` with no body. Used by smuggling tests that check body handling on HEAD requests. |
 | `/` | `POST` | Read the full request body and return it in the response. Used by body handling and smuggling tests. |
+| `/` | `OPTIONS` | Return `200 OK`. Used by smuggling tests that check body handling on OPTIONS requests. |
 | `/echo` | `POST` | Return all received request headers in the response body, one per line as `Name: Value`. Used by normalization tests. |
 
 ### Why `/echo`?
@@ -108,3 +110,4 @@ The key parts:
 - **`/echo`** — echoes all received headers back as plain text.
 - **`POST /`** — reads and returns the request body (needed for body and smuggling tests).
 - **`GET /`** (catch-all) — returns `"OK"` with `200`.
+- **`HEAD /`** and **`OPTIONS /`** — handled by the catch-all; return `200` so smuggling tests can evaluate body handling instead of getting `405`.
