@@ -230,9 +230,11 @@ public static class ComplianceSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
+                    // If server sent a response, only 400 is acceptable
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout means server correctly rejected
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -545,10 +547,12 @@ public static class ComplianceSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
-                    // Server should wait for remaining bytes then timeout, or reject
+                    // If server sent a response, only 400 is acceptable
+                    // (a 2xx means it processed an incomplete body — always wrong)
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout means server correctly waited for remaining bytes
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -615,10 +619,12 @@ public static class ComplianceSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
-                    // Server should wait for more chunks then timeout, or reject
+                    // If server sent a response, only 400 is acceptable
+                    // (a 2xx means it processed an incomplete body — always wrong)
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout means server correctly waited
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -787,10 +793,10 @@ public static class ComplianceSuite
                         return TestVerdict.Warn;
                     if (response.StatusCode is >= 200 and < 300)
                     {
-                        var body = (response.Body ?? "").TrimEnd('\r', '\n');
+                        var body = GetEffectiveBody(response);
                         if (body == "hello") return TestVerdict.Pass;
-                        if (IsStaticResponse(body) || body.Length == 0) return TestVerdict.Pass;
-                        return TestVerdict.Warn;
+                        if (IsStaticResponse(body)) return TestVerdict.Pass;
+                        return TestVerdict.Fail;
                     }
                     return TestVerdict.Fail;
                 }
@@ -1277,15 +1283,71 @@ public static class ComplianceSuite
 
     private static bool IsStaticResponse(string body) => body == "OK";
 
+    /// <summary>
+    /// Extracts the effective body from a response, decoding chunked TE if present.
+    /// </summary>
+    private static string GetEffectiveBody(HttpResponse response)
+    {
+        var raw = (response.Body ?? "").TrimEnd('\r', '\n');
+
+        if (response.Headers.TryGetValue("Transfer-Encoding", out var te) &&
+            te.Contains("chunked", StringComparison.OrdinalIgnoreCase))
+        {
+            var decoded = TryDecodeChunked(raw);
+            if (decoded is not null)
+                return decoded;
+        }
+
+        return raw;
+    }
+
+    private static string? TryDecodeChunked(string raw)
+    {
+        var sb = new StringBuilder();
+        var pos = 0;
+
+        while (pos < raw.Length)
+        {
+            var lineEnd = raw.IndexOf("\r\n", pos, StringComparison.Ordinal);
+            if (lineEnd < 0) return null;
+
+            var sizeLine = raw[pos..lineEnd];
+            var semiIdx = sizeLine.IndexOf(';');
+            if (semiIdx >= 0) sizeLine = sizeLine[..semiIdx];
+            sizeLine = sizeLine.Trim();
+
+            if (!int.TryParse(sizeLine, System.Globalization.NumberStyles.HexNumber, null, out var chunkSize))
+                return null;
+
+            if (chunkSize == 0)
+                break;
+
+            var dataStart = lineEnd + 2;
+            var dataEnd = dataStart + chunkSize;
+            if (dataEnd > raw.Length) return null;
+
+            sb.Append(raw[dataStart..dataEnd]);
+
+            // Skip past chunk data + CRLF
+            pos = dataEnd;
+            if (pos + 2 <= raw.Length && raw[pos] == '\r' && raw[pos + 1] == '\n')
+                pos += 2;
+            else if (pos < raw.Length)
+                pos++;
+        }
+
+        return sb.ToString();
+    }
+
     private static Func<HttpResponse?, string?> EchoAnalyzer(string expectedBody)
     {
         return response =>
         {
             if (response is null || response.StatusCode is < 200 or >= 300) return null;
-            var body = (response.Body ?? "").TrimEnd('\r', '\n');
+            var body = GetEffectiveBody(response);
             if (IsStaticResponse(body)) return "Static response — server does not echo POST body";
             if (body == expectedBody) return "Echoed correctly";
-            if (body.Length == 0) return "Empty body";
+            if (body.Length == 0) return "Empty body — server did not echo";
             return $"Echo mismatch: expected \"{expectedBody}\", got \"{(body.Length > 40 ? body[..40] + "..." : body)}\"";
         };
     }
@@ -1298,11 +1360,10 @@ public static class ComplianceSuite
                 return TestVerdict.Fail;
             if (response.StatusCode is < 200 or >= 300)
                 return TestVerdict.Fail;
-            var body = (response.Body ?? "").TrimEnd('\r', '\n');
+            var body = GetEffectiveBody(response);
             if (body == expectedBody) return TestVerdict.Pass;
             if (IsStaticResponse(body)) return TestVerdict.Pass;
-            if (body.Length == 0) return TestVerdict.Pass;
-            return TestVerdict.Warn;
+            return TestVerdict.Fail;
         };
     }
 

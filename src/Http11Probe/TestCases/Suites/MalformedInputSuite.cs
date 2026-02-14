@@ -25,10 +25,11 @@ public static class MalformedInputSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
-                    // Any of these is acceptable: 400, close, or timeout
+                    // If server sent a response, only 400 is acceptable
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout is acceptable
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -158,10 +159,11 @@ public static class MalformedInputSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
-                    // Any of these is acceptable: timeout, close, or 400
+                    // If server sent a response, only 400 is acceptable
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout is acceptable
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -180,9 +182,11 @@ public static class MalformedInputSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
+                    // If server sent a response, only 400 is acceptable
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout is acceptable
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -313,9 +317,11 @@ public static class MalformedInputSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
+                    // If server sent a response, only 400 is acceptable
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout is acceptable
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -365,9 +371,11 @@ public static class MalformedInputSuite
                 Description = "400/505/close/timeout",
                 CustomValidator = (response, state) =>
                 {
+                    // If server sent a response, only 400 or 505 is acceptable
+                    if (response is not null)
+                        return response.StatusCode is 400 or 505 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout is acceptable
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode is 400 or 505)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
@@ -580,9 +588,11 @@ public static class MalformedInputSuite
                 Description = "400/close/timeout",
                 CustomValidator = (response, state) =>
                 {
+                    // If server sent a response, only 400 is acceptable
+                    if (response is not null)
+                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                    // No response: close or timeout means server correctly waited
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
-                        return TestVerdict.Pass;
-                    if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     return TestVerdict.Fail;
                 }
