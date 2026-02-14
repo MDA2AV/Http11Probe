@@ -85,7 +85,7 @@ public sealed class TestRunner
             await client.SendAsync(payload);
 
             // Read primary response
-            var (data, length, readState) = await client.ReadResponseAsync();
+            var (data, length, readState, drainCaughtData) = await client.ReadResponseAsync();
             var response = ResponseParser.TryParse(data.AsSpan(), length);
 
             HttpResponse? followUpResponse = null;
@@ -97,7 +97,7 @@ public sealed class TestRunner
                 var followUpPayload = testCase.FollowUpPayloadFactory(context);
                 await client.SendAsync(followUpPayload);
 
-                var (fuData, fuLength, fuState) = await client.ReadResponseAsync();
+                var (fuData, fuLength, fuState, _) = await client.ReadResponseAsync();
                 followUpResponse = ResponseParser.TryParse(fuData.AsSpan(), fuLength);
                 connectionState = fuState;
             }
@@ -120,6 +120,7 @@ public sealed class TestRunner
                 ConnectionState = connectionState,
                 BehavioralNote = behavioralNote,
                 RawRequest = rawRequest,
+                DrainCaughtData = drainCaughtData,
                 Duration = sw.Elapsed
             };
         }

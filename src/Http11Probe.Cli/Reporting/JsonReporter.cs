@@ -45,7 +45,8 @@ public static class JsonReporter
                 durationMs = r.Duration.TotalMilliseconds,
                 rawRequest = r.RawRequest,
                 rawResponse = r.Response?.RawResponse,
-                behavioralNote = r.BehavioralNote
+                behavioralNote = r.BehavioralNote,
+                doubleFlush = r.DrainCaughtData ? true : (bool?)null
             })
         };
 

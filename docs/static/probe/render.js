@@ -155,9 +155,11 @@ window.ProbeRender = (function () {
       tip = document.createElement('div');
       tip.className = 'probe-tooltip';
       var note = target.getAttribute('data-note');
+      var dblFlush = target.getAttribute('data-double-flush');
       var req = target.getAttribute('data-request');
       var truncated = isTruncated(req) || isTruncated(text);
       var html = '';
+      if (dblFlush) html += '<div style="color:#d4880f;font-family:sans-serif;font-weight:600;font-size:10px;margin-bottom:6px;white-space:normal;">Potential double flush</div>';
       if (truncated) html += '<div style="color:#f0c674;font-family:sans-serif;font-weight:600;font-size:10px;margin-bottom:6px;white-space:normal;">[Truncated \u2014 payload exceeds display limit]</div>';
       if (note) html += '<div class="probe-note">' + escapeAttr(note) + '</div>';
       if (req) html += '<div class="probe-label">Request</div>' + escapeAttr(req);
@@ -198,8 +200,10 @@ window.ProbeRender = (function () {
       dismissTip();
 
       var note = target.getAttribute('data-note');
+      var dblFlush = target.getAttribute('data-double-flush');
       var truncated = isTruncated(req) || isTruncated(text);
       var html = '<button class="probe-modal-close" title="Close">&times;</button>';
+      if (dblFlush) html += '<div style="color:#d4880f;font-family:sans-serif;font-weight:600;font-size:12px;margin-bottom:8px;white-space:normal;">Potential double flush \u2014 response body arrived in a separate write from the headers</div>';
       if (truncated) html += '<div style="color:#f0c674;font-family:sans-serif;font-weight:600;font-size:12px;margin-bottom:8px;white-space:normal;">[Truncated \u2014 payload exceeds display limit]</div>';
       if (note) html += '<div class="probe-note">' + escapeAttr(note) + '</div>';
       if (req) html += '<div class="probe-label">Request</div>' + escapeAttr(req);
@@ -435,14 +439,16 @@ window.ProbeRender = (function () {
   };
   function serverUrl(name) { return SERVER_URLS[name] || ''; }
 
-  function pill(bg, label, tooltipRaw, tooltipNote, tooltipReq) {
+  function pill(bg, label, tooltipRaw, tooltipNote, tooltipReq, doubleFlush) {
     var extra = '';
     var hasData = tooltipRaw || tooltipReq;
     if (hasData) extra += ' data-tooltip="' + escapeAttr(tooltipRaw || '') + '"';
     if (tooltipNote) extra += ' data-note="' + escapeAttr(tooltipNote) + '"';
     if (tooltipReq) extra += ' data-request="' + escapeAttr(tooltipReq) + '"';
+    if (doubleFlush) extra += ' data-double-flush="1"';
     var cursor = hasData ? 'cursor:pointer;' : 'cursor:default;';
-    return '<span style="' + pillCss + cursor + 'background:' + bg + ';"' + extra + '>' + label + '</span>';
+    var border = doubleFlush ? 'border:2px solid #d4880f;' : '';
+    return '<span style="' + pillCss + cursor + 'background:' + bg + ';' + border + '"' + extra + '>' + label + '</span>';
   }
 
   function verdictBg(v) {
@@ -738,7 +744,7 @@ window.ProbeRender = (function () {
           t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(SKIP_BG, '\u2014') + '</td>';
           return;
         }
-        t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest) + '</td>';
+        t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest, r.doubleFlush) + '</td>';
       });
       t += '</tr>';
     });
@@ -840,7 +846,7 @@ window.ProbeRender = (function () {
           if (!r) {
             gotCell = pill(SKIP_BG, '\u2014');
           } else {
-            gotCell = pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest);
+            gotCell = pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest, r.doubleFlush);
           }
 
           var method = r ? methodFromRequest(r.rawRequest) : methodFromRequest(first.rawRequest);

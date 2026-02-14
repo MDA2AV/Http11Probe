@@ -55,10 +55,10 @@ public sealed class RawTcpClient : IAsyncDisposable
         }
     }
 
-    public async Task<(byte[] Data, int Length, ConnectionState State)> ReadResponseAsync()
+    public async Task<(byte[] Data, int Length, ConnectionState State, bool DrainCaughtData)> ReadResponseAsync()
     {
         if (_socket is null)
-            return ([], 0, ConnectionState.Error);
+            return ([], 0, ConnectionState.Error, false);
 
         var buffer = new byte[65536];
         var totalRead = 0;
@@ -67,6 +67,7 @@ public sealed class RawTcpClient : IAsyncDisposable
 
         try
         {
+            // Phase 1: Read until we have the complete headers (\r\n\r\n)
             while (totalRead < buffer.Length)
             {
                 var read = await _socket.ReceiveAsync(
@@ -75,29 +76,60 @@ public sealed class RawTcpClient : IAsyncDisposable
                     cts.Token);
 
                 if (read == 0)
-                    return (buffer, totalRead, ConnectionState.ClosedByServer);
+                    return (buffer, totalRead, ConnectionState.ClosedByServer, false);
 
                 totalRead += read;
 
-                // Check if we've received the end of headers
-                if (ContainsHeaderTerminator(buffer.AsSpan(0, totalRead)))
+                if (FindHeaderTerminator(buffer.AsSpan(0, totalRead)) >= 0)
                     break;
             }
 
-            return (buffer, totalRead, ConnectionState.Open);
+            // Phase 2: Wait briefly for the body to arrive, then drain
+            await Task.Delay(100, cts.Token);
+            var beforeDrain = totalRead;
+            totalRead = await DrainAvailable(buffer, totalRead, cts.Token);
+            var drainCaughtData = totalRead > beforeDrain;
+
+            return (buffer, totalRead, ConnectionState.Open, drainCaughtData);
         }
         catch (OperationCanceledException)
         {
-            return (buffer, totalRead, ConnectionState.TimedOut);
+            return (buffer, totalRead, ConnectionState.TimedOut, false);
         }
         catch (SocketException)
         {
-            return (buffer, totalRead, ConnectionState.ClosedByServer);
+            return (buffer, totalRead, ConnectionState.ClosedByServer, false);
         }
         catch
         {
-            return (buffer, totalRead, ConnectionState.Error);
+            return (buffer, totalRead, ConnectionState.Error, false);
         }
+    }
+
+    /// <summary>
+    /// Non-blocking drain: reads whatever bytes are already in the socket buffer
+    /// without waiting for more data to arrive.
+    /// </summary>
+    private async Task<int> DrainAvailable(byte[] buffer, int totalRead, CancellationToken ct)
+    {
+        if (_socket is null) return totalRead;
+
+        while (totalRead < buffer.Length)
+        {
+            // Poll with zero timeout — returns true only if data is ready right now
+            if (!_socket.Poll(0, SelectMode.SelectRead))
+                break;
+
+            var read = await _socket.ReceiveAsync(
+                buffer.AsMemory(totalRead),
+                SocketFlags.None,
+                ct);
+
+            if (read == 0) break; // peer closed
+            totalRead += read;
+        }
+
+        return totalRead;
     }
 
     public ConnectionState CheckConnectionState()
@@ -123,11 +155,10 @@ public sealed class RawTcpClient : IAsyncDisposable
         }
     }
 
-    private static bool ContainsHeaderTerminator(ReadOnlySpan<byte> data)
+    private static int FindHeaderTerminator(ReadOnlySpan<byte> data)
     {
-        // Look for \r\n\r\n
         ReadOnlySpan<byte> terminator = [0x0D, 0x0A, 0x0D, 0x0A];
-        return data.IndexOf(terminator) >= 0;
+        return data.IndexOf(terminator);
     }
 
     public async ValueTask DisposeAsync()
