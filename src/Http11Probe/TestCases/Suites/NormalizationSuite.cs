@@ -216,7 +216,7 @@ public static class NormalizationSuite
             RfcLevel = RfcLevel.NotApplicable,
             Scored = false,
             PayloadFactory = ctx => MakeRequest(
-                $"POST /echo HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 11\r\nTRANSFER-ENCODING: chunked\r\n\r\nhello world"),
+                $"POST /echo HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTRANSFER-ENCODING: chunked\r\n\r\nB\r\nhello world\r\n0\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
                 Description = "Reject/drop (pass), normalize casing (fail), preserve (warn)",
@@ -232,7 +232,7 @@ public static class NormalizationSuite
             Category = TestCategory.Normalization,
             RfcLevel = RfcLevel.NotApplicable,
             PayloadFactory = ctx => MakeRequest(
-                $"POST /echo HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 11\r\nTransfer_Encoding: chunked\r\n\r\nhello world"),
+                $"POST /echo HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer_Encoding: chunked\r\n\r\nB\r\nhello world\r\n0\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
                 Description = "Reject/drop (pass), normalize (fail), preserve (warn)",
