@@ -13,5 +13,6 @@ public sealed class TestResult
     public string? ErrorMessage { get; init; }
     public string? BehavioralNote { get; init; }
     public string? RawRequest { get; init; }
+    public bool DrainCaughtData { get; init; }
     public TimeSpan Duration { get; init; }
 }
