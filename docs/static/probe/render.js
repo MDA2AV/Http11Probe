@@ -408,6 +408,7 @@ window.ProbeRender = (function () {
     'EmbedIO': '/Http11Probe/servers/embedio/',
     'Envoy': '/Http11Probe/servers/envoy/',
     'Express': '/Http11Probe/servers/express/',
+    'FastEndpoints': '/Http11Probe/servers/fastendpoints/',
     'FastHTTP': '/Http11Probe/servers/fasthttp/',
     'Flask': '/Http11Probe/servers/flask/',
     'GenHTTP': '/Http11Probe/servers/genhttp/',

@@ -6,6 +6,7 @@
   <Folder Name="/src/Servers/">
     <Project Path="src/Servers/AspNetMinimal/AspNetMinimal.csproj" />
     <Project Path="src/Servers/EmbedIOServer/EmbedIOServer.csproj" />
+    <Project Path="src/Servers/FastEndpointsServer/FastEndpointsServer.csproj" />
     <Project Path="src/Servers/GenHttpServer/GenHttpServer.csproj" />
     <Project Path="src/Servers/GlyphServer/GlyphServer.csproj" />
     <Project Path="src/Servers/NetCoreServerFramework/NetCoreServerFramework.csproj" />
