@@ -1,0 +1,66 @@
+name: Verbose Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      server:
+        description: 'Server directory name (e.g. NginxServer, CaddyServer). Must match a folder under src/Servers/.'
+        required: true
+        type: string
+
+jobs:
+
+  probe:
+
+    name: Verbose Probe — ${{ inputs.server }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Validate server
+      run: |
+        if [ ! -f "src/Servers/${{ inputs.server }}/probe.json" ]; then
+          echo "::error::Server '${{ inputs.server }}' not found. Must match a directory under src/Servers/ containing probe.json."
+          echo "Available servers:"
+          ls src/Servers/
+          exit 1
+        fi
+        echo "Server: $(jq -r .name "src/Servers/${{ inputs.server }}/probe.json")"
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0'
+
+    - name: Build probe CLI
+      run: dotnet build Http11Probe.slnx -c Release
+
+    - name: Build Docker image
+      run: |
+        tag=$(echo "probe-${{ inputs.server }}" | tr '[:upper:]' '[:lower:]')
+        docker build -t "$tag" -f "src/Servers/${{ inputs.server }}/Dockerfile" .
+
+    - name: Start server
+      run: |
+        tag=$(echo "probe-${{ inputs.server }}" | tr '[:upper:]' '[:lower:]')
+        docker run -d --name probe-target --network host "$tag"
+
+    - name: Wait for server
+      run: |
+        for i in $(seq 1 30); do
+          curl -sf "http://localhost:8080/" > /dev/null 2>&1 && break
+          sleep 1
+        done
+
+    - name: Run probe (verbose)
+      run: |
+        dotnet run --no-build -c Release --project src/Http11Probe.Cli -- \
+          --host localhost --port 8080 --verbose
+
+    - name: Cleanup
+      if: always()
+      run: docker rm -f probe-target 2>/dev/null || true
