@@ -1,5 +1,6 @@
 using System.Text;
 using Http11Probe.Client;
+using Http11Probe.Response;
 
 namespace Http11Probe.TestCases.Suites;
 
@@ -483,9 +484,11 @@ public static class ComplianceSuite
             RfcReference = "RFC 9112 §6.2",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\n\r\nhello"),
+            BehavioralAnalyzer = EchoAnalyzer("hello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range2xx
+                Description = "2xx + echo",
+                CustomValidator = EchoValidator("hello")
             }
         };
 
@@ -550,9 +553,11 @@ public static class ComplianceSuite
             RfcReference = "RFC 9112 §7.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n"),
+            BehavioralAnalyzer = EchoAnalyzer("hello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range2xx
+                Description = "2xx + echo",
+                CustomValidator = EchoValidator("hello")
             }
         };
 
@@ -564,9 +569,11 @@ public static class ComplianceSuite
             RfcReference = "RFC 9112 §7.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n6\r\n world\r\n0\r\n\r\n"),
+            BehavioralAnalyzer = EchoAnalyzer("hello world"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range2xx
+                Description = "2xx + echo",
+                CustomValidator = EchoValidator("hello world")
             }
         };
 
@@ -755,6 +762,7 @@ public static class ComplianceSuite
             RfcReference = "RFC 9112 §7.1.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5;ext=value\r\nhello\r\n0\r\n\r\n"),
+            BehavioralAnalyzer = EchoAnalyzer("hello"),
             Expected = new ExpectedBehavior
             {
                 Description = "2xx preferred; 400 warns",
@@ -762,10 +770,15 @@ public static class ComplianceSuite
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
-                    if (response.StatusCode is >= 200 and < 300)
-                        return TestVerdict.Pass;
                     if (response.StatusCode == 400)
                         return TestVerdict.Warn;
+                    if (response.StatusCode is >= 200 and < 300)
+                    {
+                        var body = (response.Body ?? "").TrimEnd('\r', '\n');
+                        if (body == "hello") return TestVerdict.Pass;
+                        if (IsStaticResponse(body) || body.Length == 0) return TestVerdict.Pass;
+                        return TestVerdict.Warn;
+                    }
                     return TestVerdict.Fail;
                 }
             }
@@ -1028,9 +1041,11 @@ public static class ComplianceSuite
             RfcReference = "RFC 9112 §7.1.2",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\nX-Checksum: abc\r\n\r\n"),
+            BehavioralAnalyzer = EchoAnalyzer("hello"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range(200, 299)
+                Description = "2xx + echo",
+                CustomValidator = EchoValidator("hello")
             }
         };
 
@@ -1042,9 +1057,11 @@ public static class ComplianceSuite
             RfcReference = "RFC 9112 §7.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\nA\r\nhelloworld\r\n0\r\n\r\n"),
+            BehavioralAnalyzer = EchoAnalyzer("helloworld"),
             Expected = new ExpectedBehavior
             {
-                ExpectedStatus = StatusCodeRange.Range(200, 299)
+                Description = "2xx + echo",
+                CustomValidator = EchoValidator("helloworld")
             }
         };
 
@@ -1231,6 +1248,39 @@ public static class ComplianceSuite
                     return TestVerdict.Fail;
                 }
             }
+        };
+    }
+
+    // ── Echo verification helpers ──────────────────────────────
+
+    private static bool IsStaticResponse(string body) => body == "OK";
+
+    private static Func<HttpResponse?, string?> EchoAnalyzer(string expectedBody)
+    {
+        return response =>
+        {
+            if (response is null || response.StatusCode is < 200 or >= 300) return null;
+            var body = (response.Body ?? "").TrimEnd('\r', '\n');
+            if (IsStaticResponse(body)) return "Static response — server does not echo POST body";
+            if (body == expectedBody) return "Echoed correctly";
+            if (body.Length == 0) return "Empty body";
+            return $"Echo mismatch: expected \"{expectedBody}\", got \"{(body.Length > 40 ? body[..40] + "..." : body)}\"";
+        };
+    }
+
+    private static Func<HttpResponse?, ConnectionState, TestVerdict> EchoValidator(string expectedBody)
+    {
+        return (response, state) =>
+        {
+            if (response is null)
+                return TestVerdict.Fail;
+            if (response.StatusCode is < 200 or >= 300)
+                return TestVerdict.Fail;
+            var body = (response.Body ?? "").TrimEnd('\r', '\n');
+            if (body == expectedBody) return TestVerdict.Pass;
+            if (IsStaticResponse(body)) return TestVerdict.Pass;
+            if (body.Length == 0) return TestVerdict.Pass;
+            return TestVerdict.Warn;
         };
     }
 
