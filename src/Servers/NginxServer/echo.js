@@ -7,4 +7,12 @@ function echo(r) {
     r.return(200, body);
 }
 
-export default { echo };
+function handler(r) {
+    if (r.method === 'POST') {
+        r.return(200, r.requestText || '');
+    } else {
+        r.return(200, 'OK');
+    }
+}
+
+export default { echo, handler };
