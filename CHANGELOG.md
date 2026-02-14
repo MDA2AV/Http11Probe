@@ -17,9 +17,10 @@ All notable changes to Http11Probe are documented in this file.
   - `COMP-CONTENT-TYPE` — response with content should include Content-Type (RFC 9110 §8.3, SHOULD)
 
 ### Changed
-- **AGENTS.md** — added Step 5 (RFC Requirement Dashboard) to the "Add a new test" task
+- **AGENTS.md** — added Step 5 (RFC Requirement Dashboard) to the "Add a new test" task; added Step 5 (server documentation page) to the "Add a framework" task
 - **RFC Requirement Dashboard** — updated with all 9 new tests, counts, and cross-references
 - **Landing page cards** — removed hardcoded test count from RFC Requirement Dashboard subtitle
+- **Caddy server** — fixed POST body echo using Caddy Parrot pattern; updated Caddyfile, Dockerfile, and docs page
 
 ## [2026-02-14]
 

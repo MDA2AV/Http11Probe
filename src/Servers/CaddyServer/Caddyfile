@@ -1,4 +1,19 @@
 :8080 {
+    request_body {
+        max_size 1MB
+    }
+
+    @post_root {
+        method POST
+        path /
+    }
+    handle @post_root {
+        root * /srv
+        templates
+        rewrite * /body.html
+        file_server
+    }
+
     handle /echo {
         root * /srv
         templates {
@@ -7,5 +22,6 @@
         rewrite * /echo.html
         file_server
     }
+
     respond "OK" 200
 }

@@ -247,7 +247,7 @@ After making all changes:
 
 ## TASK B: Add a new framework
 
-Adding a framework requires creating **3 files** in a new directory. No existing files need modification.
+Adding a framework requires creating **3 files** in a new directory, plus a **documentation page** on the website.
 
 ### Step 1 — Create the server directory
 
@@ -301,6 +301,39 @@ Create `src/Servers/YourServer/probe.json` with exactly one field:
 ```
 
 This name appears in the leaderboard and PR comments.
+
+### Step 5 — Create the server documentation page
+
+**File:** `docs/content/servers/{server-name-lowercase}.md`
+
+Use this template:
+
+```markdown
+---
+title: "Server Name"
+toc: false
+breadcrumbs: false
+---
+
+**Language:** Language · [View source on GitHub](https://github.com/MDA2AV/Http11Probe/tree/main/src/Servers/YourServer)
+
+## Dockerfile
+
+\```dockerfile
+[Complete Dockerfile contents]
+\```
+
+## Source — `filename.ext`
+
+\```language
+[Complete source file contents]
+\```
+```
+
+Rules:
+- Include one `## Source — \`filename\`` section per source file (exclude `probe.json`).
+- Use the correct syntax-highlight language for each code block (e.g., `python`, `javascript`, `text`, `html`).
+- The Dockerfile section always comes first, followed by source files.
 
 ### Verification checklist
 
