@@ -18,6 +18,8 @@ A well-implemented server should respond with `400 Bad Request`, `414 URI Too Lo
 </div>
 
 <div id="lang-filter"></div>
+<div id="method-filter"></div>
+<div id="rfc-level-filter"></div>
 <div id="table-malformed"><p><em>Loading...</em></p></div>
 
 <script src="/Http11Probe/probe/data.js"></script>
@@ -45,11 +47,21 @@ A well-implemented server should respond with `400 Bad Request`, `414 URI Too Lo
       'MAL-URL-PERCENT-NULL','MAL-URL-PERCENT-CRLF'
     ]}
   ];
-  function render(data) {
+  var langData = window.PROBE_DATA;
+  var methodFilter = null;
+  var rfcLevelFilter = null;
+
+  function rerender() {
+    var data = langData;
+    if (methodFilter) data = ProbeRender.filterByMethod(data, methodFilter);
+    if (rfcLevelFilter) data = ProbeRender.filterByRfcLevel(data, rfcLevelFilter);
     var ctx = ProbeRender.buildLookups(data.servers);
     ProbeRender.renderSubTables('table-malformed', 'MalformedInput', ctx, GROUPS);
   }
-  render(window.PROBE_DATA);
-  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, render);
+  rerender();
+  var catData = ProbeRender.filterByCategory(window.PROBE_DATA, ['MalformedInput']);
+  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, function (d) { langData = d; rerender(); });
+  ProbeRender.renderMethodFilter('method-filter', catData, function (m) { methodFilter = m; rerender(); });
+  ProbeRender.renderRfcLevelFilter('rfc-level-filter', catData, function (l) { rfcLevelFilter = l; rerender(); });
 })();
 </script>

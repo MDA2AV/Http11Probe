@@ -24,6 +24,8 @@ Some tests are **unscored** (marked with `*`). These cover behaviors like case n
 </div>
 
 <div id="lang-filter"></div>
+<div id="method-filter"></div>
+<div id="rfc-level-filter"></div>
 <div id="table-normalization"><p><em>Loading...</em></p></div>
 
 <script src="/Http11Probe/probe/data.js"></script>
@@ -34,11 +36,21 @@ Some tests are **unscored** (marked with `*`). These cover behaviors like case n
     document.getElementById('table-normalization').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
     return;
   }
-  function render(data) {
+  var langData = window.PROBE_DATA;
+  var methodFilter = null;
+  var rfcLevelFilter = null;
+
+  function rerender() {
+    var data = langData;
+    if (methodFilter) data = ProbeRender.filterByMethod(data, methodFilter);
+    if (rfcLevelFilter) data = ProbeRender.filterByRfcLevel(data, rfcLevelFilter);
     var ctx = ProbeRender.buildLookups(data.servers);
     ProbeRender.renderTable('table-normalization', 'Normalization', ctx);
   }
-  render(window.PROBE_DATA);
-  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, render);
+  rerender();
+  var catData = ProbeRender.filterByCategory(window.PROBE_DATA, ['Normalization']);
+  ProbeRender.renderLanguageFilter('lang-filter', window.PROBE_DATA, function (d) { langData = d; rerender(); });
+  ProbeRender.renderMethodFilter('method-filter', catData, function (m) { methodFilter = m; rerender(); });
+  ProbeRender.renderRfcLevelFilter('rfc-level-filter', catData, function (l) { rfcLevelFilter = l; rerender(); });
 })();
 </script>

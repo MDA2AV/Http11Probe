@@ -83,6 +83,10 @@ window.ProbeRender = (function () {
       + 'tr[data-rfc-level-row] .probe-sticky-col{background:#f6f8fa}'
       + 'html.dark tr[data-rfc-level-row]{background:#1e242c}'
       + 'html.dark tr[data-rfc-level-row] .probe-sticky-col{background:#1e242c}'
+      + 'tr[data-method-row]{background:#f6f8fa}'
+      + 'tr[data-method-row] .probe-sticky-col{background:#f6f8fa}'
+      + 'html.dark tr[data-method-row]{background:#1e242c}'
+      + 'html.dark tr[data-method-row] .probe-sticky-col{background:#1e242c}'
       + '.probe-server-row:hover .probe-sticky-col{background:#eef1f5}'
       + '.probe-server-row.probe-row-active .probe-sticky-col{background:#c8ddf0}'
       // Sticky first column — dark
@@ -432,13 +436,49 @@ window.ProbeRender = (function () {
     return v === 'Pass' ? PASS_BG : v === 'Warn' ? WARN_BG : FAIL_BG;
   }
 
-  function rfcLevelBg(level) {
-    if (level === 'Must') return '#cf222e';
-    if (level === 'Should') return '#9a6700';
-    if (level === 'OughtTo') return '#b08800';
-    if (level === 'May') return '#0969da';
-    return '#656d76'; // NotApplicable
+  var KNOWN_METHODS = { GET:1, POST:1, HEAD:1, PUT:1, DELETE:1, PATCH:1, OPTIONS:1, TRACE:1, CONNECT:1 };
+
+  function methodFromRequest(rawReq) {
+    if (!rawReq) return '?';
+    // Strip leading CRLF (e.g. COMP-LEADING-CRLF sends \r\n\r\nGET ...)
+    var trimmed = rawReq.replace(/^[\r\n]+/, '');
+    if (!trimmed) return '?';
+    // Find first space or tab (tab used in COMP-REQUEST-LINE-TAB)
+    var sp = trimmed.search(/[\t ]/);
+    if (sp <= 0 || sp > 10) return '?';
+    var method = trimmed.substring(0, sp).toUpperCase();
+    // Only return known HTTP methods; PRI, FOOBAR, etc. → '?'
+    return KNOWN_METHODS[method] ? method : '?';
   }
+
+  var METHOD_COLORS = {
+    GET:     { fg: '#0969da', border: '#0969da', bg: 'rgba(9,105,218,0.08)' },
+    POST:    { fg: '#1a7f37', border: '#1a7f37', bg: 'rgba(26,127,55,0.08)' },
+    HEAD:    { fg: '#8250df', border: '#8250df', bg: 'rgba(130,80,223,0.08)' },
+    OPTIONS: { fg: '#9a6700', border: '#9a6700', bg: 'rgba(154,103,0,0.08)' },
+    DELETE:  { fg: '#cf222e', border: '#cf222e', bg: 'rgba(207,34,46,0.08)' },
+    TRACE:   { fg: '#656d76', border: '#656d76', bg: 'rgba(101,109,118,0.08)' },
+    CONNECT: { fg: '#656d76', border: '#656d76', bg: 'rgba(101,109,118,0.08)' },
+    PUT:     { fg: '#bf8700', border: '#bf8700', bg: 'rgba(191,135,0,0.08)' },
+    PATCH:   { fg: '#0550ae', border: '#0550ae', bg: 'rgba(5,80,174,0.08)' }
+  };
+  var METHOD_DEFAULT = { fg: '#656d76', border: '#656d76', bg: 'rgba(101,109,118,0.08)' };
+
+  function methodTag(method) {
+    var c = METHOD_COLORS[method] || METHOD_DEFAULT;
+    return '<span style="display:inline-block;padding:2px 6px;font-size:10px;font-weight:700;'
+      + 'font-family:ui-monospace,SFMono-Regular,monospace;letter-spacing:0.3px;'
+      + 'color:' + c.fg + ';border:1px solid ' + c.border + ';background:' + c.bg + ';'
+      + 'border-radius:3px;line-height:16px;cursor:default;">' + method + '</span>';
+  }
+
+  var RFC_LEVEL_COLORS = {
+    Must:    { fg: '#cf222e', bg: 'rgba(207,34,46,0.12)' },
+    Should:  { fg: '#9a6700', bg: 'rgba(154,103,0,0.12)' },
+    OughtTo: { fg: '#b08800', bg: 'rgba(176,136,0,0.12)' },
+    May:     { fg: '#0969da', bg: 'rgba(9,105,218,0.12)' }
+  };
+  var RFC_LEVEL_DEFAULT = { fg: '#656d76', bg: 'rgba(101,109,118,0.10)' };
 
   function rfcLevelLabel(level) {
     if (level === 'Must') return 'MUST';
@@ -446,6 +486,14 @@ window.ProbeRender = (function () {
     if (level === 'OughtTo') return 'OUGHT TO';
     if (level === 'May') return 'MAY';
     return 'N/A';
+  }
+
+  function rfcLevelTag(level) {
+    var c = RFC_LEVEL_COLORS[level] || RFC_LEVEL_DEFAULT;
+    var label = rfcLevelLabel(level);
+    return '<span style="display:inline-block;padding:2px 7px;font-size:10px;font-weight:700;'
+      + 'letter-spacing:0.4px;color:' + c.fg + ';background:' + c.bg + ';'
+      + 'border-radius:10px;line-height:16px;cursor:default;">' + label + '</span>';
   }
 
   function buildLookups(servers) {
@@ -625,9 +673,22 @@ window.ProbeRender = (function () {
       var first = lookup[names[0]][tid];
       var level = first.rfcLevel || 'Must';
       var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
-      var bg = rfcLevelBg(level);
-      var label = rfcLevelLabel(level);
-      t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;">' + pill(bg, label) + '</td>';
+      t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;">' + rfcLevelTag(level) + '</td>';
+    });
+    t += '</tr>';
+
+    // Method row
+    t += '<tr data-method-row>';
+    t += '<td class="probe-sticky-col" style="padding:6px 10px;font-weight:700;font-size:12px;color:#656d76;">Method</td>';
+    orderedTests.forEach(function (tid, i) {
+      var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
+      // Find rawRequest from any server that has this test
+      var method = '?';
+      for (var ni = 0; ni < names.length; ni++) {
+        var r = lookup[names[ni]][tid];
+        if (r && r.rawRequest) { method = methodFromRequest(r.rawRequest); break; }
+      }
+      t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;">' + methodTag(method) + '</td>';
     });
     t += '</tr>';
 
@@ -743,6 +804,8 @@ window.ProbeRender = (function () {
         h += '<table style="border-collapse:collapse;width:100%;font-size:12px;">';
         h += '<thead><tr style="border-bottom:1px solid #333;">';
         h += '<th style="padding:4px 8px;text-align:left;color:#81a2be;">Test</th>';
+        h += '<th style="padding:4px 8px;text-align:center;color:#81a2be;">Method</th>';
+        h += '<th style="padding:4px 8px;text-align:center;color:#81a2be;">RFC</th>';
         h += '<th style="padding:4px 8px;text-align:center;color:#81a2be;">Expected</th>';
         h += '<th style="padding:4px 8px;text-align:center;color:#81a2be;">Got</th>';
         h += '<th style="padding:4px 8px;text-align:left;color:#81a2be;">Description</th>';
@@ -767,8 +830,13 @@ window.ProbeRender = (function () {
             gotCell = pill(verdictBg(r.verdict), r.got, r.rawResponse, r.behavioralNote, r.rawRequest);
           }
 
+          var method = r ? methodFromRequest(r.rawRequest) : methodFromRequest(first.rawRequest);
+          var level = first.rfcLevel || 'Must';
+
           h += '<tr style="border-bottom:1px solid #2a2f38;' + opacity + '">';
           h += '<td style="padding:4px 8px;font-weight:600;white-space:nowrap;">' + testLink + '</td>';
+          h += '<td style="text-align:center;padding:2px 4px;">' + methodTag(method) + '</td>';
+          h += '<td style="text-align:center;padding:2px 4px;">' + rfcLevelTag(level) + '</td>';
           h += '<td style="text-align:center;padding:2px 4px;">' + pill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
           h += '<td style="text-align:center;padding:2px 4px;">' + gotCell + '</td>';
           h += '<td style="padding:4px 8px;color:#999;white-space:normal;max-width:300px;">' + (first.description || '') + '</td>';
@@ -1079,6 +1147,179 @@ window.ProbeRender = (function () {
     });
   }
 
+  // ── Method filter ─────────────────────────────────────────────
+  function filterByMethod(data, method) {
+    return {
+      commit: data.commit,
+      servers: data.servers.map(function (sv) {
+        var filtered = sv.results.filter(function (r) {
+          return methodFromRequest(r.rawRequest) === method;
+        });
+        var scored = filtered.filter(function (r) { return r.scored !== false; });
+        return {
+          name: sv.name,
+          language: sv.language,
+          results: filtered,
+          summary: {
+            total: filtered.length,
+            scored: scored.length,
+            passed: scored.filter(function (r) { return r.verdict === 'Pass'; }).length,
+            failed: scored.filter(function (r) { return r.verdict !== 'Pass' && r.verdict !== 'Warn'; }).length,
+            warnings: scored.filter(function (r) { return r.verdict === 'Warn'; }).length,
+            unscored: filtered.filter(function (r) { return r.scored === false; }).length
+          }
+        };
+      })
+    };
+  }
+
+  function renderMethodFilter(targetId, data, onChange) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var allServers = filterBlacklisted(data.servers || []);
+    if (allServers.length === 0) return;
+
+    // Collect unique methods from the first server's results
+    var methodSet = {};
+    allServers[0].results.forEach(function (r) {
+      var m = methodFromRequest(r.rawRequest);
+      if (m !== '?') methodSet[m] = true;
+    });
+    var methods = Object.keys(methodSet).sort();
+    if (methods.length === 0) return;
+
+    var isDark = document.documentElement.classList.contains('dark');
+    var baseBg = isDark ? '#21262d' : '#f6f8fa';
+    var baseFg = isDark ? '#c9d1d9' : '#24292f';
+    var baseBorder = isDark ? '#30363d' : '#d0d7de';
+    var activeBg = isDark ? '#1f6feb' : '#0969da';
+
+    var btnStyle = 'display:inline-block;padding:4px 12px;font-size:12px;font-weight:600;'
+      + 'border-radius:20px;cursor:pointer;border:1px solid ' + baseBorder + ';'
+      + 'margin-right:6px;margin-bottom:6px;transition:all 0.15s;';
+
+    var labelStyle = 'font-size:12px;font-weight:700;color:#656d76;margin-right:10px;white-space:nowrap;';
+    var html = '<div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:4px;">';
+    html += '<span style="' + labelStyle + '">Method:</span>';
+    html += '<button class="probe-method-btn" data-method="" style="' + btnStyle
+      + 'background:' + activeBg + ';color:#fff;border-color:' + activeBg + ';">All</button>';
+    methods.forEach(function (m) {
+      html += '<button class="probe-method-btn" data-method="' + m + '" style="' + btnStyle
+        + 'background:' + baseBg + ';color:' + baseFg + ';">' + m + '</button>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+
+    var buttons = el.querySelectorAll('.probe-method-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var method = btn.getAttribute('data-method');
+        buttons.forEach(function (b) {
+          if (b === btn) {
+            b.style.background = activeBg;
+            b.style.color = '#fff';
+            b.style.borderColor = activeBg;
+          } else {
+            b.style.background = baseBg;
+            b.style.color = baseFg;
+            b.style.borderColor = baseBorder;
+          }
+        });
+        onChange(method || null);
+      });
+    });
+  }
+
+  // ── RFC Level filter ────────────────────────────────────────────
+  function filterByRfcLevel(data, level) {
+    return {
+      commit: data.commit,
+      servers: data.servers.map(function (sv) {
+        var filtered = sv.results.filter(function (r) {
+          return (r.rfcLevel || 'Must') === level;
+        });
+        var scored = filtered.filter(function (r) { return r.scored !== false; });
+        return {
+          name: sv.name,
+          language: sv.language,
+          results: filtered,
+          summary: {
+            total: filtered.length,
+            scored: scored.length,
+            passed: scored.filter(function (r) { return r.verdict === 'Pass'; }).length,
+            failed: scored.filter(function (r) { return r.verdict !== 'Pass' && r.verdict !== 'Warn'; }).length,
+            warnings: scored.filter(function (r) { return r.verdict === 'Warn'; }).length,
+            unscored: filtered.filter(function (r) { return r.scored === false; }).length
+          }
+        };
+      })
+    };
+  }
+
+  function renderRfcLevelFilter(targetId, data, onChange) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+
+    var levels = [
+      { key: 'Must', label: 'MUST' },
+      { key: 'Should', label: 'SHOULD' },
+      { key: 'May', label: 'MAY' },
+      { key: 'OughtTo', label: 'OUGHT TO' },
+      { key: 'NotApplicable', label: 'N/A' }
+    ];
+
+    // Only show levels that exist in the data
+    var allServers = filterBlacklisted(data.servers || []);
+    if (allServers.length === 0) return;
+    var presentLevels = {};
+    allServers[0].results.forEach(function (r) {
+      presentLevels[r.rfcLevel || 'Must'] = true;
+    });
+    var visibleLevels = levels.filter(function (l) { return presentLevels[l.key]; });
+    if (visibleLevels.length === 0) return;
+
+    var isDark = document.documentElement.classList.contains('dark');
+    var baseBg = isDark ? '#21262d' : '#f6f8fa';
+    var baseFg = isDark ? '#c9d1d9' : '#24292f';
+    var baseBorder = isDark ? '#30363d' : '#d0d7de';
+    var activeBg = isDark ? '#1f6feb' : '#0969da';
+
+    var btnStyle = 'display:inline-block;padding:4px 12px;font-size:12px;font-weight:600;'
+      + 'border-radius:20px;cursor:pointer;border:1px solid ' + baseBorder + ';'
+      + 'margin-right:6px;margin-bottom:6px;transition:all 0.15s;';
+
+    var labelStyle = 'font-size:12px;font-weight:700;color:#656d76;margin-right:10px;white-space:nowrap;';
+    var html = '<div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:4px;">';
+    html += '<span style="' + labelStyle + '">RFC Level:</span>';
+    html += '<button class="probe-rfc-btn" data-level="" style="' + btnStyle
+      + 'background:' + activeBg + ';color:#fff;border-color:' + activeBg + ';">All</button>';
+    visibleLevels.forEach(function (l) {
+      html += '<button class="probe-rfc-btn" data-level="' + l.key + '" style="' + btnStyle
+        + 'background:' + baseBg + ';color:' + baseFg + ';">' + l.label + '</button>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+
+    var buttons = el.querySelectorAll('.probe-rfc-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var level = btn.getAttribute('data-level');
+        buttons.forEach(function (b) {
+          if (b === btn) {
+            b.style.background = activeBg;
+            b.style.color = '#fff';
+            b.style.borderColor = activeBg;
+          } else {
+            b.style.background = baseBg;
+            b.style.color = baseFg;
+            b.style.borderColor = baseBorder;
+          }
+        });
+        onChange(level || null);
+      });
+    });
+  }
+
   return {
     pill: pill,
     verdictBg: verdictBg,
@@ -1089,6 +1330,10 @@ window.ProbeRender = (function () {
     renderLanguageFilter: renderLanguageFilter,
     filterByCategory: filterByCategory,
     renderCategoryFilter: renderCategoryFilter,
+    filterByMethod: filterByMethod,
+    renderMethodFilter: renderMethodFilter,
+    filterByRfcLevel: filterByRfcLevel,
+    renderRfcLevelFilter: renderRfcLevelFilter,
     EXPECT_BG: EXPECT_BG
   };
 })();
