@@ -24,6 +24,7 @@ layout: hextra-home
 
 {{< cards >}}
   {{< card link="probe-results" title="Leaderboard" subtitle="See which frameworks pass the most tests, ranked from best to worst compliance." icon="chart-bar" >}}
+  {{< card link="docs/rfc-requirement-dashboard" title="RFC Requirement Dashboard" subtitle="All 148 tests classified by RFC 2119 level (MUST/SHOULD/MAY)." icon="document-search" >}}
 {{< /cards >}}
 
 <div style="height:60px"></div>
@@ -45,15 +46,19 @@ Http11Probe sends a suite of crafted HTTP requests to each server and checks whe
 
 <div style="height:60px"></div>
 
-<h2 style="font-size:2rem;font-weight:800;">Add Your Framework</h2>
+<h2 style="font-size:2rem;font-weight:800;">Contribute to the Project</h2>
 
 <div style="height:16px"></div>
 
-Http11Probe is designed so anyone can contribute their HTTP server and get compliance results without touching the test infrastructure. Just add a Dockerfile, a one-line `probe.json`, and open a PR.
+Http11Probe is open source and built for contributions. Add your HTTP server to the leaderboard, or write new test cases to expand coverage.
+
+Every new framework added makes the comparison more useful for the entire community, and every new test strengthens the compliance bar for all servers on the platform. If you've found an edge case that isn't covered, or you maintain a framework that isn't listed yet, your contribution directly improves HTTP security and interoperability for everyone.
 
 <div style="height:20px"></div>
 
 {{< cards >}}
-  {{< card link="add-a-framework" title="Get Started" subtitle="Three steps to add your framework — Dockerfile, probe.json, and open a PR." icon="plus-circle" >}}
+  {{< card link="add-a-framework" title="Add a Framework" subtitle="Three steps to add your framework — Dockerfile, probe.json, and open a PR." icon="plus-circle" >}}
+  {{< card link="add-a-test" title="Add a Test" subtitle="How to define a new test case, write its documentation, and wire it into the platform." icon="beaker" >}}
+  {{< card link="add-with-ai-agent" title="Add with AI Agent" subtitle="Use an AI coding agent to add a test or framework using the machine-readable AGENTS.md guide." icon="chip" >}}
 {{< /cards >}}
 

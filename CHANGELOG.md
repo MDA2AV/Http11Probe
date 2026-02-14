@@ -2,9 +2,15 @@
 
 All notable changes to Http11Probe are documented in this file.
 
-## [Unreleased]
+## [2026-02-14]
 
 ### Added
+- **RFC Requirement Dashboard** — all 148 tests classified by RFC 2119 level (MUST/SHOULD/MAY/"ought to"/Unscored/N/A) with exact RFC quotes proving each classification (`docs/content/docs/rfc-requirement-dashboard.md`)
+- **Add a Test guide** — step-by-step documentation for contributing new tests to the platform (`docs/content/add-a-test.md`)
+- **AI Agent contribution guide** — machine-readable `AGENTS.md` at repo root with precise instructions for LLM agents to add tests or frameworks (`docs/content/add-with-ai-agent.md`)
+- **Contribute menu** — top nav "Add a Framework" replaced with a "Contribute" dropdown containing Add a Framework, Add a Test, and Add with AI Agent
+- **Landing page cards** — RFC Requirement Dashboard card in hero section; Add a Test and Add with AI Agent cards in Contribute section
+- **Glossary card** — RFC Requirement Dashboard linked from the glossary index page
 - **Server configuration pages** — per-server docs pages showing Dockerfile, source code, and config files for all 36 tested servers (`docs/content/servers/`)
 - **Clickable server names** — server names in the probe results table and summary bar chart now link to their configuration page
 - **Sticky first column** — server name column stays pinned to the left edge while scrolling horizontally through result tables
@@ -33,6 +39,9 @@ All notable changes to Http11Probe are documented in this file.
 - **Stronger sticky shadow on mobile** — increased shadow intensity for the pinned server name column
 - **Scrollable tooltips** — hover tooltips are now interactive and scrollable for large payloads (removed `pointer-events:none`, increased `max-height` to `60vh`)
 - **Larger click modal** — expanded from `max-width:700px` to `90vw` and `max-height` from `80vh` to `85vh` to better accommodate large request/response data
+- **Landing page section rename** — "Add Your Framework" heading renamed to "Contribute to the Project" with updated copy emphasizing community contributions
+- **Uniform card sizing** — CSS rule forces all home page card grids to `repeat(2, 1fr)` so every card is the same width
+- **Sidebar reordering** — RFC Requirement Dashboard at weight 2 (after Understanding HTTP), RFC Basics bumped to 3, Baseline to 4
 - **Kestrel HEAD/OPTIONS support** — added explicit HEAD and OPTIONS endpoint handlers to ASP.NET Minimal server so smuggling tests evaluate correctly instead of returning 405
 - **Add a Framework docs** — documented HEAD and OPTIONS as required endpoints
 - Raw request capture now includes truncation metadata when payload exceeds 8,192 bytes (`TestRunner.cs`)

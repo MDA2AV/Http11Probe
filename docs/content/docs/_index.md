@@ -10,6 +10,7 @@ Reference documentation for every test in Http11Probe, organized by topic. Each 
 
 {{< cards >}}
   {{< card link="http-overview" title="Understanding HTTP" subtitle="What HTTP is, how HTTP/1.1 works at the wire level, its history from 0.9 to 3, and alternatives." icon="globe-alt" >}}
+  {{< card link="rfc-requirement-dashboard" title="RFC Requirement Dashboard" subtitle="All 148 tests classified by RFC 2119 level (MUST/SHOULD/MAY)." icon="document-search" >}}
   {{< card link="rfc-basics" title="RFC Basics" subtitle="What RFCs are, how to read requirement levels (MUST/SHOULD/MAY), and which RFCs define HTTP/1.1." icon="book-open" >}}
   {{< card link="baseline" title="Baseline" subtitle="Sanity request used to confirm the target is reachable before running negative tests." icon="check-circle" >}}
   {{< card link="line-endings" title="Line Endings" subtitle="CRLF requirements, bare LF handling, and bare CR rejection per RFC 9112 Section 2.2." icon="code" >}}

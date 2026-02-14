@@ -45,6 +45,12 @@ html.dark .hextra-content {
   background: transparent !important;
 }
 
+/* ── Home page: uniform card grid ────────────────────────────── */
+
+.hextra-home-body .hextra-cards {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
 /* ── Cards ───────────────────────────────────────────────────── */
 
 .hextra-card {

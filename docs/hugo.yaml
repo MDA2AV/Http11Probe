@@ -44,9 +44,20 @@ menu:
     - name: Glossary
       pageRef: /docs
       weight: 4
-    - name: Add a Framework
-      pageRef: /add-a-framework
+    - name: Contribute
       weight: 5
+    - name: Add a Framework
+      parent: Contribute
+      pageRef: /add-a-framework
+      weight: 1
+    - name: Add a Test
+      parent: Contribute
+      pageRef: /add-a-test
+      weight: 2
+    - name: Add with AI Agent
+      parent: Contribute
+      pageRef: /add-with-ai-agent
+      weight: 3
     - name: Search
       weight: 6
       params:
