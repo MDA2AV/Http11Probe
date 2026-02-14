@@ -216,12 +216,13 @@ jobs:
         BAR_WIDTH = 20
         lines.append('| Server | Score | |')
         lines.append('|--------|------:|---|')
-        for sv in sorted(server_data, key=lambda s: s['summary']['passed'], reverse=True):
+        for sv in sorted(server_data, key=lambda s: s['summary']['passed'] + s['summary']['warnings'], reverse=True):
             s = sv['summary']
-            pct = s['passed'] / s['scored'] if s['scored'] else 0
+            score = s['passed'] + s['warnings']
+            pct = score / s['scored'] if s['scored'] else 0
             filled = round(pct * BAR_WIDTH)
             bar = '\u2588' * filled + '\u2591' * (BAR_WIDTH - filled)
-            lines.append(f"| **{sv['name']}** | {s['passed']}/{s['scored']} | `{bar}` {pct:.0%} |")
+            lines.append(f"| **{sv['name']}** | {score}/{s['scored']} | `{bar}` {pct:.0%} |")
         lines.append('')
 
         # Collect all test IDs in order from first server
