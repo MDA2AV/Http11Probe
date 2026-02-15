@@ -279,6 +279,8 @@ window.ProbeRender = (function () {
     'COMP-POST-NO-CL-NO-TE': '/Http11Probe/docs/body/post-no-cl-no-te/',
     'COMP-UNKNOWN-METHOD': '/Http11Probe/docs/request-line/unknown-method/',
     'COMP-UNKNOWN-TE-501': '/Http11Probe/docs/request-line/unknown-te-501/',
+    'COMP-RANGE-POST': '/Http11Probe/docs/body/range-post/',
+    'COMP-UPGRADE-HTTP10': '/Http11Probe/docs/upgrade/upgrade-http10/',
     'COMP-UPGRADE-INVALID-VER': '/Http11Probe/docs/upgrade/upgrade-invalid-ver/',
     'COMP-UPGRADE-MISSING-CONN': '/Http11Probe/docs/upgrade/upgrade-missing-conn/',
     'COMP-UPGRADE-POST': '/Http11Probe/docs/upgrade/upgrade-post/',
