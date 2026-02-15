@@ -1,21 +1,28 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"net/http"
-	"strings"
 )
 
 func main() {
-	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		var sb strings.Builder
-		for name, values := range r.Header {
-			for _, v := range values {
-				sb.WriteString(fmt.Sprintf("%s: %s\n", name, v))
-			}
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
 		}
-		fmt.Fprint(w, sb.String())
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read body", http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
 	})
+
 	http.ListenAndServe(":9090", nil)
 }
