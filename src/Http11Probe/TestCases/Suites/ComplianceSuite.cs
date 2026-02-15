@@ -1090,6 +1090,54 @@ public static class ComplianceSuite
             }
         };
 
+        // ── Range / Conditional ─────────────────────────────────────
+
+        yield return new TestCase
+        {
+            Id = "COMP-RANGE-POST",
+            Description = "Range header on POST must be ignored — Range only applies to GET",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9110 §14.2",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nRange: bytes=0-10\r\n\r\nhello"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "2xx (Range ignored)",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Fail : TestVerdict.Fail;
+                    if (response.StatusCode == 206)
+                        return TestVerdict.Fail;
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "COMP-UPGRADE-HTTP10",
+            Description = "Upgrade header in HTTP/1.0 request must be ignored",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9110 §7.8",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET / HTTP/1.0\r\nHost: {ctx.HostHeader}\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "!101",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 101)
+                        return TestVerdict.Fail;
+                    return TestVerdict.Pass;
+                }
+            }
+        };
+
         // ── RFC 9110 response semantics ──────────────────────────────
 
         yield return new TestCase
