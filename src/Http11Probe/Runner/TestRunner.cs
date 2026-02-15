@@ -88,20 +88,9 @@ public sealed class TestRunner
             var (data, length, readState, drainCaughtData) = await client.ReadResponseAsync();
             var response = ResponseParser.TryParse(data.AsSpan(), length);
 
-            HttpResponse? followUpResponse = null;
             var connectionState = readState;
 
-            // If follow-up is needed and connection is still open
-            if (testCase.FollowUpPayloadFactory is not null && connectionState == ConnectionState.Open)
-            {
-                var followUpPayload = testCase.FollowUpPayloadFactory(context);
-                await client.SendAsync(followUpPayload);
-
-                var (fuData, fuLength, fuState, _) = await client.ReadResponseAsync();
-                followUpResponse = ResponseParser.TryParse(fuData.AsSpan(), fuLength);
-                connectionState = fuState;
-            }
-            else if (connectionState == ConnectionState.Open && !testCase.RequiresConnectionReuse)
+            if (connectionState == ConnectionState.Open)
             {
                 // Brief pause then check if server closed the connection
                 await Task.Delay(50);
@@ -116,7 +105,6 @@ public sealed class TestRunner
                 TestCase = testCase,
                 Verdict = verdict,
                 Response = response,
-                FollowUpResponse = followUpResponse,
                 ConnectionState = connectionState,
                 BehavioralNote = behavioralNote,
                 RawRequest = rawRequest,

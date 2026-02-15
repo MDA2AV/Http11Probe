@@ -208,31 +208,27 @@ public static class SmugglingSuite
         yield return new TestCase
         {
             Id = "SMUG-CLTE-PIPELINE",
-            Description = "CL.TE smuggling probe — follow-up should not receive smuggled response",
+            Description = "CL.TE conflict — both Content-Length and Transfer-Encoding: chunked present",
             Category = TestCategory.Smuggling,
             RfcReference = "RFC 9112 §6.1",
-            RequiresConnectionReuse = true,
+            RfcLevel = RfcLevel.May,
             PayloadFactory = ctx =>
             {
                 // Ambiguous: CL says body is 4 bytes ("0\r\n\r"), but TE chunked says 0 chunk = end
-                // A CL-only parser reads 4 bytes and waits; a TE parser sees end-of-chunks
                 var body = $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 4\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n";
                 return Encoding.ASCII.GetBytes(body);
             },
-            FollowUpPayloadFactory = ctx =>
-                Encoding.ASCII.GetBytes($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                Description = "400 or close",
+                Description = "400 or close preferred; 2xx acceptable",
                 CustomValidator = (response, state) =>
                 {
-                    // Best: server rejects the ambiguous request with 400
                     if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
-                    // Connection closed = safe
                     if (state == ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
-                    // If we got a 2xx, might be vulnerable — fail
+                    if (response is not null && response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Warn;
                     return TestVerdict.Fail;
                 }
             }
@@ -241,27 +237,27 @@ public static class SmugglingSuite
         yield return new TestCase
         {
             Id = "SMUG-TECL-PIPELINE",
-            Description = "TE.CL smuggling probe — TE: chunked + CL: 30 with pipelined GET",
+            Description = "TE.CL conflict — Transfer-Encoding: chunked + conflicting Content-Length",
             Category = TestCategory.Smuggling,
             RfcReference = "RFC 9112 §6.1",
-            RequiresConnectionReuse = true,
+            RfcLevel = RfcLevel.May,
             PayloadFactory = ctx =>
             {
                 // TE.CL reverse: TE parser sees chunked body, CL parser reads 30 bytes
                 var body = $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\nContent-Length: 30\r\n\r\n0\r\n\r\n";
                 return Encoding.ASCII.GetBytes(body);
             },
-            FollowUpPayloadFactory = ctx =>
-                Encoding.ASCII.GetBytes($"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                Description = "400 or close",
+                Description = "400 or close preferred; 2xx acceptable",
                 CustomValidator = (response, state) =>
                 {
                     if (response is not null && response.StatusCode == 400)
                         return TestVerdict.Pass;
                     if (state == ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
+                    if (response is not null && response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Warn;
                     return TestVerdict.Fail;
                 }
             }

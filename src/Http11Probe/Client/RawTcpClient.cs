@@ -157,7 +157,7 @@ public sealed class RawTcpClient : IAsyncDisposable
 
     private static int FindHeaderTerminator(ReadOnlySpan<byte> data)
     {
-        ReadOnlySpan<byte> terminator = [0x0D, 0x0A, 0x0D, 0x0A];
+        ReadOnlySpan<byte> terminator = "\r\n\r\n"u8;
         return data.IndexOf(terminator);
     }
 

@@ -45,8 +45,6 @@ yield return new TestCase
     RfcReference = "RFC 9112 §5.1",                // Use § not "Section". Omit if no RFC applies.
     Scored = true,                                 // Default true. Set false for MAY/informational tests.
     AllowConnectionClose = false,                  // On Expected. See validation rules below.
-    FollowUpPayloadFactory = ctx => ...,           // Second request on same connection (pipeline tests).
-    RequiresConnectionReuse = false,               // True if FollowUpPayloadFactory needs same TCP connection.
     BehavioralAnalyzer = (response) => ...,        // Optional Func<HttpResponse?, string?> for analysis notes.
 };
 ```
