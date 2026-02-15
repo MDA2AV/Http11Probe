@@ -1234,6 +1234,50 @@ public static class ComplianceSuite
 
         yield return new TestCase
         {
+            Id = "COMP-DATE-FORMAT",
+            Description = "Date header should use IMF-fixdate format",
+            Category = TestCategory.Compliance,
+            Scored = false,
+            RfcLevel = RfcLevel.Should,
+            RfcReference = "RFC 9110 §5.6.7",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "IMF-fixdate format",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return TestVerdict.Fail;
+                    if (response.StatusCode is not (>= 200 and < 300))
+                        return TestVerdict.Fail;
+                    if (!response.Headers.TryGetValue("Date", out var date))
+                        return TestVerdict.Warn;
+                    // IMF-fixdate: "Sun, 06 Nov 1994 08:49:37 GMT"
+                    return DateTime.TryParseExact(date.Trim(),
+                        "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.None, out _)
+                        ? TestVerdict.Pass
+                        : TestVerdict.Warn;
+                }
+            },
+            BehavioralAnalyzer = response =>
+            {
+                if (response is null) return null;
+                if (!response.Headers.TryGetValue("Date", out var date))
+                    return "No Date header present";
+                return DateTime.TryParseExact(date.Trim(),
+                    "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out _)
+                    ? $"IMF-fixdate: {date.Trim()}"
+                    : $"Non-standard format: {date.Trim()}";
+            }
+        };
+
+        yield return new TestCase
+        {
             Id = "COMP-NO-1XX-HTTP10",
             Description = "Server must not send 1xx responses to an HTTP/1.0 client",
             Category = TestCategory.Compliance,
@@ -1323,6 +1367,242 @@ public static class ComplianceSuite
                         return response.Headers.ContainsKey("Content-Type") ? TestVerdict.Pass : TestVerdict.Warn;
                     return TestVerdict.Fail;
                 }
+            }
+        };
+
+        // ── Version case-sensitivity ────────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-VERSION-CASE",
+            Description = "HTTP version is case-sensitive — lowercase 'http' must be rejected",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §2.3",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET / http/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "400 or close",
+                AllowConnectionClose = true,
+                ExpectedStatus = StatusCodeRange.Exact(400)
+            }
+        };
+
+        // ── Long URL acceptance ─────────────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-LONG-URL-OK",
+            Description = "Server should accept request-lines of at least 8000 octets",
+            Category = TestCategory.Compliance,
+            RfcLevel = RfcLevel.Should,
+            RfcReference = "RFC 9112 §3",
+            PayloadFactory = ctx =>
+            {
+                var path = "/" + new string('a', 7900);
+                return MakeRequest($"GET {path} HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n");
+            },
+            Expected = new ExpectedBehavior
+            {
+                Description = "not 414",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+                    if (response.StatusCode == 414)
+                        return TestVerdict.Fail;
+                    return TestVerdict.Pass;
+                }
+            }
+        };
+
+        // ── Space inside request-target ─────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-SPACE-IN-TARGET",
+            Description = "Whitespace inside request-target is invalid",
+            Category = TestCategory.Compliance,
+            RfcReference = "RFC 9112 §3.2",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET /pa th HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "400 or close",
+                AllowConnectionClose = true,
+                ExpectedStatus = StatusCodeRange.Exact(400)
+            }
+        };
+
+        // ── Duplicate Content-Type ──────────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-DUPLICATE-CT",
+            Description = "Duplicate Content-Type headers with different values",
+            Category = TestCategory.Compliance,
+            RfcLevel = RfcLevel.Should,
+            RfcReference = "RFC 9110 §5.3",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nContent-Type: text/plain\r\nContent-Type: text/html\r\n\r\nhello"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "400 or 2xx",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    if (response.StatusCode == 400)
+                        return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
+            }
+        };
+
+        // ── TRACE with sensitive headers ────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-TRACE-SENSITIVE",
+            Description = "TRACE should exclude sensitive headers from echoed response",
+            Category = TestCategory.Compliance,
+            Scored = false,
+            RfcLevel = RfcLevel.Should,
+            RfcReference = "RFC 9110 §9.3.8",
+            PayloadFactory = ctx => MakeRequest(
+                $"TRACE / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nAuthorization: Bearer secret-token-123\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "405/501, or 200 without Auth",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
+                    // TRACE disabled — good
+                    if (response.StatusCode is 405 or 501)
+                        return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300)
+                    {
+                        // Check if the echoed body contains the Authorization value
+                        var body = response.Body ?? "";
+                        if (body.Contains("secret-token-123", StringComparison.OrdinalIgnoreCase))
+                            return TestVerdict.Warn;
+                        return TestVerdict.Pass;
+                    }
+                    return TestVerdict.Fail;
+                }
+            },
+            BehavioralAnalyzer = response =>
+            {
+                if (response is null) return null;
+                if (response.StatusCode is 405 or 501)
+                    return "TRACE disabled — sensitive headers not exposed";
+                if (response.StatusCode is >= 200 and < 300)
+                {
+                    var body = response.Body ?? "";
+                    return body.Contains("secret-token-123", StringComparison.OrdinalIgnoreCase)
+                        ? "TRACE echoed Authorization header — sensitive data exposed"
+                        : "TRACE response excludes Authorization header — safe";
+                }
+                return null;
+            }
+        };
+
+        // ── Invalid Range syntax ────────────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-RANGE-INVALID",
+            Description = "Invalid Range header syntax should be ignored",
+            Category = TestCategory.Compliance,
+            Scored = false,
+            RfcLevel = RfcLevel.May,
+            RfcReference = "RFC 9110 §14.2",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nRange: bytes=abc-xyz\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "200 or 416",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+                    // Server ignored invalid Range — returned full content
+                    if (response.StatusCode is >= 200 and < 300 && response.StatusCode != 206)
+                        return TestVerdict.Pass;
+                    // Server explicitly rejected invalid Range
+                    if (response.StatusCode == 416)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Warn;
+                }
+            }
+        };
+
+        // ── Unrecognized Accept value ───────────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-ACCEPT-NONSENSE",
+            Description = "Unrecognized Accept value — server may return 406 or default representation",
+            Category = TestCategory.Compliance,
+            Scored = false,
+            RfcLevel = RfcLevel.Should,
+            RfcReference = "RFC 9110 §12.5.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nAccept: application/x-nonsense\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "406 or 2xx",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+                    if (response.StatusCode == 406)
+                        return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Warn;
+                    return TestVerdict.Fail;
+                }
+            },
+            BehavioralAnalyzer = response =>
+            {
+                if (response is null) return null;
+                if (response.StatusCode == 406)
+                    return "Server enforces Accept negotiation — returned 406";
+                if (response.StatusCode is >= 200 and < 300)
+                    return "Server ignored unrecognized Accept — returned default representation";
+                return null;
+            }
+        };
+
+        // ── Unsupported Content-Type on POST ────────────────────────
+        yield return new TestCase
+        {
+            Id = "COMP-POST-UNSUPPORTED-CT",
+            Description = "POST with unrecognized Content-Type — server may return 415",
+            Category = TestCategory.Compliance,
+            Scored = false,
+            RfcLevel = RfcLevel.May,
+            RfcReference = "RFC 9110 §15.5.16",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nContent-Type: application/x-nonsense\r\n\r\nhello"),
+            Expected = new ExpectedBehavior
+            {
+                Description = "415 or 2xx",
+                CustomValidator = (response, state) =>
+                {
+                    if (response is null)
+                        return state == ConnectionState.ClosedByServer ? TestVerdict.Warn : TestVerdict.Fail;
+                    if (response.StatusCode == 415)
+                        return TestVerdict.Pass;
+                    if (response.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Warn;
+                }
+            },
+            BehavioralAnalyzer = response =>
+            {
+                if (response is null) return null;
+                if (response.StatusCode == 415)
+                    return "Server enforces Content-Type validation — returned 415";
+                if (response.StatusCode is >= 200 and < 300)
+                    return "Server accepted unknown Content-Type";
+                return null;
             }
         };
     }

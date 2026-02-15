@@ -1,6 +1,6 @@
 ---
 title: "RFC Requirement Dashboard"
-description: "Complete RFC 2119 requirement-level analysis for all 157 Http11Probe tests"
+description: "Complete RFC 2119 requirement-level analysis for all 172 Http11Probe tests"
 weight: 2
 breadcrumbs: false
 ---
@@ -11,18 +11,18 @@ This dashboard classifies every Http11Probe test by its [RFC 2119](https://www.r
 
 | Requirement Level | Count | Meaning (RFC 2119) |
 |---|---|---|
-| **MUST** | 89 | Absolute requirement — no compliant implementation may deviate |
-| **SHOULD** | 27 | Recommended — valid exceptions exist but must be understood |
+| **MUST** | 96 | Absolute requirement — no compliant implementation may deviate |
+| **SHOULD** | 29 | Recommended — valid exceptions exist but must be understood |
 | **MAY** | 10 | Truly optional — either behavior is fully compliant |
 | **"ought to"** | 1 | Weaker than SHOULD — recommended but not normative |
-| **Unscored** | 19 | Informational — no pass/fail judgement |
+| **Unscored** | 25 | Informational — no pass/fail judgement |
 | **N/A** | 11 | Best-practice / no single RFC verb applies |
 
-**Total: 157 tests**
+**Total: 172 tests**
 
 ---
 
-## MUST-Level Requirements (84 tests)
+## MUST-Level Requirements (96 tests)
 
 These tests enforce absolute RFC requirements. A compliant server has no discretion — it **MUST** behave as specified.
 
@@ -57,6 +57,8 @@ The RFC requires rejection, but the mechanism (400 status or connection close) h
 | 16 | `COMP-VERSION-MISSING-MINOR` | Compliance | [RFC 9112 §2.3](https://www.rfc-editor.org/rfc/rfc9112#section-2.3) | Grammar: `HTTP-version = HTTP-name "/" DIGIT "." DIGIT`. "HTTP/1" has no minor version digit — violates the grammar. **MUST** reject. |
 | 17 | `COMP-VERSION-LEADING-ZEROS` | Compliance | [RFC 9112 §2.3](https://www.rfc-editor.org/rfc/rfc9112#section-2.3) | Grammar: `HTTP-version = HTTP-name "/" DIGIT "." DIGIT`. Each version component is exactly one DIGIT — "01" is two digits. **MUST** reject. |
 | 18 | `COMP-VERSION-WHITESPACE` | Compliance | [RFC 9112 §2.3](https://www.rfc-editor.org/rfc/rfc9112#section-2.3) | Grammar: `HTTP-version = HTTP-name "/" DIGIT "." DIGIT`. No whitespace is permitted within the version token. **MUST** reject. |
+| 19 | `COMP-VERSION-CASE` | Compliance | [RFC 9112 §2.3](https://www.rfc-editor.org/rfc/rfc9112#section-2.3) | "HTTP-version is case-sensitive." `HTTP-name = %x48.54.54.50` — only uppercase octets match. **MUST** reject lowercase `http/1.1`. |
+| 20 | `COMP-SPACE-IN-TARGET` | Compliance | [RFC 9112 §3.2](https://www.rfc-editor.org/rfc/rfc9112#section-3.2) | Unencoded space in request-target makes the request-line ambiguous (four tokens instead of three). Grammar: `request-line = method SP request-target SP HTTP-version`. **MUST** reject. |
 | 19 | `RFC9112-6.1-CL-NON-NUMERIC` | Compliance | [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) | "If a message is received without Transfer-Encoding and with an invalid Content-Length header field, then the message framing is invalid and the recipient **MUST** treat it as an unrecoverable error... the server **MUST** respond with a 400 (Bad Request) status code and then close the connection." |
 | 20 | `RFC9112-6.1-CL-PLUS-SIGN` | Compliance | [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) | Same as above — `Content-Length = 1*DIGIT`. A plus sign is not a DIGIT. **MUST** reject as invalid Content-Length. |
 | 21 | `SMUG-DUPLICATE-CL` | Smuggling | [RFC 9110 §8.6](https://www.rfc-editor.org/rfc/rfc9110#section-8.6) | "If a message is received without Transfer-Encoding and with an invalid Content-Length header field, then the message framing is invalid and the recipient **MUST** treat it as an unrecoverable error." Duplicate CL with different values = invalid. |
@@ -92,6 +94,11 @@ The RFC requires rejection, but the mechanism (400 status or connection close) h
 | 51 | `SMUG-CLTE-PIPELINE` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | "Regardless, the server **MUST** close the connection after responding to such a request to avoid the potential attacks." CL+TE combined — **MUST** close connection. |
 | 52 | `SMUG-TECL-PIPELINE` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Same as above — TE+CL combined in reverse smuggling direction. **MUST** close connection. |
 | 53 | `SMUG-TE-XCHUNKED` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Unknown TE with CL present: "Regardless, the server **MUST** close the connection after responding to such a request." Combined with §6.1: "A server that receives a request message with a transfer coding it does not understand **SHOULD** respond with 501." |
+| 54 | `SMUG-CLTE-CONN-CLOSE` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Sequence test: CL+TE combined, then follow-up GET on same socket. "The server **MUST** close the connection after responding to such a request." If follow-up receives a response, MUST-close violated. |
+| 55 | `SMUG-TECL-CONN-CLOSE` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Same as CLTE-CONN-CLOSE with TE before CL header order. **MUST** close connection. |
+| 56 | `SMUG-CLTE-KEEPALIVE` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | CL+TE conflict with explicit `Connection: keep-alive`. **MUST** close connection regardless of keep-alive. |
+| 57 | `SMUG-CLTE-DESYNC` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Classic CL.TE desync: CL=6 with TE=chunked body `0\r\n\r\nX`. Poison byte after CL boundary confirms desync. **MUST** close connection. |
+| 58 | `SMUG-TECL-DESYNC` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Reverse TE.CL desync: TE=chunked terminates at `0\r\n\r\n` but CL=30. Extra bytes on wire confirm desync. **MUST** close connection. |
 | 54 | `COMP-CONNECTION-CLOSE` | Compliance | [RFC 9112 §9.6](https://www.rfc-editor.org/rfc/rfc9112#section-9.6) | "A server that receives a 'close' connection option **MUST** initiate closure of the connection after it sends the final response to the request that contained the 'close' connection option." |
 | 55 | `COMP-OPTIONS-STAR` | Compliance | [RFC 9112 §3.2.4](https://www.rfc-editor.org/rfc/rfc9112#section-3.2.4) | The asterisk-form `*` is defined only for OPTIONS. A valid OPTIONS * request **MUST** be accepted. |
 | 56 | `COMP-POST-CL-BODY` | Compliance | [RFC 9112 §6.2](https://www.rfc-editor.org/rfc/rfc9112#section-6.2) | "If a valid Content-Length header field is present without Transfer-Encoding, its decimal value defines the expected message body length in octets." Server **MUST** accept a well-formed POST with matching body. |
@@ -131,7 +138,7 @@ The RFC requires rejection, but the mechanism (400 status or connection close) h
 
 ---
 
-## SHOULD-Level Requirements (27 tests)
+## SHOULD-Level Requirements (29 tests)
 
 The RFC recommends this behavior. Valid exceptions exist but must be understood and justified.
 
@@ -164,6 +171,8 @@ The RFC recommends this behavior. Valid exceptions exist but must be understood 
 | 25 | `COMP-UNKNOWN-METHOD` | Compliance | [RFC 9110 §9.1](https://www.rfc-editor.org/rfc/rfc9110#section-9.1) | "An origin server that receives a request method that is unrecognized or not implemented **SHOULD** respond with the 501 (Not Implemented) status code." |
 | 26 | `COMP-OPTIONS-ALLOW` | Compliance | [RFC 9110 §9.3.7](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.7) | "A server generating a successful response to OPTIONS **SHOULD** send any header that might indicate optional features implemented by the server and applicable to the target resource (e.g., Allow)." |
 | 27 | `COMP-CONTENT-TYPE` | Compliance | [RFC 9110 §8.3](https://www.rfc-editor.org/rfc/rfc9110#section-8.3) | "A sender that generates a message containing content **SHOULD** generate a Content-Type header field in the message." |
+| 28 | `COMP-LONG-URL-OK` | Compliance | [RFC 9112 §3](https://www.rfc-editor.org/rfc/rfc9112#section-3) | "It is RECOMMENDED that all HTTP senders and recipients support, at a minimum, request-line lengths of 8000 octets." Server **SHOULD** accept ~7900-char path. |
+| 29 | `COMP-DUPLICATE-CT` | Compliance | [RFC 9110 §5.3](https://www.rfc-editor.org/rfc/rfc9110#section-5.3) | "A sender **MUST NOT** generate multiple header fields with the same field name." Content-Type is not list-based — duplicate values **SHOULD** be rejected with 400. |
 
 ---
 
@@ -196,7 +205,7 @@ Weaker than SHOULD — recommends but does not normatively require.
 
 ---
 
-## Unscored Tests (19 tests)
+## Unscored Tests (25 tests)
 
 These tests are informational — they produce warnings but never fail.
 
@@ -221,6 +230,12 @@ These tests are informational — they produce warnings but never fail.
 | 17 | `MAL-RANGE-OVERLAPPING` | Malformed | [RFC 9110 §14.2](https://www.rfc-editor.org/rfc/rfc9110#section-14.2) | "A server that supports range requests **MAY** ignore or reject a Range header field that contains... a ranges-specifier with more than two overlapping ranges." |
 | 18 | `MAL-URL-BACKSLASH` | Malformed | N/A | Backslash is not a valid URI character. Some servers normalize to `/`. |
 | 19 | `NORM-CASE-TE` | Normalization | N/A | All-uppercase TRANSFER-ENCODING — tests header name case normalization. |
+| 20 | `COMP-TRACE-SENSITIVE` | Compliance | [RFC 9110 §9.3.8](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.8) | "A server **SHOULD** exclude any request header fields that are likely to contain sensitive data." TRACE with Authorization header — checks if secret is echoed. |
+| 21 | `COMP-ACCEPT-NONSENSE` | Compliance | [RFC 9110 §12.5.1](https://www.rfc-editor.org/rfc/rfc9110#section-12.5.1) | Unrecognized Accept value — server may return 406 or serve default representation. Both behaviors valid. |
+| 22 | `COMP-DATE-FORMAT` | Compliance | [RFC 9110 §5.6.7](https://www.rfc-editor.org/rfc/rfc9110#section-5.6.7) | "A sender **MUST** generate timestamps in the IMF-fixdate format." Checks Date header format. |
+| 23 | `COMP-RANGE-INVALID` | Compliance | [RFC 9110 §14.2](https://www.rfc-editor.org/rfc/rfc9110#section-14.2) | "A server **MAY** ignore the Range header field." Invalid Range syntax — 2xx or 416 both acceptable. |
+| 24 | `COMP-POST-UNSUPPORTED-CT` | Compliance | [RFC 9110 §15.5.16](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.16) | POST with unknown Content-Type — 415 or 2xx both acceptable. |
+| 25 | `SMUG-PIPELINE-SAFE` | Smuggling | [RFC 9112 §9.3](https://www.rfc-editor.org/rfc/rfc9112#section-9.3) | Baseline: two clean pipelined GETs. Validates sequence test infrastructure against the target. |
 
 ---
 
@@ -246,25 +261,25 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 
 ## Requirement Level by Suite
 
-### Compliance Suite (65 tests)
+### Compliance Suite (74 tests)
 
 | Level | Tests |
 |-------|-------|
-| MUST | 43 |
-| SHOULD | 13 |
+| MUST | 45 |
+| SHOULD | 15 |
 | MAY | 6 |
-| Unscored | 2 |
+| Unscored | 7 |
 | N/A | 1 |
 
-### Smuggling Suite (61 tests)
+### Smuggling Suite (67 tests)
 
 | Level | Tests |
 |-------|-------|
-| MUST | 34 |
+| MUST | 39 |
 | SHOULD | 9 |
 | MAY | 3 |
 | "ought to" | 1 |
-| Unscored | 14 |
+| Unscored | 15 |
 
 ### Malformed Input Suite (26 tests)
 
@@ -291,30 +306,33 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 | RFC Section | Tests | Topic |
 |-------------|-------|-------|
 | RFC 9112 §2.2 | 14 | Line endings, bare CR/LF, message parsing |
-| RFC 9112 §2.3 | 5 | HTTP version |
-| RFC 9112 §3 | 8 | Request line, method, request-target |
-| RFC 9112 §3.2 | 10 | Host header, request-target forms |
+| RFC 9112 §2.3 | 6 | HTTP version |
+| RFC 9112 §3 | 9 | Request line, method, request-target |
+| RFC 9112 §3.2 | 11 | Host header, request-target forms |
 | RFC 9112 §5 | 7 | Header field syntax, sp-before-colon |
 | RFC 9112 §5.2 | 2 | Obsolete line folding |
-| RFC 9112 §6.1 | 16 | Transfer-Encoding, CL+TE ambiguity |
+| RFC 9112 §6.1 | 21 | Transfer-Encoding, CL+TE ambiguity |
 | RFC 9112 §6.2 | 4 | Content-Length body framing |
 | RFC 9112 §6.3 | 5 | Message body length determination |
 | RFC 9112 §7.1 | 15 | Chunked transfer coding format |
 | RFC 9112 §7.1.1 | 4 | Chunk extensions |
 | RFC 9112 §7.1.2 | 1 | Chunked trailer section |
-| RFC 9112 §9.3-9.6 | 2 | Connection management |
-| RFC 9110 §5.4-5.6 | 7 | Field limits, values, lists, tokens |
+| RFC 9112 §9.3-9.6 | 3 | Connection management |
+| RFC 9110 §5.3 | 1 | Header field duplication |
+| RFC 9110 §5.4-5.6 | 8 | Field limits, values, lists, tokens |
 | RFC 9110 §6.6.1 | 1 | Date header |
 | RFC 9110 §7.2 | 1 | Host header semantics |
 | RFC 9110 §7.8 | 4 | Upgrade |
 | RFC 9110 §8.3 | 1 | Content-Type |
 | RFC 9110 §8.6 | 14 | Content-Length semantics |
-| RFC 9110 §9.1-9.3 | 9 | Methods (GET, HEAD, CONNECT, OPTIONS, TRACE) |
+| RFC 9110 §9.1-9.3 | 10 | Methods (GET, HEAD, CONNECT, OPTIONS, TRACE) |
 | RFC 9110 §10.1.1 | 2 | Expect header |
 | RFC 9110 §6.5 | 5 | Trailer field restrictions |
-| RFC 9110 §14.2 | 1 | Range requests |
+| RFC 9110 §12.5.1 | 1 | Content negotiation (Accept) |
+| RFC 9110 §14.2 | 2 | Range requests |
 | RFC 9110 §15.2 | 1 | 1xx status codes |
 | RFC 9110 §15.5.6 | 1 | 405 Method Not Allowed |
+| RFC 9110 §15.5.16 | 1 | 415 Unsupported Media Type |
 | RFC 6455 | 2 | WebSocket handshake |
 | RFC 6585 | 3 | 431 status code |
 | RFC 3629 | 1 | UTF-8 encoding |

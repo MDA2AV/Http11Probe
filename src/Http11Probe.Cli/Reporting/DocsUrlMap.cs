@@ -19,6 +19,7 @@ internal static class DocsUrlMap
         ["COMP-POST-CL-UNDERSEND"] = "body/post-cl-undersend",
         ["COMP-POST-CL-ZERO"] = "body/post-cl-zero",
         ["COMP-POST-NO-CL-NO-TE"] = "body/post-no-cl-no-te",
+        ["COMP-POST-UNSUPPORTED-CT"] = "body/post-unsupported-ct",
 
         // content-length
         ["RFC9112-6.1-CL-NON-NUMERIC"] = "content-length/cl-non-numeric",
@@ -26,9 +27,12 @@ internal static class DocsUrlMap
         ["COMP-NO-CL-IN-204"] = "content-length/no-cl-in-204",
 
         // headers
+        ["COMP-ACCEPT-NONSENSE"] = "headers/accept-nonsense",
         ["COMP-CONNECTION-CLOSE"] = "headers/connection-close",
         ["COMP-CONTENT-TYPE"] = "headers/content-type-presence",
+        ["COMP-DATE-FORMAT"] = "headers/date-format",
         ["COMP-DATE-HEADER"] = "headers/date-header",
+        ["COMP-DUPLICATE-CT"] = "headers/duplicate-ct",
         ["RFC9112-5-EMPTY-HEADER-NAME"] = "headers/empty-header-name",
         ["COMP-EXPECT-UNKNOWN"] = "headers/expect-unknown",
         ["RFC9112-5-HEADER-NO-COLON"] = "headers/header-no-colon",
@@ -71,14 +75,19 @@ internal static class DocsUrlMap
         ["COMP-OPTIONS-ALLOW"] = "request-line/options-allow",
         ["COMP-OPTIONS-STAR"] = "request-line/options-star",
         ["COMP-REQUEST-LINE-TAB"] = "request-line/request-line-tab",
+        ["COMP-SPACE-IN-TARGET"] = "request-line/space-in-target",
+        ["COMP-TRACE-SENSITIVE"] = "request-line/trace-sensitive",
         ["COMP-TRACE-WITH-BODY"] = "request-line/trace-with-body",
         ["COMP-UNKNOWN-METHOD"] = "request-line/unknown-method",
         ["COMP-UNKNOWN-TE-501"] = "request-line/unknown-te-501",
+        ["COMP-VERSION-CASE"] = "request-line/version-case",
         ["COMP-VERSION-LEADING-ZEROS"] = "request-line/version-leading-zeros",
         ["COMP-VERSION-MISSING-MINOR"] = "request-line/version-missing-minor",
         ["COMP-VERSION-WHITESPACE"] = "request-line/version-whitespace",
+        ["COMP-LONG-URL-OK"] = "request-line/long-url-ok",
 
         // range
+        ["COMP-RANGE-INVALID"] = "body/range-invalid",
         ["COMP-RANGE-POST"] = "body/range-post",
 
         // upgrade
