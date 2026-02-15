@@ -1,6 +1,6 @@
 ---
 title: "RFC Requirement Dashboard"
-description: "Complete RFC 2119 requirement-level analysis for all 172 Http11Probe tests"
+description: "Complete RFC 2119 requirement-level analysis for all 183 Http11Probe tests"
 weight: 2
 breadcrumbs: false
 ---
@@ -11,18 +11,18 @@ This dashboard classifies every Http11Probe test by its [RFC 2119](https://www.r
 
 | Requirement Level | Count | Meaning (RFC 2119) |
 |---|---|---|
-| **MUST** | 96 | Absolute requirement — no compliant implementation may deviate |
+| **MUST** | 103 | Absolute requirement — no compliant implementation may deviate |
 | **SHOULD** | 29 | Recommended — valid exceptions exist but must be understood |
 | **MAY** | 10 | Truly optional — either behavior is fully compliant |
 | **"ought to"** | 1 | Weaker than SHOULD — recommended but not normative |
-| **Unscored** | 25 | Informational — no pass/fail judgement |
+| **Unscored** | 29 | Informational — no pass/fail judgement |
 | **N/A** | 11 | Best-practice / no single RFC verb applies |
 
-**Total: 172 tests**
+**Total: 183 tests**
 
 ---
 
-## MUST-Level Requirements (96 tests)
+## MUST-Level Requirements (103 tests)
 
 These tests enforce absolute RFC requirements. A compliant server has no discretion — it **MUST** behave as specified.
 
@@ -99,11 +99,18 @@ The RFC requires rejection, but the mechanism (400 status or connection close) h
 | 56 | `SMUG-CLTE-KEEPALIVE` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | CL+TE conflict with explicit `Connection: keep-alive`. **MUST** close connection regardless of keep-alive. |
 | 57 | `SMUG-CLTE-DESYNC` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Classic CL.TE desync: CL=6 with TE=chunked body `0\r\n\r\nX`. Poison byte after CL boundary confirms desync. **MUST** close connection. |
 | 58 | `SMUG-TECL-DESYNC` | Smuggling | [RFC 9112 §6.1](https://www.rfc-editor.org/rfc/rfc9112#section-6.1) | Reverse TE.CL desync: TE=chunked terminates at `0\r\n\r\n` but CL=30. Extra bytes on wire confirm desync. **MUST** close connection. |
+| 59 | `SMUG-CHUNK-SIZE-PLUS` | Smuggling | [RFC 9112 §7.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1) | Grammar: `chunk-size = 1*HEXDIG`. Leading `+` is not HEXDIG; invalid chunk framing **MUST** be rejected. |
+| 60 | `SMUG-CHUNK-SIZE-TRAILING-OWS` | Smuggling | [RFC 9112 §7.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1) | Grammar: `chunk-size = 1*HEXDIG`. Trailing whitespace in chunk-size is invalid syntax and **MUST** be rejected. |
+| 61 | `SMUG-CHUNK-EXT-INVALID-TOKEN` | Smuggling | [RFC 9112 §7.1.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1.1) | Grammar: `chunk-ext-name = token`. `[` is not a valid token character, so the chunk extension is invalid and **MUST** be rejected. |
+| 62 | `SMUG-OPTIONS-TE-OBS-FOLD` | Smuggling | [RFC 9112 §5.2](https://www.rfc-editor.org/rfc/rfc9112#section-5.2) | "A server that receives an obs-fold in a request message ... **MUST** either reject the message by sending a 400 (Bad Request) ... or replace each received obs-fold with one or more SP octets." |
+| 63 | `SMUG-CHUNK-INVALID-SIZE-DESYNC` | Smuggling | [RFC 9112 §7.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1) | Sequence test with invalid `+0` chunk-size plus poison byte. Since `chunk-size = 1*HEXDIG`, this framing error **MUST** be rejected to prevent desync. |
 | 54 | `COMP-CONNECTION-CLOSE` | Compliance | [RFC 9112 §9.6](https://www.rfc-editor.org/rfc/rfc9112#section-9.6) | "A server that receives a 'close' connection option **MUST** initiate closure of the connection after it sends the final response to the request that contained the 'close' connection option." |
 | 55 | `COMP-OPTIONS-STAR` | Compliance | [RFC 9112 §3.2.4](https://www.rfc-editor.org/rfc/rfc9112#section-3.2.4) | The asterisk-form `*` is defined only for OPTIONS. A valid OPTIONS * request **MUST** be accepted. |
 | 56 | `COMP-POST-CL-BODY` | Compliance | [RFC 9112 §6.2](https://www.rfc-editor.org/rfc/rfc9112#section-6.2) | "If a valid Content-Length header field is present without Transfer-Encoding, its decimal value defines the expected message body length in octets." Server **MUST** accept a well-formed POST with matching body. |
 | 57 | `COMP-POST-CL-ZERO` | Compliance | [RFC 9112 §6.2](https://www.rfc-editor.org/rfc/rfc9112#section-6.2) | Content-Length: 0 is a valid 1*DIGIT value. Server **MUST** accept zero-length body. |
 | 58 | `COMP-POST-NO-CL-NO-TE` | Compliance | [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) | "If this is a request message and none of the above are true, then the message body length is zero (no message body is present)." Server **MUST** treat as zero-length. |
+| 59 | `COMP-RANGE-POST` | Compliance | [RFC 9110 §14.2](https://www.rfc-editor.org/rfc/rfc9110#section-14.2) | "A server **MUST** ignore a Range header field received with a request method other than GET." |
+| 60 | `COMP-UPGRADE-HTTP10` | Compliance | [RFC 9110 §7.8](https://www.rfc-editor.org/rfc/rfc9110#section-7.8) | "A server **MUST** ignore an Upgrade header field that is received in an HTTP/1.0 request." |
 | 59 | `COMP-CHUNKED-BODY` | Compliance | [RFC 9112 §7.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1) | "A recipient **MUST** be able to parse and decode the chunked transfer coding." |
 | 60 | `COMP-CHUNKED-MULTI` | Compliance | [RFC 9112 §7.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1) | Same — multi-chunk is the standard chunked format. **MUST** accept. |
 | 61 | `COMP-CHUNKED-EMPTY` | Compliance | [RFC 9112 §7.1](https://www.rfc-editor.org/rfc/rfc9112#section-7.1) | A zero-length chunked body (just `0\r\n\r\n`) is valid. **MUST** accept. |
@@ -205,7 +212,7 @@ Weaker than SHOULD — recommends but does not normatively require.
 
 ---
 
-## Unscored Tests (25 tests)
+## Unscored Tests (29 tests)
 
 These tests are informational — they produce warnings but never fail.
 
@@ -236,6 +243,10 @@ These tests are informational — they produce warnings but never fail.
 | 23 | `COMP-RANGE-INVALID` | Compliance | [RFC 9110 §14.2](https://www.rfc-editor.org/rfc/rfc9110#section-14.2) | "A server **MAY** ignore the Range header field." Invalid Range syntax — 2xx or 416 both acceptable. |
 | 24 | `COMP-POST-UNSUPPORTED-CT` | Compliance | [RFC 9110 §15.5.16](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.16) | POST with unknown Content-Type — 415 or 2xx both acceptable. |
 | 25 | `SMUG-PIPELINE-SAFE` | Smuggling | [RFC 9112 §9.3](https://www.rfc-editor.org/rfc/rfc9112#section-9.3) | Baseline: two clean pipelined GETs. Validates sequence test infrastructure against the target. |
+| 26 | `SMUG-CL0-BODY-POISON` | Smuggling | [RFC 9112 §6.2](https://www.rfc-editor.org/rfc/rfc9112#section-6.2) | `Content-Length: 0` plus trailing bytes, then follow-up GET on same socket. Sequence telemetry for `0.CL`-style poisoning behavior. |
+| 27 | `SMUG-GET-CL-BODY-DESYNC` | Smuggling | [RFC 9110 §9.3.1](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.1) | "Content received in a GET request ... might lead some implementations to reject the request and close the connection because of its potential as a request smuggling attack." Adds follow-up desync check. |
+| 28 | `SMUG-OPTIONS-CL-BODY-DESYNC` | Smuggling | [RFC 9110 §9.3.7](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.7) | OPTIONS with body plus follow-up GET to detect unread-body poisoning on persistent connections. |
+| 29 | `SMUG-EXPECT-100-CL-DESYNC` | Smuggling | [RFC 9110 §10.1.1](https://www.rfc-editor.org/rfc/rfc9110#section-10.1.1) | Expect/continue flow with immediate body plus follow-up GET; highlights whether connection framing remains synchronized. |
 
 ---
 
@@ -261,25 +272,25 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 
 ## Requirement Level by Suite
 
-### Compliance Suite (74 tests)
+### Compliance Suite (76 tests)
 
 | Level | Tests |
 |-------|-------|
-| MUST | 45 |
+| MUST | 47 |
 | SHOULD | 15 |
 | MAY | 6 |
 | Unscored | 7 |
 | N/A | 1 |
 
-### Smuggling Suite (67 tests)
+### Smuggling Suite (76 tests)
 
 | Level | Tests |
 |-------|-------|
-| MUST | 39 |
+| MUST | 44 |
 | SHOULD | 9 |
 | MAY | 3 |
 | "ought to" | 1 |
-| Unscored | 15 |
+| Unscored | 19 |
 
 ### Malformed Input Suite (26 tests)
 
@@ -310,26 +321,26 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 | RFC 9112 §3 | 9 | Request line, method, request-target |
 | RFC 9112 §3.2 | 11 | Host header, request-target forms |
 | RFC 9112 §5 | 7 | Header field syntax, sp-before-colon |
-| RFC 9112 §5.2 | 2 | Obsolete line folding |
+| RFC 9112 §5.2 | 3 | Obsolete line folding |
 | RFC 9112 §6.1 | 21 | Transfer-Encoding, CL+TE ambiguity |
-| RFC 9112 §6.2 | 4 | Content-Length body framing |
+| RFC 9112 §6.2 | 5 | Content-Length body framing |
 | RFC 9112 §6.3 | 5 | Message body length determination |
-| RFC 9112 §7.1 | 15 | Chunked transfer coding format |
-| RFC 9112 §7.1.1 | 4 | Chunk extensions |
+| RFC 9112 §7.1 | 18 | Chunked transfer coding format |
+| RFC 9112 §7.1.1 | 5 | Chunk extensions |
 | RFC 9112 §7.1.2 | 1 | Chunked trailer section |
 | RFC 9112 §9.3-9.6 | 3 | Connection management |
 | RFC 9110 §5.3 | 1 | Header field duplication |
 | RFC 9110 §5.4-5.6 | 8 | Field limits, values, lists, tokens |
 | RFC 9110 §6.6.1 | 1 | Date header |
 | RFC 9110 §7.2 | 1 | Host header semantics |
-| RFC 9110 §7.8 | 4 | Upgrade |
+| RFC 9110 §7.8 | 5 | Upgrade |
 | RFC 9110 §8.3 | 1 | Content-Type |
 | RFC 9110 §8.6 | 14 | Content-Length semantics |
-| RFC 9110 §9.1-9.3 | 10 | Methods (GET, HEAD, CONNECT, OPTIONS, TRACE) |
-| RFC 9110 §10.1.1 | 2 | Expect header |
+| RFC 9110 §9.1-9.3 | 12 | Methods (GET, HEAD, CONNECT, OPTIONS, TRACE) |
+| RFC 9110 §10.1.1 | 3 | Expect header |
 | RFC 9110 §6.5 | 5 | Trailer field restrictions |
 | RFC 9110 §12.5.1 | 1 | Content negotiation (Accept) |
-| RFC 9110 §14.2 | 2 | Range requests |
+| RFC 9110 §14.2 | 3 | Range requests |
 | RFC 9110 §15.2 | 1 | 1xx status codes |
 | RFC 9110 §15.5.6 | 1 | 405 Method Not Allowed |
 | RFC 9110 §15.5.16 | 1 | 415 Unsupported Media Type |

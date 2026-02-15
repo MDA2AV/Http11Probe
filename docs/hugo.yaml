@@ -40,7 +40,7 @@ menu:
       weight: 3
     - name: Smuggling
       parent: Sequence Tests
-      pageRef: /smuggling
+      pageRef: /sequence-tests/smuggling
       weight: 1
     - name: Glossary
       pageRef: /docs

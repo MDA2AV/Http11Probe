@@ -72,6 +72,7 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="te-not-final-chunked" title="TE-NOT-FINAL-CHUNKED" subtitle="Chunked is not the final transfer encoding." >}}
   {{< card link="te-http10" title="TE-HTTP10" subtitle="Transfer-Encoding in HTTP/1.0 request." >}}
   {{< card link="chunk-bare-semicolon" title="CHUNK-BARE-SEMICOLON" subtitle="Bare semicolon in chunk size." >}}
+  {{< card link="chunk-ext-invalid-token" title="CHUNK-EXT-INVALID-TOKEN" subtitle="Invalid token character in chunk extension name." >}}
   {{< card link="bare-cr-header-value" title="BARE-CR-HEADER-VALUE" subtitle="Bare CR in header value." >}}
   {{< card link="cl-octal" title="CL-OCTAL" subtitle="Content-Length with octal prefix." >}}
   {{< card link="chunk-underscore" title="CHUNK-UNDERSCORE" subtitle="Underscore in chunk size." >}}
@@ -79,12 +80,15 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="te-leading-comma" title="TE-LEADING-COMMA" subtitle="Leading comma in Transfer-Encoding." >}}
   {{< card link="te-duplicate-headers" title="TE-DUPLICATE-HEADERS" subtitle="Two TE headers with conflicting values." >}}
   {{< card link="chunk-hex-prefix" title="CHUNK-HEX-PREFIX" subtitle="Chunk size with 0x prefix." >}}
+  {{< card link="chunk-size-plus" title="CHUNK-SIZE-PLUS" subtitle="Chunk size with leading plus sign." >}}
+  {{< card link="chunk-size-trailing-ows" title="CHUNK-SIZE-TRAILING-OWS" subtitle="Chunk size with trailing whitespace." >}}
   {{< card link="cl-hex-prefix" title="CL-HEX-PREFIX" subtitle="Content-Length with 0x prefix." >}}
   {{< card link="cl-internal-space" title="CL-INTERNAL-SPACE" subtitle="Space inside Content-Length value." >}}
   {{< card link="chunk-leading-sp" title="CHUNK-LEADING-SP" subtitle="Leading space in chunk size." >}}
   {{< card link="chunk-missing-trailing-crlf" title="CHUNK-MISSING-TRAILING-CRLF" subtitle="Chunk data without trailing CRLF." >}}
   {{< card link="chunk-ext-lf" title="CHUNK-EXT-LF" subtitle="Bare LF in chunk extension (TERM.EXT vector)." >}}
   {{< card link="chunk-spill" title="CHUNK-SPILL" subtitle="Chunk declares size 5 but sends 7 bytes." >}}
+  {{< card link="chunk-invalid-size-desync" title="CHUNK-INVALID-SIZE-DESYNC" subtitle="Invalid chunk size plus poison-byte follow-up check." >}}
   {{< card link="chunk-lf-term" title="CHUNK-LF-TERM" subtitle="Bare LF as chunk data terminator." >}}
   {{< card link="chunk-ext-ctrl" title="CHUNK-EXT-CTRL" subtitle="NUL byte in chunk extension." >}}
   {{< card link="chunk-ext-cr" title="CHUNK-EXT-CR" subtitle="Bare CR inside chunk extension metadata." >}}
@@ -100,6 +104,7 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="cl-double-zero" title="CL-DOUBLE-ZERO" subtitle="Content-Length: 00 — leading zero ambiguity." >}}
   {{< card link="cl-leading-zeros-octal" title="CL-LEADING-ZEROS-OCTAL" subtitle="Content-Length: 0200 — octal vs decimal disagreement." >}}
   {{< card link="te-obs-fold" title="TE-OBS-FOLD" subtitle="Transfer-Encoding with obs-fold line wrapping." >}}
+  {{< card link="options-te-obs-fold" title="OPTIONS-TE-OBS-FOLD" subtitle="OPTIONS path for TE obs-fold plus follow-up close check." >}}
   {{< card link="te-trailing-comma" title="TE-TRAILING-COMMA" subtitle="Transfer-Encoding: chunked, — trailing comma." >}}
   {{< card link="multiple-host-comma" title="MULTIPLE-HOST-COMMA" subtitle="Host with comma-separated values." >}}
 {{< /cards >}}
@@ -116,13 +121,17 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="cl-comma-triple" title="CL-COMMA-TRIPLE" subtitle="Three comma-separated identical CL values." >}}
   {{< card link="chunked-with-params" title="CHUNKED-WITH-PARAMS" subtitle="Parameters on chunked encoding." >}}
   {{< card link="expect-100-cl" title="EXPECT-100-CL" subtitle="Expect: 100-continue with Content-Length." >}}
+  {{< card link="expect-100-cl-desync" title="EXPECT-100-CL-DESYNC" subtitle="Expect workflow with follow-up desync check." >}}
   {{< card link="trailer-cl" title="TRAILER-CL" subtitle="Content-Length in chunked trailers (prohibited)." >}}
   {{< card link="trailer-te" title="TRAILER-TE" subtitle="Transfer-Encoding in chunked trailers (prohibited)." >}}
   {{< card link="trailer-host" title="TRAILER-HOST" subtitle="Host header in chunked trailers (must not route)." >}}
   {{< card link="trailer-auth" title="TRAILER-AUTH" subtitle="Authorization in chunked trailers (prohibited)." >}}
   {{< card link="trailer-content-type" title="TRAILER-CONTENT-TYPE" subtitle="Content-Type in chunked trailers (prohibited)." >}}
+  {{< card link="cl0-body-poison" title="CL0-BODY-POISON" subtitle="CL:0 with trailing byte and follow-up request." >}}
+  {{< card link="get-cl-body-desync" title="GET-CL-BODY-DESYNC" subtitle="GET with body plus follow-up desync check." >}}
   {{< card link="head-cl-body" title="HEAD-CL-BODY" subtitle="HEAD with Content-Length and body." >}}
   {{< card link="options-cl-body" title="OPTIONS-CL-BODY" subtitle="OPTIONS with Content-Length and body." >}}
+  {{< card link="options-cl-body-desync" title="OPTIONS-CL-BODY-DESYNC" subtitle="OPTIONS with body plus follow-up desync check." >}}
   {{< card link="te-tab-before-value" title="TE-TAB-BEFORE-VALUE" subtitle="Tab as OWS before Transfer-Encoding value." >}}
   {{< card link="absolute-uri-host-mismatch" title="ABSOLUTE-URI-HOST-MISMATCH" subtitle="Absolute-form URI with different Host header." >}}
 {{< /cards >}}

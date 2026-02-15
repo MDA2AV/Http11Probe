@@ -430,6 +430,21 @@ public static class SmugglingSuite
 
         yield return new TestCase
         {
+            Id = "SMUG-CHUNK-EXT-INVALID-TOKEN",
+            Description = "Chunk extension with invalid token character must be rejected",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §7.1.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5;bad[=x\r\nhello\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
             Id = "SMUG-BARE-CR-HEADER-VALUE",
             Description = "Bare CR in header value must be rejected or replaced with SP",
             Category = TestCategory.Smuggling,
@@ -543,6 +558,36 @@ public static class SmugglingSuite
             RfcReference = "RFC 9112 §7.1",
             PayloadFactory = ctx => MakeRequest(
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n0x5\r\nhello\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "SMUG-CHUNK-SIZE-PLUS",
+            Description = "Chunk size with leading plus sign must be rejected",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §7.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n+5\r\nhello\r\n0\r\n\r\n"),
+            Expected = new ExpectedBehavior
+            {
+                ExpectedStatus = StatusCodeRange.Exact(400),
+                AllowConnectionClose = true
+            }
+        };
+
+        yield return new TestCase
+        {
+            Id = "SMUG-CHUNK-SIZE-TRAILING-OWS",
+            Description = "Chunk size with trailing whitespace before CRLF must be rejected",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §7.1",
+            PayloadFactory = ctx => MakeRequest(
+                $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n5 \r\nhello\r\n0\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
                 ExpectedStatus = StatusCodeRange.Exact(400),
@@ -1783,6 +1828,386 @@ public static class SmugglingSuite
                     if (step2.Response?.StatusCode == 400)
                         return $"DESYNC: Server accepted step 1 ({step1.Response.StatusCode}), but poison byte merged with follow-up GET → 400";
                     return $"Accepted with {step1.Response.StatusCode}, kept connection open — follow-up GET returned {step2.Response?.StatusCode.ToString() ?? "no response"}";
+                }
+                return $"Unexpected response: {step1.Response?.StatusCode.ToString() ?? "none"}";
+            }
+        };
+
+        yield return new SequenceTestCase
+        {
+            Id = "SMUG-CL0-BODY-POISON",
+            Description = "Content-Length: 0 with trailing bytes — checks if leftover bytes poison the next request",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §6.2",
+            RfcLevel = RfcLevel.NotApplicable,
+            Scored = false,
+            Expected = new ExpectedBehavior
+            {
+                Description = "400/close preferred; poisoned follow-up = warn"
+            },
+            Steps =
+            [
+                new SequenceStep
+                {
+                    Label = "POST with CL:0 plus poison byte",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 0\r\n\r\nX")
+                },
+                new SequenceStep
+                {
+                    Label = "Follow-up GET",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n")
+                }
+            ],
+            Validator = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return TestVerdict.Pass;
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return TestVerdict.Pass;
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return TestVerdict.Pass;
+                    if (step2.Response?.StatusCode == 400)
+                        return TestVerdict.Warn;
+                    return TestVerdict.Warn;
+                }
+                return TestVerdict.Fail;
+            },
+            BehavioralAnalyzer = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return "Rejected CL:0 + trailing-bytes request with 400";
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return "Connection closed after CL:0 request";
+                if (!step2.Executed)
+                    return $"Step 1 returned {step1.Response?.StatusCode}; connection then closed";
+                if (step2.Response?.StatusCode == 400)
+                    return $"Follow-up parsed as poisoned request (XGET...) after step 1 status {step1.Response?.StatusCode}";
+                return $"Step 1: {step1.Response?.StatusCode}, step 2: {step2.Response?.StatusCode}";
+            }
+        };
+
+        yield return new SequenceTestCase
+        {
+            Id = "SMUG-GET-CL-BODY-DESYNC",
+            Description = "GET with Content-Length body followed by a second request — detects unread-body desync",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §9.3.1",
+            RfcLevel = RfcLevel.May,
+            Scored = false,
+            Expected = new ExpectedBehavior
+            {
+                Description = "400/close/pass-through; poisoned follow-up = warn"
+            },
+            Steps =
+            [
+                new SequenceStep
+                {
+                    Label = "GET with CL body",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\n\r\nhello")
+                },
+                new SequenceStep
+                {
+                    Label = "Follow-up GET",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n")
+                }
+            ],
+            Validator = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return TestVerdict.Pass;
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return TestVerdict.Pass;
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return TestVerdict.Pass;
+                    if (step2.Response?.StatusCode == 400)
+                        return TestVerdict.Warn;
+                    if (step2.Response?.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Warn;
+                }
+                return TestVerdict.Fail;
+            },
+            BehavioralAnalyzer = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return "Rejected GET with body";
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return "Connection closed after GET-with-body request";
+                if (!step2.Executed)
+                    return $"Step 1 returned {step1.Response?.StatusCode}; connection then closed";
+                if (step2.Response?.StatusCode == 400)
+                    return $"Possible desync: follow-up GET returned 400 after GET-with-body acceptance ({step1.Response?.StatusCode})";
+                return $"Step 1: {step1.Response?.StatusCode}, step 2: {step2.Response?.StatusCode}";
+            }
+        };
+
+        yield return new SequenceTestCase
+        {
+            Id = "SMUG-OPTIONS-CL-BODY-DESYNC",
+            Description = "OPTIONS with Content-Length body followed by a second request — detects unread-body desync",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §9.3.7",
+            RfcLevel = RfcLevel.NotApplicable,
+            Scored = false,
+            Expected = new ExpectedBehavior
+            {
+                Description = "400/close/pass-through; poisoned follow-up = warn"
+            },
+            Steps =
+            [
+                new SequenceStep
+                {
+                    Label = "OPTIONS with CL body",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"OPTIONS / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\n\r\nhello")
+                },
+                new SequenceStep
+                {
+                    Label = "Follow-up GET",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n")
+                }
+            ],
+            Validator = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return TestVerdict.Pass;
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return TestVerdict.Pass;
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return TestVerdict.Pass;
+                    if (step2.Response?.StatusCode == 400)
+                        return TestVerdict.Warn;
+                    if (step2.Response?.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Warn;
+                }
+                return TestVerdict.Fail;
+            },
+            BehavioralAnalyzer = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return "Rejected OPTIONS with body";
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return "Connection closed after OPTIONS-with-body request";
+                if (!step2.Executed)
+                    return $"Step 1 returned {step1.Response?.StatusCode}; connection then closed";
+                if (step2.Response?.StatusCode == 400)
+                    return $"Possible desync: follow-up GET returned 400 after OPTIONS-with-body acceptance ({step1.Response?.StatusCode})";
+                return $"Step 1: {step1.Response?.StatusCode}, step 2: {step2.Response?.StatusCode}";
+            }
+        };
+
+        yield return new SequenceTestCase
+        {
+            Id = "SMUG-EXPECT-100-CL-DESYNC",
+            Description = "Expect: 100-continue with immediate body followed by a second request — detects unread-body desync",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9110 §10.1.1",
+            RfcLevel = RfcLevel.NotApplicable,
+            Scored = false,
+            Expected = new ExpectedBehavior
+            {
+                Description = "417/400/close preferred; poisoned follow-up = warn"
+            },
+            Steps =
+            [
+                new SequenceStep
+                {
+                    Label = "POST with Expect: 100-continue and body",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nExpect: 100-continue\r\n\r\nhello")
+                },
+                new SequenceStep
+                {
+                    Label = "Follow-up GET",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n")
+                }
+            ],
+            Validator = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode is 400 or 417)
+                    return TestVerdict.Pass;
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return TestVerdict.Pass;
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return TestVerdict.Pass;
+                    if (step2.Response?.StatusCode == 400)
+                        return TestVerdict.Warn;
+                    if (step2.Response?.StatusCode is >= 200 and < 300)
+                        return TestVerdict.Pass;
+                    return TestVerdict.Warn;
+                }
+                return TestVerdict.Warn;
+            },
+            BehavioralAnalyzer = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode is 400 or 417)
+                    return $"Rejected Expect workflow with {step1.Response.StatusCode}";
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return "Connection closed after Expect request";
+                if (!step2.Executed)
+                    return $"Step 1 returned {step1.Response?.StatusCode}; connection then closed";
+                if (step2.Response?.StatusCode == 400)
+                    return $"Possible desync: follow-up GET returned 400 after Expect acceptance ({step1.Response?.StatusCode})";
+                return $"Step 1: {step1.Response?.StatusCode}, step 2: {step2.Response?.StatusCode}";
+            }
+        };
+
+        yield return new SequenceTestCase
+        {
+            Id = "SMUG-OPTIONS-TE-OBS-FOLD",
+            Description = "OPTIONS with TE obs-fold and CL present — server must reject or close after response",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §5.2",
+            Expected = new ExpectedBehavior
+            {
+                Description = "400, or 2xx + close"
+            },
+            Steps =
+            [
+                new SequenceStep
+                {
+                    Label = "OPTIONS with folded TE and CL",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"OPTIONS / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding:\r\n chunked\r\nContent-Length: 5\r\n\r\nhello")
+                },
+                new SequenceStep
+                {
+                    Label = "Follow-up GET",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n")
+                }
+            ],
+            Validator = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return TestVerdict.Pass;
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return TestVerdict.Pass;
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                    return !step2.Executed ? TestVerdict.Pass : TestVerdict.Fail;
+                return TestVerdict.Fail;
+            },
+            BehavioralAnalyzer = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return "Rejected folded Transfer-Encoding request with 400";
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return "Connection closed after OPTIONS folded-TE request";
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return $"Accepted with {step1.Response.StatusCode}, then closed connection";
+                    return $"Accepted with {step1.Response.StatusCode} but kept connection open — follow-up GET returned {step2.Response?.StatusCode.ToString() ?? "no response"}";
+                }
+                return $"Unexpected response: {step1.Response?.StatusCode.ToString() ?? "none"}";
+            }
+        };
+
+        yield return new SequenceTestCase
+        {
+            Id = "SMUG-CHUNK-INVALID-SIZE-DESYNC",
+            Description = "Invalid chunk size (+0) with poison byte — detects chunk-size parser desync",
+            Category = TestCategory.Smuggling,
+            RfcReference = "RFC 9112 §7.1",
+            Expected = new ExpectedBehavior
+            {
+                Description = "400, or close"
+            },
+            Steps =
+            [
+                new SequenceStep
+                {
+                    Label = "Poison POST with invalid chunk-size (+0)",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nTransfer-Encoding: chunked\r\n\r\n+0\r\n\r\nX")
+                },
+                new SequenceStep
+                {
+                    Label = "Follow-up GET",
+                    PayloadFactory = ctx => MakeRequest(
+                        $"GET / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n")
+                }
+            ],
+            Validator = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return TestVerdict.Pass;
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return TestVerdict.Pass;
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return TestVerdict.Pass;
+                    if (step2.Response?.StatusCode == 400)
+                        return TestVerdict.Fail;
+                    return TestVerdict.Fail;
+                }
+                return TestVerdict.Fail;
+            },
+            BehavioralAnalyzer = steps =>
+            {
+                var step1 = steps[0];
+                var step2 = steps[1];
+
+                if (step1.Response?.StatusCode == 400)
+                    return "Rejected invalid chunk-size request with 400";
+                if (!step1.Executed || step1.ConnectionState == ConnectionState.ClosedByServer)
+                    return "Connection closed after invalid chunk-size request";
+                if (step1.Response?.StatusCode is >= 200 and < 300)
+                {
+                    if (!step2.Executed)
+                        return $"Accepted with {step1.Response.StatusCode}, then closed connection";
+                    if (step2.Response?.StatusCode == 400)
+                        return $"DESYNC: accepted invalid chunk-size request ({step1.Response.StatusCode}), follow-up GET parsed as poisoned request";
+                    return $"Accepted invalid chunk-size request and kept connection open — follow-up GET returned {step2.Response?.StatusCode.ToString() ?? "no response"}";
                 }
                 return $"Unexpected response: {step1.Response?.StatusCode.ToString() ?? "none"}";
             }
