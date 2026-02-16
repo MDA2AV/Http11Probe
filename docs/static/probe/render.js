@@ -467,7 +467,16 @@ window.ProbeRender = (function () {
     'NORM-SP-BEFORE-COLON-CL': '/Http11Probe/docs/normalization/sp-before-colon-cl/',
     'NORM-TAB-IN-NAME': '/Http11Probe/docs/normalization/tab-in-name/',
     'NORM-CASE-TE': '/Http11Probe/docs/normalization/case-te/',
-    'NORM-UNDERSCORE-TE': '/Http11Probe/docs/normalization/underscore-te/'
+    'NORM-UNDERSCORE-TE': '/Http11Probe/docs/normalization/underscore-te/',
+    'CAP-ETAG-304': '/Http11Probe/docs/capabilities/etag-304/',
+    'CAP-LAST-MODIFIED-304': '/Http11Probe/docs/capabilities/last-modified-304/',
+    'CAP-ETAG-IN-304': '/Http11Probe/docs/capabilities/etag-in-304/',
+    'CAP-INM-PRECEDENCE': '/Http11Probe/docs/capabilities/inm-precedence/',
+    'CAP-INM-WILDCARD': '/Http11Probe/docs/capabilities/inm-wildcard/',
+    'CAP-IMS-FUTURE': '/Http11Probe/docs/capabilities/ims-future/',
+    'CAP-IMS-INVALID': '/Http11Probe/docs/capabilities/ims-invalid/',
+    'CAP-INM-UNQUOTED': '/Http11Probe/docs/capabilities/inm-unquoted/',
+    'CAP-ETAG-WEAK': '/Http11Probe/docs/capabilities/etag-weak/'
   };
 
   function testUrl(tid) {
@@ -727,7 +736,7 @@ window.ProbeRender = (function () {
     el.innerHTML = html;
   }
 
-  var CAT_LABELS = { Compliance: 'Compliance', Smuggling: 'Smuggling', MalformedInput: 'Malformed Input', Normalization: 'Normalization' };
+  var CAT_LABELS = { Compliance: 'Compliance', Smuggling: 'Smuggling', MalformedInput: 'Malformed Input', Normalization: 'Normalization', Capabilities: 'Capabilities' };
 
   function renderTable(targetId, categoryKey, ctx, testIdFilter, tableLabel) {
     injectScrollStyle();
@@ -1251,7 +1260,8 @@ window.ProbeRender = (function () {
       { label: 'Compliance', categories: ['Compliance'] },
       { label: 'Smuggling', categories: ['Smuggling'] },
       { label: 'Malformed Input', categories: ['MalformedInput'] },
-      { label: 'Normalization', categories: ['Normalization'] }
+      { label: 'Normalization', categories: ['Normalization'] },
+      { label: 'Capabilities', categories: ['Capabilities'] }
     ];
 
     var html = '<div style="display:flex;align-items:center;flex-wrap:wrap;">';

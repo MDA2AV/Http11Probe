@@ -178,10 +178,17 @@ public sealed class TestRunner
                 var parts = step.SendPartsFactory?.Invoke(context);
                 if (parts is null)
                 {
-                    if (step.PayloadFactory is null)
+                    Func<TestContext, byte[]>? effectiveFactory = null;
+
+                    if (step.DynamicPayloadFactory is not null)
+                        effectiveFactory = ctx => step.DynamicPayloadFactory(ctx, stepResults);
+                    else if (step.PayloadFactory is not null)
+                        effectiveFactory = step.PayloadFactory;
+
+                    if (effectiveFactory is null)
                         throw new InvalidOperationException($"Sequence step '{label}' has no payload factory.");
 
-                    parts = [new SequenceSendPart { PayloadFactory = step.PayloadFactory }];
+                    parts = [new SequenceSendPart { PayloadFactory = effectiveFactory }];
                 }
 
                 var partPayloads = new List<(byte[] Bytes, TimeSpan DelayAfter, string? PartLabel)>();

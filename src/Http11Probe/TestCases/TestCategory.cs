@@ -7,5 +7,6 @@ public enum TestCategory
     MalformedInput,
     ResourceLimits,
     Injection,
-    Normalization
+    Normalization,
+    Capabilities
 }

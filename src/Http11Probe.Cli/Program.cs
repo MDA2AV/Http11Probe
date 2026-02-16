@@ -64,6 +64,7 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
     testCases.AddRange(SmugglingSuite.GetSequenceTestCases());
     testCases.AddRange(MalformedInputSuite.GetTestCases());
     testCases.AddRange(NormalizationSuite.GetTestCases());
+    testCases.AddRange(CapabilitiesSuite.GetSequenceTestCases());
 
     var runner = new TestRunner(options);
 

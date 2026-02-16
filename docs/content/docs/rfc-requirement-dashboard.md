@@ -1,6 +1,6 @@
 ---
 title: "RFC Requirement Dashboard"
-description: "Complete RFC 2119 requirement-level analysis for all 194 Http11Probe tests"
+description: "Complete RFC 2119 requirement-level analysis for all 203 Http11Probe tests"
 weight: 2
 breadcrumbs: false
 ---
@@ -15,10 +15,10 @@ This dashboard classifies every Http11Probe test by its [RFC 2119](https://www.r
 | **SHOULD** | 29 | Recommended — valid exceptions exist but must be understood |
 | **MAY** | 10 | Truly optional — either behavior is fully compliant |
 | **"ought to"** | 1 | Weaker than SHOULD — recommended but not normative |
-| **Unscored** | 30 | Informational — no pass/fail judgement |
+| **Unscored** | 39 | Informational — no pass/fail judgement |
 | **N/A** | 11 | Best-practice / no single RFC verb applies |
 
-**Total: 194 tests**
+**Total: 203 tests**
 
 ---
 
@@ -222,7 +222,7 @@ Weaker than SHOULD — recommends but does not normatively require.
 
 ---
 
-## Unscored Tests (30 tests)
+## Unscored Tests (39 tests)
 
 These tests are informational — they produce warnings but never fail.
 
@@ -258,6 +258,15 @@ These tests are informational — they produce warnings but never fail.
 | 28 | `SMUG-OPTIONS-CL-BODY-DESYNC` | Smuggling | [RFC 9110 §9.3.7](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.7) | OPTIONS with body plus follow-up GET to detect unread-body poisoning on persistent connections. |
 | 29 | `SMUG-EXPECT-100-CL-DESYNC` | Smuggling | [RFC 9110 §10.1.1](https://www.rfc-editor.org/rfc/rfc9110#section-10.1.1) | Expect/continue flow with immediate body plus follow-up GET; highlights whether connection framing remains synchronized. |
 | 30 | `SMUG-GET-CL-PREFIX-DESYNC` | Smuggling | [RFC 9110 §9.3.1](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.1) | GET with a body containing an incomplete request prefix (missing the blank line). The follow-up write completes it and then sends a normal GET. If multiple responses are observed on step 2, the prefix bytes were likely left unread and executed. |
+| 31 | `CAP-ETAG-304` | Capabilities | [RFC 9110 §13.1.2](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.2) | ETag conditional GET — server should return 304 when If-None-Match matches. Caching support is optional. |
+| 32 | `CAP-LAST-MODIFIED-304` | Capabilities | [RFC 9110 §13.1.3](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3) | Last-Modified conditional GET — server should return 304 when If-Modified-Since matches. Caching support is optional. |
+| 33 | `CAP-ETAG-IN-304` | Capabilities | [RFC 9110 §15.4.5](https://www.rfc-editor.org/rfc/rfc9110#section-15.4.5) | Checks whether 304 responses include the ETag header, allowing clients to update cached validators. |
+| 34 | `CAP-INM-PRECEDENCE` | Capabilities | [RFC 9110 §13.1.2](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.2) | If-None-Match must take precedence over If-Modified-Since when both are present. |
+| 35 | `CAP-INM-WILDCARD` | Capabilities | [RFC 9110 §13.1.2](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.2) | If-None-Match: * on an existing resource should return 304 (wildcard matches any representation). |
+| 36 | `CAP-IMS-FUTURE` | Capabilities | [RFC 9110 §13.1.3](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3) | If-Modified-Since with a future date must be ignored — server should return 200, not 304. |
+| 37 | `CAP-IMS-INVALID` | Capabilities | [RFC 9110 §13.1.3](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3) | If-Modified-Since with a garbage (non-HTTP-date) value must be ignored — server should return 200. |
+| 38 | `CAP-INM-UNQUOTED` | Capabilities | [RFC 9110 §8.8.3](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3) | If-None-Match with an unquoted ETag violates entity-tag syntax — server should return 200, not 304. |
+| 39 | `CAP-ETAG-WEAK` | Capabilities | [RFC 9110 §13.1.2](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.2) | Weak ETag comparison for GET If-None-Match — server must use weak comparison and return 304. |
 
 ---
 
@@ -321,6 +330,12 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 | Unscored | 1 |
 | N/A | 2 |
 
+### Capabilities Suite (9 tests)
+
+| Level | Tests |
+|-------|-------|
+| Unscored | 9 |
+
 ---
 
 ## RFC Section Cross-Reference
@@ -351,8 +366,10 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 | RFC 9110 §10.1.1 | 3 | Expect header |
 | RFC 9110 §6.5 | 5 | Trailer field restrictions |
 | RFC 9110 §12.5.1 | 1 | Content negotiation (Accept) |
+| RFC 9110 §13.1 | 4 | Conditional requests (ETag, If-None-Match, If-Modified-Since) |
 | RFC 9110 §14.2 | 3 | Range requests |
 | RFC 9110 §15.2 | 1 | 1xx status codes |
+| RFC 9110 §15.4.5 | 1 | 304 Not Modified response requirements |
 | RFC 9110 §15.5.6 | 1 | 405 Method Not Allowed |
 | RFC 9110 §15.5.16 | 1 | 415 Unsupported Media Type |
 | RFC 6455 | 2 | WebSocket handshake |
