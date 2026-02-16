@@ -249,6 +249,30 @@ window.ProbeRender = (function () {
       }
       document.addEventListener('keydown', onKey);
     });
+
+    // Click handler for truncated expected pills
+    document.addEventListener('click', function (e) {
+      var target = e.target.closest('[data-full-expected]');
+      if (!target) return;
+      var full = target.getAttribute('data-full-expected');
+      var html = '<button class="probe-modal-close" title="Close">&times;</button>';
+      html += '<div class="probe-label">Expected</div>';
+      html += '<span style="' + pillCss + 'cursor:default;background:' + EXPECT_BG + ';font-size:13px;white-space:normal;line-height:1.5;">' + escapeAttr(full) + '</span>';
+      var overlay = document.createElement('div');
+      overlay.className = 'probe-modal-overlay';
+      var modal = document.createElement('div');
+      modal.className = 'probe-modal';
+      modal.style.maxWidth = '420px';
+      modal.style.whiteSpace = 'normal';
+      modal.style.minWidth = '200px';
+      modal.innerHTML = html;
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+      modal.querySelector('.probe-modal-close').addEventListener('click', function () { overlay.remove(); });
+      overlay.addEventListener('click', function (ev) { if (ev.target === overlay) overlay.remove(); });
+      function onKey(ev) { if (ev.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); } }
+      document.addEventListener('keydown', onKey);
+    });
   }
 
   // ── Test ID → doc page URL mapping ─────────────────────────────
@@ -502,6 +526,21 @@ window.ProbeRender = (function () {
     var cursor = hasData ? 'cursor:pointer;' : 'cursor:default;';
     var border = doubleFlush ? 'border:2px solid #d4880f;' : '';
     return '<span style="' + pillCss + cursor + 'background:' + bg + ';' + border + '"' + extra + '>' + label + '</span>';
+  }
+
+  var EXPECTED_TRUNCATE = 20;
+  function expectedPill(bg, fullLabel) {
+    var visible = fullLabel.replace(/\u200B/g, '');
+    if (visible.length <= EXPECTED_TRUNCATE) {
+      return '<span style="' + pillCss + 'cursor:default;background:' + bg + ';">' + fullLabel + '</span>';
+    }
+    var count = 0, cutIdx = 0;
+    for (var ci = 0; ci < fullLabel.length && count < EXPECTED_TRUNCATE - 3; ci++) {
+      if (fullLabel[ci] !== '\u200B') count++;
+      cutIdx = ci + 1;
+    }
+    var label = fullLabel.substring(0, cutIdx) + '\u2026';
+    return '<span style="' + pillCss + 'cursor:pointer;background:' + bg + ';" data-full-expected="' + escapeAttr(fullLabel) + '">' + label + '</span>';
   }
 
   function verdictBg(v) {
@@ -777,7 +816,7 @@ window.ProbeRender = (function () {
       var isUnscored = first.scored === false;
       var opacity = isUnscored ? 'opacity:0.55;' : '';
       var sepCls = i === unscoredStart ? ' probe-unscored-sep' : '';
-      t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + pill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
+      t += '<td data-test-label="' + escapeAttr(shortLabels[i]) + '" class="' + sepCls + '" style="text-align:center;padding:3px 4px;' + opacity + '">' + expectedPill(EXPECT_BG, first.expected.replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
     });
     t += '</tr>';
 
