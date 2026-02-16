@@ -8,7 +8,7 @@ using GenHTTP.Modules.Practices;
 var port = (args.Length > 0 && ushort.TryParse(args[0], out var p)) ? p : (ushort)8080;
 
 var app = Inline.Create()
-                .Get("/echo", (IRequest request) => Echo(request))
+                .Post("/echo", (IRequest request) => Echo(request))
                 .Post((Stream body) => RequestContent(body))
                 .Any(() => StringContent());
 
