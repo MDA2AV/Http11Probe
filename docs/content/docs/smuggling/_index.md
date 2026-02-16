@@ -64,14 +64,25 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="cl-leading-zeros" title="CL-LEADING-ZEROS" subtitle="Content-Length with leading zeros (007)." >}}
   {{< card link="cl-negative" title="CL-NEGATIVE" subtitle="Negative Content-Length value." >}}
   {{< card link="te-xchunked" title="TE-XCHUNKED" subtitle="Unknown TE 'xchunked' with CL present." >}}
-  {{< card link="te-trailing-space" title="TE-TRAILING-SPACE" subtitle="TE 'chunked ' with trailing space." >}}
-  {{< card link="te-sp-before-colon" title="TE-SP-BEFORE-COLON" subtitle="Space before colon in Transfer-Encoding." >}}
-  {{< card link="clte-pipeline" title="CLTE-PIPELINE" subtitle="Full CL.TE smuggling payload." >}}
-  {{< card link="tecl-pipeline" title="TECL-PIPELINE" subtitle="Full TE.CL smuggling payload." >}}
-  {{< card link="cl-comma-different" title="CL-COMMA-DIFFERENT" subtitle="Comma-separated CL with different values." >}}
-  {{< card link="te-not-final-chunked" title="TE-NOT-FINAL-CHUNKED" subtitle="Chunked is not the final transfer encoding." >}}
-  {{< card link="te-http10" title="TE-HTTP10" subtitle="Transfer-Encoding in HTTP/1.0 request." >}}
-  {{< card link="chunk-bare-semicolon" title="CHUNK-BARE-SEMICOLON" subtitle="Bare semicolon in chunk size." >}}
+	  {{< card link="te-trailing-space" title="TE-TRAILING-SPACE" subtitle="TE 'chunked ' with trailing space." >}}
+	  {{< card link="te-sp-before-colon" title="TE-SP-BEFORE-COLON" subtitle="Space before colon in Transfer-Encoding." >}}
+		  {{< card link="clte-pipeline" title="CLTE-PIPELINE" subtitle="Full CL.TE smuggling payload." >}}
+		  {{< card link="tecl-pipeline" title="TECL-PIPELINE" subtitle="Full TE.CL smuggling payload." >}}
+		  {{< card link="clte-smuggled-get" title="CLTE-SMUGGLED-GET" subtitle="CL.TE payload with embedded GET; multiple responses indicate request boundary confusion." >}}
+		  {{< card link="clte-smuggled-head" title="CLTE-SMUGGLED-HEAD" subtitle="CL.TE payload with embedded HEAD; multiple responses indicate request boundary confusion." >}}
+		  {{< card link="tecl-smuggled-get" title="TECL-SMUGGLED-GET" subtitle="TE.CL payload (chunk-size prefix trick); multiple responses indicate request boundary confusion." >}}
+		  {{< card link="te-duplicate-headers-smuggled-get" title="TE-DUPLICATE-HEADERS-SMUGGLED-GET" subtitle="Duplicate TE headers + CL with embedded GET; multiple responses indicate request boundary confusion." >}}
+		  {{< card link="duplicate-cl-smuggled-get" title="DUPLICATE-CL-SMUGGLED-GET" subtitle="Duplicate Content-Length + embedded GET; multiple responses indicate request boundary confusion." >}}
+		  {{< card link="clte-smuggled-get-te-trailing-space" title="CLTE-SMUGGLED-GET-TE-TRAILING-SPACE" subtitle="CL.TE smuggled GET with TE trailing space." >}}
+		  {{< card link="clte-smuggled-get-te-leading-comma" title="CLTE-SMUGGLED-GET-TE-LEADING-COMMA" subtitle="CL.TE smuggled GET with TE leading comma." >}}
+		  {{< card link="clte-smuggled-get-te-case-mismatch" title="CLTE-SMUGGLED-GET-TE-CASE-MISMATCH" subtitle="CL.TE smuggled GET with TE case mismatch." >}}
+		  {{< card link="clte-smuggled-get-cl-plus" title="CLTE-SMUGGLED-GET-CL-PLUS" subtitle="CL.TE smuggled GET with malformed Content-Length (+N)." >}}
+	  {{< card link="clte-smuggled-get-cl-non-numeric" title="CLTE-SMUGGLED-GET-CL-NON-NUMERIC" subtitle="CL.TE smuggled GET with non-numeric Content-Length (N<alpha>)." >}}
+	  {{< card link="clte-smuggled-get-te-obs-fold" title="CLTE-SMUGGLED-GET-TE-OBS-FOLD" subtitle="CL.TE smuggled GET with obs-folded Transfer-Encoding." >}}
+	  {{< card link="cl-comma-different" title="CL-COMMA-DIFFERENT" subtitle="Comma-separated CL with different values." >}}
+	  {{< card link="te-not-final-chunked" title="TE-NOT-FINAL-CHUNKED" subtitle="Chunked is not the final transfer encoding." >}}
+	  {{< card link="te-http10" title="TE-HTTP10" subtitle="Transfer-Encoding in HTTP/1.0 request." >}}
+	  {{< card link="chunk-bare-semicolon" title="CHUNK-BARE-SEMICOLON" subtitle="Bare semicolon in chunk size." >}}
   {{< card link="chunk-ext-invalid-token" title="CHUNK-EXT-INVALID-TOKEN" subtitle="Invalid token character in chunk extension name." >}}
   {{< card link="bare-cr-header-value" title="BARE-CR-HEADER-VALUE" subtitle="Bare CR in header value." >}}
   {{< card link="cl-octal" title="CL-OCTAL" subtitle="Content-Length with octal prefix." >}}
@@ -127,11 +138,12 @@ For these, `400` is the strict/safe response and `2xx` is RFC-compliant. Http11P
   {{< card link="trailer-host" title="TRAILER-HOST" subtitle="Host header in chunked trailers (must not route)." >}}
   {{< card link="trailer-auth" title="TRAILER-AUTH" subtitle="Authorization in chunked trailers (prohibited)." >}}
   {{< card link="trailer-content-type" title="TRAILER-CONTENT-TYPE" subtitle="Content-Type in chunked trailers (prohibited)." >}}
-  {{< card link="cl0-body-poison" title="CL0-BODY-POISON" subtitle="CL:0 with trailing byte and follow-up request." >}}
-  {{< card link="get-cl-body-desync" title="GET-CL-BODY-DESYNC" subtitle="GET with body plus follow-up desync check." >}}
-  {{< card link="head-cl-body" title="HEAD-CL-BODY" subtitle="HEAD with Content-Length and body." >}}
-  {{< card link="options-cl-body" title="OPTIONS-CL-BODY" subtitle="OPTIONS with Content-Length and body." >}}
-  {{< card link="options-cl-body-desync" title="OPTIONS-CL-BODY-DESYNC" subtitle="OPTIONS with body plus follow-up desync check." >}}
-  {{< card link="te-tab-before-value" title="TE-TAB-BEFORE-VALUE" subtitle="Tab as OWS before Transfer-Encoding value." >}}
-  {{< card link="absolute-uri-host-mismatch" title="ABSOLUTE-URI-HOST-MISMATCH" subtitle="Absolute-form URI with different Host header." >}}
+		  {{< card link="cl0-body-poison" title="CL0-BODY-POISON" subtitle="CL:0 with trailing byte and follow-up request." >}}
+		  {{< card link="get-cl-body-desync" title="GET-CL-BODY-DESYNC" subtitle="GET with body plus follow-up desync check." >}}
+		  {{< card link="get-cl-prefix-desync" title="GET-CL-PREFIX-DESYNC" subtitle="GET with incomplete request-prefix body; follow-up completes it to detect unread-body desync." >}}
+		  {{< card link="head-cl-body" title="HEAD-CL-BODY" subtitle="HEAD with Content-Length and body." >}}
+		  {{< card link="options-cl-body" title="OPTIONS-CL-BODY" subtitle="OPTIONS with Content-Length and body." >}}
+		  {{< card link="options-cl-body-desync" title="OPTIONS-CL-BODY-DESYNC" subtitle="OPTIONS with body plus follow-up desync check." >}}
+	  {{< card link="te-tab-before-value" title="TE-TAB-BEFORE-VALUE" subtitle="Tab as OWS before Transfer-Encoding value." >}}
+	  {{< card link="absolute-uri-host-mismatch" title="ABSOLUTE-URI-HOST-MISMATCH" subtitle="Absolute-form URI with different Host header." >}}
 {{< /cards >}}

@@ -56,7 +56,7 @@ The only safe outcomes are rejection (400) or closing the connection. Any other 
 
 ## Why it matters
 
-This test detects **actual request smuggling**, not just RFC non-compliance. If the poison byte `X` merges with the follow-up GET, the server's request boundary parsing is broken. In a real proxy chain, an attacker could replace `X` with a complete smuggled request.
+This test detects request **desynchronization on a single server**, not a full proxy-chain exploit. If the poison byte `X` merges with the follow-up GET, the server's request boundary parsing is broken. In a real proxy chain, this class of bug is what enables request smuggling.
 
 ## Verdicts
 

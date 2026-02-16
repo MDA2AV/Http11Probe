@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Text;
 using Http11Probe.Client;
 using Http11Probe.Response;
@@ -174,13 +175,80 @@ public sealed class TestRunner
                     continue;
                 }
 
-                var payload = step.PayloadFactory(context);
-                var rawReq = payload.Length > 8192
-                    ? Encoding.ASCII.GetString(payload, 0, 8192) + "\n\n[Truncated]"
-                    : Encoding.ASCII.GetString(payload);
+                var parts = step.SendPartsFactory?.Invoke(context);
+                if (parts is null)
+                {
+                    if (step.PayloadFactory is null)
+                        throw new InvalidOperationException($"Sequence step '{label}' has no payload factory.");
+
+                    parts = [new SequenceSendPart { PayloadFactory = step.PayloadFactory }];
+                }
+
+                var partPayloads = new List<(byte[] Bytes, TimeSpan DelayAfter, string? PartLabel)>();
+                foreach (var part in parts)
+                {
+                    var bytes = part.PayloadFactory(context);
+                    partPayloads.Add((bytes, part.DelayAfter, part.Label));
+                }
+
+                string rawReq;
+                if (partPayloads.Count == 1 && partPayloads[0].DelayAfter == TimeSpan.Zero && string.IsNullOrWhiteSpace(partPayloads[0].PartLabel))
+                {
+                    var payload = partPayloads[0].Bytes;
+                    rawReq = payload.Length > 8192
+                        ? Encoding.ASCII.GetString(payload, 0, 8192) + "\n\n[Truncated]"
+                        : Encoding.ASCII.GetString(payload);
+                }
+                else
+                {
+                    var sb = new StringBuilder();
+                    for (var pi = 0; pi < partPayloads.Count; pi++)
+                    {
+                        var (bytes, delayAfter, partLabel) = partPayloads[pi];
+                        var partHeader = partLabel is null ? $"Part {pi + 1}" : $"Part {pi + 1} — {partLabel}";
+                        var rawPart = bytes.Length > 8192
+                            ? Encoding.ASCII.GetString(bytes, 0, 8192) + "\n\n[Truncated]"
+                            : Encoding.ASCII.GetString(bytes);
+
+                        sb.AppendLine($"[{partHeader}]");
+                        sb.AppendLine(rawPart);
+
+                        if (delayAfter > TimeSpan.Zero)
+                            sb.AppendLine($"[Pause {delayAfter.TotalMilliseconds:0} ms]");
+                    }
+
+                    rawReq = sb.ToString().TrimEnd('\r', '\n');
+                }
                 rawRequestParts.Add($"── {label} ──\n{rawReq}");
 
-                await client.SendAsync(payload);
+                foreach (var (bytes, delayAfter, _) in partPayloads)
+                {
+                    try
+                    {
+                        await client.SendAsync(bytes);
+                    }
+                    catch (SocketException)
+                    {
+                        connectionState = ConnectionState.ClosedByServer;
+                        break;
+                    }
+                    catch
+                    {
+                        connectionState = ConnectionState.Error;
+                        break;
+                    }
+
+                    if (delayAfter > TimeSpan.Zero)
+                    {
+                        await Task.Delay(delayAfter);
+
+                        if (client.CheckConnectionState() != ConnectionState.Open)
+                        {
+                            connectionState = ConnectionState.ClosedByServer;
+                            break;
+                        }
+                    }
+                }
 
                 var (data, length, readState, drain) = await client.ReadResponseAsync();
                 var response = ResponseParser.TryParse(data.AsSpan(), length);

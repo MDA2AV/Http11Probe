@@ -31,12 +31,25 @@ These tests send multiple requests on the same TCP connection to detect desynchr
     return;
   }
   var GROUPS = [
-    { key: 'conn-close', label: 'Connection Close Requirements', testIds: [
-      'SMUG-CLTE-CONN-CLOSE','SMUG-TECL-CONN-CLOSE','SMUG-CLTE-KEEPALIVE'
-    ]},
+	    { key: 'conn-close', label: 'Connection Close Requirements', testIds: [
+	      'SMUG-CLTE-CONN-CLOSE','SMUG-TECL-CONN-CLOSE'
+	    ]},
     { key: 'baselines', label: 'Baseline Desync Detection', testIds: [
       'SMUG-CLTE-DESYNC','SMUG-TECL-DESYNC','SMUG-PIPELINE-SAFE'
+	    ]},
+	    { key: 'confirm', label: 'Embedded Request Execution Signals', testIds: [
+	      'SMUG-CLTE-SMUGGLED-GET','SMUG-CLTE-SMUGGLED-HEAD',
+	      'SMUG-TECL-SMUGGLED-GET','SMUG-TE-DUPLICATE-HEADERS-SMUGGLED-GET','SMUG-DUPLICATE-CL-SMUGGLED-GET'
+	    ]},
+    { key: 'obf-te', label: 'Obfuscated Transfer-Encoding Variants', testIds: [
+      'SMUG-CLTE-SMUGGLED-GET-TE-TRAILING-SPACE','SMUG-CLTE-SMUGGLED-GET-TE-LEADING-COMMA','SMUG-CLTE-SMUGGLED-GET-TE-CASE-MISMATCH'
     ]},
+    { key: 'malformed', label: 'Malformed CL/TE Smuggling Variants', testIds: [
+      'SMUG-CLTE-SMUGGLED-GET-CL-PLUS','SMUG-CLTE-SMUGGLED-GET-CL-NON-NUMERIC','SMUG-CLTE-SMUGGLED-GET-TE-OBS-FOLD'
+    ]},
+	    { key: 'cl-body', label: 'Ignored Body / Unread-Body Desync', testIds: [
+	      'SMUG-GET-CL-PREFIX-DESYNC'
+	    ]},
     { key: 'vectors', label: 'Real-World Desync Vectors', testIds: [
       'SMUG-CL0-BODY-POISON','SMUG-GET-CL-BODY-DESYNC','SMUG-OPTIONS-CL-BODY-DESYNC',
       'SMUG-EXPECT-100-CL-DESYNC','SMUG-OPTIONS-TE-OBS-FOLD','SMUG-CHUNK-INVALID-SIZE-DESYNC'
@@ -66,4 +79,3 @@ These tests send multiple requests on the same TCP connection to detect desynchr
   ProbeRender.renderRfcLevelFilter('rfc-level-filter', catData, function (l) { rfcLevelFilter = l; rerender(); });
 })();
 </script>
-

@@ -19,9 +19,11 @@ A request with both `Content-Length` and `Transfer-Encoding` headers present.
 ```http
 POST / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-Content-Length: 6\r\n
+Content-Length: 23\r\n
 Transfer-Encoding: chunked\r\n
 \r\n
+D\r\n
+hello-bananas\r\n
 0\r\n
 \r\n
 ```
@@ -54,7 +56,7 @@ This is **the** classic request smuggling setup. If the front-end uses Content-L
 
 ### ABNF Analysis
 
-This test is not about an ABNF grammar violation. Both `Content-Length: 6` and `Transfer-Encoding: chunked` are individually valid headers. The issue is their simultaneous presence in the same message, which the RFC treats as a conflicting-framing condition.
+This test is not about an ABNF grammar violation. Both `Content-Length: 23` and `Transfer-Encoding: chunked` are individually valid headers. The issue is their simultaneous presence in the same message, which the RFC treats as a conflicting-framing condition.
 
 ### RFC Evidence Chain
 
@@ -82,7 +84,7 @@ This test is scored as **"ought to" handle as error** (Pass for 400, Warn for 2x
 
 ### Real-World Smuggling Scenario
 
-This is the original CL.TE / TE.CL smuggling attack described by Watchfire in 2005 and popularized by PortSwigger in 2019. In a CL.TE attack, the front-end proxy uses `Content-Length: 6` to determine body length and forwards 6 bytes. The back-end uses `Transfer-Encoding: chunked` and parses `0\r\n\r\n` (5 bytes) as an empty chunked body, leaving 1 byte unconsumed. In the reverse (TE.CL), the front-end uses chunked encoding and the back-end uses Content-Length, with the opposite byte mismatch. Either way, leftover bytes on the connection are parsed as the start of the next request. This single test case represents the most widely exploited class of HTTP request smuggling vulnerabilities. The RFC's MUST-close-connection requirement exists specifically to prevent connection reuse after this ambiguity.
+This is the classic CL.TE / TE.CL smuggling setup described by Watchfire (2005) and popularized by PortSwigger (2019). If different components disagree on whether to use `Content-Length` or `Transfer-Encoding`, they can disagree on request body boundaries or request body content. In real-world smuggling exploits, the attacker typically chooses a conflicting `Content-Length` such that one parser stops early and the remaining bytes are interpreted as the start of the next request on a persistent connection. This test uses a non-empty chunked body (`hello-bananas`) to make it obvious whether an echo-capable server decoded chunked framing (TE) or treated the raw chunked bytes as the body (CL).
 
 ## Sources
 

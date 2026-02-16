@@ -76,3 +76,7 @@ package-lock.json
 
 # Probe results (local testing)
 probe-*.json
+
+# Probe action outputs (local script)
+probe-data.js
+probe-comment.md
