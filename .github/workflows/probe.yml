@@ -244,28 +244,24 @@ jobs:
                 continue
             lines.append(f'### {title}')
             lines.append('')
-            # Header row: Server | test1 | test2 | ...
-            hdr = '| Server | ' + ' | '.join(f'`{short(tid)}`' for tid in cat_tests) + ' |'
-            sep = '|---' + ''.join('|:---:' for _ in cat_tests) + '|'
+            # Header row: Test | Expected | Server1 | Server2 | ...
+            hdr = '| Test | Expected | ' + ' | '.join(f'**{n}**' for n in names) + ' |'
+            sep = '|---|---' + ''.join('|:---:' for _ in names) + '|'
             lines.append(hdr)
             lines.append(sep)
-            # Expected row
-            exp_cells = []
+            # One row per test
             for tid in cat_tests:
                 first = lookup[names[0]][tid]
-                exp_cells.append(first['expected'])
-            lines.append('| **Expected** | ' + ' | '.join(exp_cells) + ' |')
-            # Server rows
-            for n in names:
+                expected = first['expected']
                 cells = []
-                for tid in cat_tests:
+                for n in names:
                     r = lookup[n].get(tid)
                     if not r:
                         cells.append('—')
                     else:
                         icon = '✅' if r['verdict'] == 'Pass' else ('⚠️' if r['verdict'] == 'Warn' else '❌')
                         cells.append(f"{icon}`{r['got']}`")
-                lines.append(f"| **{n}** | " + ' | '.join(cells) + ' |')
+                lines.append(f"| `{short(tid)}` | {expected} | " + ' | '.join(cells) + ' |')
             lines.append('')
 
         lines.append(f"<sub>Commit: {commit_id[:7]}</sub>")
