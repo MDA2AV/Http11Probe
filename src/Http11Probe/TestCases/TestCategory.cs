@@ -8,5 +8,6 @@ public enum TestCategory
     ResourceLimits,
     Injection,
     Normalization,
-    Capabilities
+    Capabilities,
+    Cookies
 }

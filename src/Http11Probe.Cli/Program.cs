@@ -65,6 +65,7 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
     testCases.AddRange(MalformedInputSuite.GetTestCases());
     testCases.AddRange(NormalizationSuite.GetTestCases());
     testCases.AddRange(CapabilitiesSuite.GetSequenceTestCases());
+    testCases.AddRange(CookieSuite.GetTestCases());
 
     var runner = new TestRunner(options);
 
