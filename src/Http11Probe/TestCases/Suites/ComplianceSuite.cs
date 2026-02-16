@@ -1616,7 +1616,7 @@ public static class ComplianceSuite
     /// </summary>
     private static string GetEffectiveBody(HttpResponse response)
     {
-        var raw = (response.Body ?? "").TrimEnd('\r', '\n');
+        var raw = response.Body ?? "";
 
         if (response.Headers.TryGetValue("Transfer-Encoding", out var te) &&
             te.Contains("chunked", StringComparison.OrdinalIgnoreCase))
@@ -1626,7 +1626,7 @@ public static class ComplianceSuite
                 return decoded;
         }
 
-        return raw;
+        return raw.TrimEnd('\r', '\n');
     }
 
     private static string? TryDecodeChunked(string raw)
