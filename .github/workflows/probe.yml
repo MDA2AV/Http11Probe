@@ -199,6 +199,18 @@ jobs:
             print('::warning::No probe results found — nothing to report')
             sys.exit(0)
 
+        # ── Baseline gate ─────────────────────────────────────────────
+        BASELINE_TESTS = {'COMP-BASELINE', 'COMP-POST-CL-BODY'}
+        baseline_failures = []
+        for sv in server_data:
+            for r in sv['results']:
+                if r['id'] in BASELINE_TESTS and r['verdict'] == 'Fail':
+                    baseline_failures.append(f"{sv['name']}: {r['id']} — got {r['got']}")
+
+        if baseline_failures:
+            for f in baseline_failures:
+                print(f'::error::{f}')
+
         # ── Write data.js ────────────────────────────────────────────
         output = {
             'commit': {'id': commit_id, 'message': commit_msg, 'timestamp': commit_time},
@@ -238,6 +250,17 @@ jobs:
         def short(tid):
             return re.sub(r'^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-|NORM-)', '', tid)
 
+        # Baseline status
+        if baseline_failures:
+            lines.append('### ❌ Baseline Failed')
+            lines.append('')
+            for bf in baseline_failures:
+                lines.append(f'- `{bf}`')
+            lines.append('')
+        else:
+            lines.append('### ✅ Baseline Passed')
+            lines.append('')
+
         for cat_name, title in [('Compliance', 'Compliance'), ('Smuggling', 'Smuggling'), ('MalformedInput', 'Malformed Input'), ('Normalization', 'Header Normalization')]:
             cat_tests = [tid for tid in test_ids if lookup[names[0]][tid]['category'] == cat_name]
             if not cat_tests:
@@ -268,6 +291,9 @@ jobs:
 
         with open('probe-comment.md', 'w') as f:
             f.write('\n'.join(lines))
+
+        if baseline_failures:
+            sys.exit(1)
         PYEOF
 
     # ── Upload / publish ───────────────────────────────────────────
@@ -284,7 +310,7 @@ jobs:
       run: echo '${{ github.event.number }}' > pr-number.txt
 
     - name: Upload PR comment
-      if: github.event_name == 'pull_request' && steps.changes.outputs.servers != '[]'
+      if: always() && github.event_name == 'pull_request' && steps.changes.outputs.servers != '[]'
       uses: actions/upload-artifact@v4
       with:
         name: probe-pr-comment
