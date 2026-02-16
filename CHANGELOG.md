@@ -5,6 +5,8 @@ All notable changes to Http11Probe are documented in this file.
 ## [2026-02-16]
 
 ### Added
+- **Baseline test gate** — probe workflow now fails when a server can't pass `COMP-BASELINE` or `COMP-POST-CL-BODY`, blocking merge; PR comment shows prominent pass/fail status and is posted even on failure (#98)
+- **4 caching tests** — `CAP-IMS-FUTURE` (If-Modified-Since with future date), `CAP-IMS-INVALID` (invalid IMS value), `CAP-INM-UNQUOTED` (unquoted ETag in If-None-Match), `CAP-ETAG-WEAK` (weak ETag validation) (#94)
 - **Sequence tests** — new multi-step test infrastructure (`SequenceTestCase`, `SequenceStep`, `SequenceSendPart`) for desync and smuggling detection with timed partial sends and behavioral analysis (#74)
 - **26 new smuggling tests** — multi-step sequence tests for CL.TE, TE.CL, and desync detection:
   - `SMUG-CLTE-SMUGGLED-GET` — CL.TE with embedded GET; multiple responses indicate boundary confusion
@@ -50,6 +52,7 @@ All notable changes to Http11Probe are documented in this file.
 - **Sequence tests UI** — probe results page displays sequence test steps with per-step request/response details
 
 ### Changed
+- **Transposed result tables** — rows are now test IDs and columns are servers (previously the reverse), making tall tables with fewer columns (#97)
 - **SMUG-CLTE-PIPELINE and SMUG-TECL-PIPELINE** — re-evaluated scoring and validation logic
 - **GenHTTP server** — clean-up and simplification (contributed by Andreas Nägeli)
 - **RFC Requirement Dashboard** — updated with all 37 new tests and counts
