@@ -7,10 +7,17 @@ using GenHTTP.Modules.Practices;
 
 var port = (args.Length > 0 && ushort.TryParse(args[0], out var p)) ? p : (ushort)8080;
 
+var rootMethods = new  HashSet<FlexibleRequestMethod>
+{
+    FlexibleRequestMethod.Get(RequestMethod.Get),
+    FlexibleRequestMethod.Get(RequestMethod.Head),
+    FlexibleRequestMethod.Get(RequestMethod.Options)
+};
+
 var app = Inline.Create()
                 .Post("/echo", (IRequest request) => Echo(request))
                 .Post((Stream body) => RequestContent(body))
-                .Any(() => StringContent());
+                .On(() => StringContent(), rootMethods);
 
 return await Host.Create()
                  .Handler(app)
