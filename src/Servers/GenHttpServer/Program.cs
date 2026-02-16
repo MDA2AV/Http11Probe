@@ -21,7 +21,7 @@ var app = Inline.Create()
 
 return await Host.Create()
                  .Handler(app)
-                 .Defaults()
+                 .Defaults(rangeSupport: true)
                  .Port(port)
                  .RunAsync();
 
