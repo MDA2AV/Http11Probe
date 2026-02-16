@@ -1,10 +1,10 @@
 ---
-title: Capabilities
+title: Caching
 layout: wide
 toc: false
 ---
 
-## Capabilities (Sequence Tests)
+## Caching
 
 These tests probe optional HTTP features that servers may or may not implement. All capability tests are **unscored** — they show what each server supports, not what it fails at. A `Warn` result means the server does not support the feature, not that it is non-compliant.
 
@@ -20,14 +20,14 @@ These tests probe optional HTTP features that servers may or may not implement. 
 <div id="method-filter"></div>
 <div id="rfc-level-filter"></div>
 </div>
-<div id="table-sequence-capabilities"><p><em>Loading...</em></p></div>
+<div id="table-caching"><p><em>Loading...</em></p></div>
 
 <script src="/Http11Probe/probe/data.js"></script>
 <script src="/Http11Probe/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {
-    document.getElementById('table-sequence-capabilities').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
+    document.getElementById('table-caching').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
     return;
   }
   var GROUPS = [
@@ -55,7 +55,7 @@ These tests probe optional HTTP features that servers may or may not implement. 
     if (rfcLevelFilter) data = ProbeRender.filterByRfcLevel(data, rfcLevelFilter);
     var ctx = ProbeRender.buildLookups(data.servers);
     ctx.testIds = ALL_IDS;
-    ProbeRender.renderSubTables('table-sequence-capabilities', 'Capabilities', ctx, GROUPS);
+    ProbeRender.renderSubTables('table-caching', 'Capabilities', ctx, GROUPS);
   }
   rerender();
   var catData = ProbeRender.filterByCategory(window.PROBE_DATA, ['Capabilities']);

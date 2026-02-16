@@ -10,10 +10,6 @@ HTTP request smuggling exploits disagreements between front-end and back-end ser
 
 These tests send requests with ambiguous framing &mdash; conflicting `Content-Length` and `Transfer-Encoding` headers, duplicated values, obfuscated encoding names &mdash; and verify the server rejects them outright rather than guessing.
 
-{{< callout type="info" >}}
-Multi-step desync checks are under [Sequence Tests &rarr; Smuggling](../sequence-tests/smuggling/).
-{{< /callout >}}
-
 {{< callout type="warning" >}}
 Some tests are **unscored** (marked with `*`). These send payloads where the RFC permits multiple valid interpretations &mdash; for example, OWS trimming or case-insensitive TE matching. A `2xx` response is RFC-compliant but shown as a warning since stricter rejection is preferred.
 {{< /callout >}}
@@ -40,16 +36,6 @@ Some tests are **unscored** (marked with `*`). These send payloads where the RFC
     document.getElementById('table-smuggling').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow manually on <code>main</code> to generate results.</em></p>';
     return;
   }
-	  var SEQUENCE_IDS = [
-	    'SMUG-CLTE-CONN-CLOSE','SMUG-TECL-CONN-CLOSE',
-	    'SMUG-CLTE-DESYNC','SMUG-CLTE-SMUGGLED-GET','SMUG-TECL-DESYNC','SMUG-PIPELINE-SAFE',
-	    'SMUG-CLTE-SMUGGLED-GET-CL-PLUS','SMUG-CLTE-SMUGGLED-GET-CL-NON-NUMERIC','SMUG-CLTE-SMUGGLED-GET-TE-OBS-FOLD',
-	    'SMUG-CLTE-SMUGGLED-HEAD','SMUG-CLTE-SMUGGLED-GET-TE-TRAILING-SPACE','SMUG-CLTE-SMUGGLED-GET-TE-LEADING-COMMA',
-	    'SMUG-CLTE-SMUGGLED-GET-TE-CASE-MISMATCH','SMUG-TECL-SMUGGLED-GET','SMUG-TE-DUPLICATE-HEADERS-SMUGGLED-GET',
-	    'SMUG-DUPLICATE-CL-SMUGGLED-GET','SMUG-GET-CL-PREFIX-DESYNC',
-	    'SMUG-CL0-BODY-POISON','SMUG-GET-CL-BODY-DESYNC','SMUG-OPTIONS-CL-BODY-DESYNC',
-	    'SMUG-EXPECT-100-CL-DESYNC','SMUG-OPTIONS-TE-OBS-FOLD','SMUG-CHUNK-INVALID-SIZE-DESYNC'
-	  ];
   var GROUPS = [
     { key: 'framing', label: 'Framing Conflicts', testIds: [
       'SMUG-CL-TE-BOTH','SMUG-CLTE-PIPELINE','SMUG-TECL-PIPELINE','SMUG-TE-HTTP10',
@@ -71,15 +57,38 @@ Some tests are **unscored** (marked with `*`). These send payloads where the RFC
       'SMUG-CHUNK-BARE-SEMICOLON','SMUG-CHUNK-HEX-PREFIX','SMUG-CHUNK-UNDERSCORE',
       'SMUG-CHUNK-LEADING-SP','SMUG-CHUNK-MISSING-TRAILING-CRLF',
       'SMUG-CHUNK-EXT-LF','SMUG-CHUNK-SPILL','SMUG-CHUNK-LF-TERM',
-	      'SMUG-CHUNK-EXT-CTRL','SMUG-CHUNK-EXT-CR','SMUG-CHUNK-LF-TRAILER',
-	      'SMUG-CHUNK-NEGATIVE','SMUG-CHUNK-BARE-CR-TERM'
-	    ]},
-	    { key: 'headers-trailers', label: 'Headers, Trailers & Methods', testIds: [
-	      'SMUG-BARE-CR-HEADER-VALUE',
-	      'SMUG-TRAILER-CL','SMUG-TRAILER-TE','SMUG-TRAILER-HOST',
-	      'SMUG-TRAILER-AUTH','SMUG-TRAILER-CONTENT-TYPE',
+      'SMUG-CHUNK-EXT-CTRL','SMUG-CHUNK-EXT-CR','SMUG-CHUNK-LF-TRAILER',
+      'SMUG-CHUNK-NEGATIVE','SMUG-CHUNK-BARE-CR-TERM'
+    ]},
+    { key: 'headers-trailers', label: 'Headers, Trailers & Methods', testIds: [
+      'SMUG-BARE-CR-HEADER-VALUE',
+      'SMUG-TRAILER-CL','SMUG-TRAILER-TE','SMUG-TRAILER-HOST',
+      'SMUG-TRAILER-AUTH','SMUG-TRAILER-CONTENT-TYPE',
       'SMUG-EXPECT-100-CL','SMUG-HEAD-CL-BODY','SMUG-OPTIONS-CL-BODY',
       'SMUG-ABSOLUTE-URI-HOST-MISMATCH','SMUG-MULTIPLE-HOST-COMMA'
+    ]},
+    { key: 'conn-close', label: 'Connection Close Requirements', testIds: [
+      'SMUG-CLTE-CONN-CLOSE','SMUG-TECL-CONN-CLOSE'
+    ]},
+    { key: 'baselines', label: 'Baseline Desync Detection', testIds: [
+      'SMUG-CLTE-DESYNC','SMUG-TECL-DESYNC','SMUG-PIPELINE-SAFE'
+    ]},
+    { key: 'confirm', label: 'Embedded Request Execution Signals', testIds: [
+      'SMUG-CLTE-SMUGGLED-GET','SMUG-CLTE-SMUGGLED-HEAD',
+      'SMUG-TECL-SMUGGLED-GET','SMUG-TE-DUPLICATE-HEADERS-SMUGGLED-GET','SMUG-DUPLICATE-CL-SMUGGLED-GET'
+    ]},
+    { key: 'obf-te', label: 'Obfuscated Transfer-Encoding Variants', testIds: [
+      'SMUG-CLTE-SMUGGLED-GET-TE-TRAILING-SPACE','SMUG-CLTE-SMUGGLED-GET-TE-LEADING-COMMA','SMUG-CLTE-SMUGGLED-GET-TE-CASE-MISMATCH'
+    ]},
+    { key: 'malformed', label: 'Malformed CL/TE Smuggling Variants', testIds: [
+      'SMUG-CLTE-SMUGGLED-GET-CL-PLUS','SMUG-CLTE-SMUGGLED-GET-CL-NON-NUMERIC','SMUG-CLTE-SMUGGLED-GET-TE-OBS-FOLD'
+    ]},
+    { key: 'cl-body', label: 'Ignored Body / Unread-Body Desync', testIds: [
+      'SMUG-GET-CL-PREFIX-DESYNC'
+    ]},
+    { key: 'vectors', label: 'Real-World Desync Vectors', testIds: [
+      'SMUG-CL0-BODY-POISON','SMUG-GET-CL-BODY-DESYNC','SMUG-OPTIONS-CL-BODY-DESYNC',
+      'SMUG-EXPECT-100-CL-DESYNC','SMUG-OPTIONS-TE-OBS-FOLD','SMUG-CHUNK-INVALID-SIZE-DESYNC'
     ]}
   ];
   var langData = window.PROBE_DATA;
@@ -90,9 +99,7 @@ Some tests are **unscored** (marked with `*`). These send payloads where the RFC
     var data = langData;
     if (methodFilter) data = ProbeRender.filterByMethod(data, methodFilter);
     if (rfcLevelFilter) data = ProbeRender.filterByRfcLevel(data, rfcLevelFilter);
-    var ctx = ProbeRender.buildLookups(data.servers);
-    ctx.testIds = ctx.testIds.filter(function (tid) { return SEQUENCE_IDS.indexOf(tid) === -1; });
-    ProbeRender.renderSubTables('table-smuggling', 'Smuggling', ctx, GROUPS);
+    ProbeRender.renderSubTables('table-smuggling', 'Smuggling', ProbeRender.buildLookups(data.servers), GROUPS);
   }
   rerender();
   var catData = ProbeRender.filterByCategory(window.PROBE_DATA, ['Smuggling']);

@@ -1,6 +1,6 @@
 ---
-title: Capabilities
-description: "Capabilities — Http11Probe documentation"
+title: Caching
+description: "Caching — Http11Probe documentation"
 weight: 12
 sidebar:
   open: false

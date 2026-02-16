@@ -23,5 +23,5 @@ Reference documentation for every test in Http11Probe, organized by topic. Each 
   {{< card link="malformed-input" title="Malformed Input" subtitle="Binary garbage, oversized fields, control characters, incomplete requests." icon="lightning-bolt" >}}
   {{< card link="upgrade" title="Upgrade / WebSocket" subtitle="Protocol upgrade validation, WebSocket handshake method and version checks." icon="arrow-up" >}}
   {{< card link="normalization" title="Header Normalization" subtitle="Echo-based tests checking if servers normalize malformed header names (underscore, tab, casing)." icon="adjustments" >}}
-  {{< card link="capabilities" title="Capabilities" subtitle="Optional feature probes — conditional requests, ETag handling, caching behavior." icon="beaker" >}}
+  {{< card link="caching" title="Caching" subtitle="Optional feature probes — conditional requests, ETag handling, caching behavior." icon="beaker" >}}
 {{< /cards >}}

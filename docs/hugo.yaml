@@ -19,50 +19,41 @@ menu:
       identifier: leaderboards
       pageRef: /probe-results
       weight: 1
-    - name: Simple Tests
-      identifier: simple-tests
+    - name: Test Details
+      identifier: test-details
       weight: 2
     - name: Compliance
-      identifier: simple-tests-compliance
-      parent: simple-tests
+      identifier: test-details-compliance
+      parent: test-details
       pageRef: /compliance
       weight: 1
     - name: Smuggling
-      identifier: simple-tests-smuggling
-      parent: simple-tests
+      identifier: test-details-smuggling
+      parent: test-details
       pageRef: /smuggling
       weight: 2
     - name: Malformed Input
-      identifier: simple-tests-malformed-input
-      parent: simple-tests
+      identifier: test-details-malformed-input
+      parent: test-details
       pageRef: /malformed-input
       weight: 3
     - name: Normalization
-      identifier: simple-tests-normalization
-      parent: simple-tests
+      identifier: test-details-normalization
+      parent: test-details
       pageRef: /normalization
       weight: 4
-    - name: Sequence Tests
-      identifier: sequence-tests
-      pageRef: /sequence-tests
-      weight: 3
-    - name: Smuggling
-      identifier: sequence-tests-smuggling
-      parent: sequence-tests
-      pageRef: /sequence-tests/smuggling
-      weight: 1
-    - name: Capabilities
-      identifier: sequence-tests-capabilities
-      parent: sequence-tests
-      pageRef: /sequence-tests/capabilities
-      weight: 2
+    - name: Caching
+      identifier: test-details-caching
+      parent: test-details
+      pageRef: /caching
+      weight: 5
     - name: Glossary
       identifier: glossary
       pageRef: /docs
-      weight: 4
+      weight: 3
     - name: Contribute
       identifier: contribute
-      weight: 5
+      weight: 4
     - name: Add a Framework
       identifier: contribute-add-framework
       parent: contribute

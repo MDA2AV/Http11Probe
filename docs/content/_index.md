@@ -42,6 +42,7 @@ Http11Probe sends a suite of crafted HTTP requests to each server and checks whe
   {{< card link="smuggling" title="Smuggling" subtitle="CL/TE ambiguity, duplicate Content-Length, obfuscated Transfer-Encoding, pipeline injection vectors." icon="shield-exclamation" >}}
   {{< card link="malformed-input" title="Robustness" subtitle="Binary garbage, oversized fields, too many headers, control characters, integer overflow, incomplete requests." icon="lightning-bolt" >}}
   {{< card link="normalization" title="Normalization" subtitle="Header normalization behavior — underscore-to-hyphen, space before colon, tab in name, case folding on Transfer-Encoding." icon="adjustments" >}}
+  {{< card link="caching" title="Caching" subtitle="Conditional request support — ETag, Last-Modified, If-None-Match precedence, weak comparison, edge cases." icon="beaker" >}}
 {{< /cards >}}
 
 <div style="height:60px"></div>
