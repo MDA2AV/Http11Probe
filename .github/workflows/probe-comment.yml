@@ -17,7 +17,21 @@ jobs:
       pull-requests: write
 
     steps:
+    - name: Check artifact exists
+      id: check
+      run: |
+        ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts --jq '.artifacts[] | select(.name == "probe-pr-comment") | .id')
+        if [ -z "$ARTIFACTS" ]; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          echo "No probe-pr-comment artifact found — skipping comment."
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Download artifact
+      if: steps.check.outputs.skip == 'false'
       uses: actions/download-artifact@v4
       with:
         name: probe-pr-comment
@@ -25,6 +39,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Post or update comment
+      if: steps.check.outputs.skip == 'false'
       run: |
         PR_NUMBER=$(cat pr-number.txt)
         COMMENT_ID=$(gh api repos/${{ github.repository }}/issues/${PR_NUMBER}/comments \
@@ -33,7 +48,7 @@ jobs:
           gh api repos/${{ github.repository }}/issues/comments/$COMMENT_ID \
             -X PATCH -f body="$(cat probe-comment.md)"
         else
-          gh pr comment "$PR_NUMBER" --body-file probe-comment.md
+          gh pr comment "$PR_NUMBER" --body-file probe-comment.md --repo "${{ github.repository }}"
         fi
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
