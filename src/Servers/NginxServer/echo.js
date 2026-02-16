@@ -7,6 +7,22 @@ function echo(r) {
     r.return(200, body);
 }
 
+function cookie(r) {
+    var body = '';
+    var raw = r.headersIn['Cookie'];
+    if (raw) {
+        var pairs = raw.split(';');
+        for (var i = 0; i < pairs.length; i++) {
+            var trimmed = pairs[i].replace(/^\s+/, '');
+            var eq = trimmed.indexOf('=');
+            if (eq > 0) {
+                body += trimmed.substring(0, eq) + '=' + trimmed.substring(eq + 1) + '\n';
+            }
+        }
+    }
+    r.return(200, body);
+}
+
 function handler(r) {
     if (r.method === 'POST') {
         r.return(200, r.requestText || '');
@@ -15,4 +31,4 @@ function handler(r) {
     }
 }
 
-export default { echo, handler };
+export default { echo, cookie, handler };

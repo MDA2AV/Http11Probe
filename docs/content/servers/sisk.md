@@ -1,6 +1,6 @@
 ---
 title: "Sisk"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,7 @@ COPY --from=build /app .
 ENTRYPOINT ["dotnet", "SiskServer.dll", "8080"]
 ```
 
-## Source — `Program.cs`
+## Source
 
 ```csharp
 using Sisk.Core.Http;
@@ -44,6 +44,27 @@ app.Router.SetRoute(RouteMethod.Any, Route.AnyPath, request =>
                 sb.AppendLine($"{h.Key}: {val}");
         return new HttpResponse(200).WithContent(sb.ToString());
     }
+    if (request.Path == "/cookie")
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var h in request.Headers)
+        {
+            if (string.Equals(h.Key, "Cookie", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var rawVal in h.Value)
+                {
+                    foreach (var pair in rawVal.Split(';'))
+                    {
+                        var trimmed = pair.TrimStart();
+                        var eqIdx = trimmed.IndexOf('=');
+                        if (eqIdx > 0)
+                            sb.AppendLine($"{trimmed[..eqIdx]}={trimmed[(eqIdx + 1)..]}");
+                    }
+                }
+            }
+        }
+        return new HttpResponse(200).WithContent(sb.ToString());
+    }
     if (request.Method == HttpMethod.Post && request.Body is not null)
     {
         var body = request.Body;
@@ -54,3 +75,39 @@ app.Router.SetRoute(RouteMethod.Any, Route.AnyPath, request =>
 
 await app.StartAsync();
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Sisk');
+})();
+</script>

@@ -1,6 +1,6 @@
 ---
 title: "Hyper"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -24,7 +24,7 @@ COPY --from=build /src/target/release/hyper-server /usr/local/bin/
 ENTRYPOINT ["hyper-server", "8080"]
 ```
 
-## Source — `src/main.rs`
+## Source
 
 ```rust
 use std::convert::Infallible;
@@ -43,6 +43,22 @@ async fn handle(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Byt
         let mut body = String::new();
         for (name, value) in req.headers() {
             body.push_str(&format!("{}: {}\n", name, value.to_str().unwrap_or("")));
+        }
+        return Ok(Response::builder()
+            .status(200)
+            .header("Content-Type", "text/plain")
+            .body(Full::new(Bytes::from(body)))
+            .unwrap());
+    }
+    if req.uri().path() == "/cookie" {
+        let mut body = String::new();
+        if let Some(raw) = req.headers().get("cookie").and_then(|v| v.to_str().ok()) {
+            for pair in raw.split(';') {
+                let trimmed = pair.trim_start();
+                if let Some(eq) = trimmed.find('=') {
+                    body.push_str(&format!("{}={}\n", &trimmed[..eq], &trimmed[eq+1..]));
+                }
+            }
         }
         return Ok(Response::builder()
             .status(200)
@@ -85,3 +101,39 @@ async fn main() {
     }
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Hyper');
+})();
+</script>

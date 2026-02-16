@@ -6,6 +6,12 @@ http:
         - web
       service: echo-svc
 
+    cookie:
+      rule: "Path(`/cookie`)"
+      entryPoints:
+        - web
+      service: echo-svc
+
     catchall:
       rule: "PathPrefix(`/`)"
       entryPoints:

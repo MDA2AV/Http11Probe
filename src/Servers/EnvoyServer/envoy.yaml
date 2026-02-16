@@ -28,6 +28,19 @@ static_resources:
                                 end
                               end
                               request_handle:respond({[":status"] = "200", ["content-type"] = "text/plain"}, body)
+                            elseif path == "/cookie" then
+                              local body = ""
+                              local raw = request_handle:headers():get("cookie")
+                              if raw then
+                                for pair in raw:gmatch("[^;]+") do
+                                  local trimmed = pair:match("^%s*(.*)")
+                                  local eq = trimmed:find("=")
+                                  if eq and eq > 1 then
+                                    body = body .. trimmed:sub(1, eq-1) .. "=" .. trimmed:sub(eq+1) .. "\n"
+                                  end
+                                end
+                              end
+                              request_handle:respond({[":status"] = "200", ["content-type"] = "text/plain"}, body)
                             end
                           end
                   - name: envoy.filters.http.router

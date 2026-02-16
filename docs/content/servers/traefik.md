@@ -1,6 +1,6 @@
 ---
 title: "Traefik"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -28,7 +28,9 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
-## Source — `traefik.yml`
+## Source
+
+**`traefik.yml`**
 
 ```yaml
 entryPoints:
@@ -45,13 +47,19 @@ experimental:
       moduleName: github.com/jdel/staticresponse
 ```
 
-## Source — `dynamic.yml`
+**`dynamic.yml`**
 
 ```yaml
 http:
   routers:
     echo:
       rule: "Path(`/echo`)"
+      entryPoints:
+        - web
+      service: echo-svc
+
+    cookie:
+      rule: "Path(`/cookie`)"
       entryPoints:
         - web
       service: echo-svc
@@ -78,36 +86,91 @@ http:
           body: "OK"
 ```
 
-## Source — `echo/main.go`
+**`echo/main.go`**
 
 ```go
 package main
 
 import (
-	"fmt"
+	"io"
 	"net/http"
 	"strings"
 )
 
 func main() {
-	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/cookie", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
-		var sb strings.Builder
-		for name, values := range r.Header {
-			for _, v := range values {
-				sb.WriteString(fmt.Sprintf("%s: %s\n", name, v))
+		raw := r.Header.Get("Cookie")
+		for _, pair := range strings.Split(raw, ";") {
+			pair = strings.TrimLeft(pair, " ")
+			if eq := strings.Index(pair, "="); eq > 0 {
+				w.Write([]byte(pair[:eq] + "=" + pair[eq+1:] + "\n"))
 			}
 		}
-		fmt.Fprint(w, sb.String())
 	})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read body", http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+	})
+
 	http.ListenAndServe(":9090", nil)
 }
 ```
 
-## Source — `entrypoint.sh`
+**`entrypoint.sh`**
 
 ```bash
 #!/bin/sh
 /usr/local/bin/echo-server &
 exec traefik "$@"
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Traefik');
+})();
+</script>

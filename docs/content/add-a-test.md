@@ -14,6 +14,7 @@ Pick the suite that matches your test's category and add a `yield return new Tes
 | Smuggling | `src/Http11Probe/TestCases/Suites/SmugglingSuite.cs` |
 | Malformed Input | `src/Http11Probe/TestCases/Suites/MalformedInputSuite.cs` |
 | Normalization | `src/Http11Probe/TestCases/Suites/NormalizationSuite.cs` |
+| Cookies | `src/Http11Probe/TestCases/Suites/CookieSuite.cs` |
 
 ```csharp
 yield return new TestCase
@@ -46,6 +47,7 @@ yield return new TestCase
 | `SMUG-` | Smuggling |
 | `MAL-` | Malformed Input |
 | `NORM-` | Normalization |
+| `COOK-` | Cookies |
 | `RFC9112-...` or `RFC9110-...` | Compliance (when the test maps directly to a specific RFC section) |
 
 ### Validation options
@@ -97,7 +99,7 @@ Expected = new ExpectedBehavior
 
 **File:** `src/Http11Probe.Cli/Reporting/DocsUrlMap.cs`
 
-Tests prefixed with `SMUG-`, `MAL-`, or `NORM-` are auto-mapped to their doc URL based on the ID. For example, `SMUG-CL-TE-BOTH` maps to `smuggling/cl-te-both`.
+Tests prefixed with `SMUG-`, `MAL-`, `NORM-`, or `COOK-` are auto-mapped to their doc URL based on the ID. For example, `SMUG-CL-TE-BOTH` maps to `smuggling/cl-te-both`.
 
 For `COMP-*` or `RFC*` prefixed tests, add an entry to the `ComplianceSlugs` dictionary:
 

@@ -21,7 +21,22 @@ public class Application extends Handler.Abstract {
         response.setStatus(200);
         response.getHeaders().put("Content-Type", "text/plain");
 
-        if ("/echo".equals(request.getHttpURI().getPath())) {
+        if ("/cookie".equals(request.getHttpURI().getPath())) {
+            StringBuilder sb = new StringBuilder();
+            for (HttpField field : request.getHeaders()) {
+                if ("Cookie".equalsIgnoreCase(field.getName())) {
+                    for (String pair : field.getValue().split(";")) {
+                        String trimmed = pair.stripLeading();
+                        int eq = trimmed.indexOf('=');
+                        if (eq > 0) {
+                            sb.append(trimmed, 0, eq).append("=").append(trimmed.substring(eq + 1)).append("\n");
+                        }
+                    }
+                }
+            }
+            byte[] cookieBody = sb.toString().getBytes(StandardCharsets.UTF_8);
+            response.write(true, ByteBuffer.wrap(cookieBody), callback);
+        } else if ("/echo".equals(request.getHttpURI().getPath())) {
             StringBuilder sb = new StringBuilder();
             for (HttpField field : request.getHeaders()) {
                 sb.append(field.getName()).append(": ").append(field.getValue()).append("\n");

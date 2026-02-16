@@ -1,6 +1,6 @@
 ---
 title: "H2O"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -24,7 +24,7 @@ RUN mkdir -p /var/www && echo "OK" > /var/www/index.html
 ENTRYPOINT ["h2o", "-c", "/etc/h2o/h2o.conf"]
 ```
 
-## Source — `h2o.conf`
+## Source
 
 ```yaml
 listen: 8080
@@ -45,6 +45,18 @@ hosts:
               body += "Content-Type: #{env['CONTENT_TYPE']}\n" if env['CONTENT_TYPE'] && !env['CONTENT_TYPE'].empty?
               body += "Content-Length: #{env['CONTENT_LENGTH']}\n" if env['CONTENT_LENGTH'] && !env['CONTENT_LENGTH'].empty?
               [200, {"content-type" => "text/plain"}, [body]]
+            elsif env["PATH_INFO"] == "/cookie"
+              body = ""
+              if env["HTTP_COOKIE"]
+                env["HTTP_COOKIE"].split(";").each do |pair|
+                  trimmed = pair.lstrip
+                  eq = trimmed.index("=")
+                  if eq && eq > 0
+                    body += "#{trimmed[0...eq]}=#{trimmed[(eq+1)..]}\n"
+                  end
+                end
+              end
+              [200, {"content-type" => "text/plain"}, [body]]
             elsif env["REQUEST_METHOD"] == "POST"
               body = env["rack.input"] ? env["rack.input"].read : ""
               [200, {"content-type" => "text/plain"}, [body]]
@@ -53,3 +65,39 @@ hosts:
             end
           }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('H2O');
+})();
+</script>

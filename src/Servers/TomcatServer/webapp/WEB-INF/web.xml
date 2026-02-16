@@ -10,6 +10,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>cookie</servlet-name>
+        <jsp-file>/cookie.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>cookie</servlet-name>
+        <url-pattern>/cookie</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>ok</servlet-name>
         <jsp-file>/ok.jsp</jsp-file>
     </servlet>

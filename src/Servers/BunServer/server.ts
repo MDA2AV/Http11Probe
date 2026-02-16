@@ -12,6 +12,16 @@ Bun.serve({
       }
       return new Response(body, { headers: { "Content-Type": "text/plain" } });
     }
+    if (url.pathname === "/cookie") {
+      let body = "";
+      const raw = req.headers.get("cookie") || "";
+      for (const pair of raw.split(";")) {
+        const trimmed = pair.trimStart();
+        const eq = trimmed.indexOf("=");
+        if (eq > 0) body += trimmed.substring(0, eq) + "=" + trimmed.substring(eq + 1) + "\n";
+      }
+      return new Response(body, { headers: { "Content-Type": "text/plain" } });
+    }
     if (req.method === "POST") {
       const body = await req.text();
       return new Response(body);

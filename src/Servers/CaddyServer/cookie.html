@@ -1,0 +1,2 @@
+{{range .Req.Header.Cookie}}{{range splitList ";" .}}{{trim .}}
+{{end}}{{end}}

@@ -1,6 +1,6 @@
 ---
 title: "FastEndpoints"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,9 @@ COPY --from=build /app .
 ENTRYPOINT ["dotnet", "FastEndpointsServer.dll"]
 ```
 
-## Source — `Program.cs`
+## Source
+
+**`Program.cs`**
 
 ```csharp
 using FastEndpoints;
@@ -109,6 +111,26 @@ sealed class OptionsRoot : EndpointWithoutRequest
     }
 }
 
+// ── GET/POST /cookie ──────────────────────────────────────────
+
+sealed class CookieEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Verbs("GET", "POST");
+        Routes("/cookie");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var cookie in HttpContext.Request.Cookies)
+            sb.AppendLine($"{cookie.Key}={cookie.Value}");
+        await HttpContext.Response.WriteAsync(sb.ToString(), ct);
+    }
+}
+
 // ── POST /echo ─────────────────────────────────────────────────
 
 sealed class PostEcho : EndpointWithoutRequest
@@ -130,7 +152,7 @@ sealed class PostEcho : EndpointWithoutRequest
 }
 ```
 
-## Source — `FastEndpointsServer.csproj`
+**`FastEndpointsServer.csproj`**
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
@@ -148,3 +170,39 @@ sealed class PostEcho : EndpointWithoutRequest
 
 </Project>
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('FastEndpoints');
+})();
+</script>

@@ -34,7 +34,7 @@ For a new **test**, the agent will:
 For a new **framework**, the agent will:
 
 1. Create a server directory under `src/Servers/`
-2. Implement the server with all required endpoints (GET, HEAD, POST, OPTIONS on `/` and POST on `/echo`)
+2. Implement the server with all required endpoints (GET, HEAD, POST, OPTIONS on `/`, GET/POST on `/echo`, and GET/POST on `/cookie`)
 3. Write a Dockerfile that builds and runs the server on port 8080
 4. Add a `probe.json` with the display name
 

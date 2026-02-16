@@ -32,6 +32,20 @@ public class Application {
     }
 
     @GET
+    @Path("/cookie")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response cookieGet(@Context HttpHeaders headers) {
+        return parseCookies(headers);
+    }
+
+    @POST
+    @Path("/cookie")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response cookiePost(@Context HttpHeaders headers) {
+        return parseCookies(headers);
+    }
+
+    @GET
     @Path("/echo")
     @Produces(MediaType.TEXT_PLAIN)
     public Response echoGet(@Context HttpHeaders headers) {
@@ -43,6 +57,23 @@ public class Application {
     @Produces(MediaType.TEXT_PLAIN)
     public Response echoPost(@Context HttpHeaders headers) {
         return echoHeaders(headers);
+    }
+
+    private Response parseCookies(HttpHeaders headers) {
+        StringBuilder sb = new StringBuilder();
+        List<String> cookieHeaders = headers.getRequestHeader("Cookie");
+        if (cookieHeaders != null) {
+            for (String raw : cookieHeaders) {
+                for (String pair : raw.split(";")) {
+                    String trimmed = pair.stripLeading();
+                    int eq = trimmed.indexOf('=');
+                    if (eq > 0) {
+                        sb.append(trimmed, 0, eq).append("=").append(trimmed.substring(eq + 1)).append("\n");
+                    }
+                }
+            }
+        }
+        return Response.ok(sb.toString(), MediaType.TEXT_PLAIN).build();
     }
 
     private Response echoHeaders(HttpHeaders headers) {

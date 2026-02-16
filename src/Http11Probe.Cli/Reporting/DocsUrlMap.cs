@@ -135,6 +135,13 @@ internal static class DocsUrlMap
             return BaseUrl + "normalization/" + suffix;
         }
 
+        // COOK-* → cookies/{suffix}
+        if (testId.StartsWith("COOK-", StringComparison.OrdinalIgnoreCase))
+        {
+            var suffix = testId[5..].ToLowerInvariant();
+            return BaseUrl + "cookies/" + suffix;
+        }
+
         return null;
     }
 }

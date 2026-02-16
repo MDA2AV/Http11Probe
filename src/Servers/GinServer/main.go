@@ -16,6 +16,17 @@ func main() {
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
+	r.Any("/cookie", func(c *gin.Context) {
+		var sb strings.Builder
+		raw := c.GetHeader("Cookie")
+		for _, pair := range strings.Split(raw, ";") {
+			pair = strings.TrimLeft(pair, " ")
+			if eq := strings.Index(pair, "="); eq > 0 {
+				sb.WriteString(pair[:eq] + "=" + pair[eq+1:] + "\n")
+			}
+		}
+		c.Data(200, "text/plain", []byte(sb.String()))
+	})
 	r.Any("/echo", func(c *gin.Context) {
 		var sb strings.Builder
 		for name, values := range c.Request.Header {

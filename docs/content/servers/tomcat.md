@@ -1,6 +1,6 @@
 ---
 title: "Tomcat"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -16,7 +16,9 @@ EXPOSE 8080
 CMD ["catalina.sh", "run"]
 ```
 
-## Source — `webapp/WEB-INF/web.xml`
+## Source
+
+**`webapp/WEB-INF/web.xml`**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -31,6 +33,15 @@ CMD ["catalina.sh", "run"]
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>cookie</servlet-name>
+        <jsp-file>/cookie.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>cookie</servlet-name>
+        <url-pattern>/cookie</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>ok</servlet-name>
         <jsp-file>/ok.jsp</jsp-file>
     </servlet>
@@ -41,7 +52,7 @@ CMD ["catalina.sh", "run"]
 </web-app>
 ```
 
-## Source — `webapp/ok.jsp`
+**`webapp/ok.jsp`**
 
 ```jsp
 <%@page contentType="text/plain" import="java.io.*"%><%
@@ -55,7 +66,7 @@ if ("POST".equals(request.getMethod())) {
 %>
 ```
 
-## Source — `webapp/echo.jsp`
+**`webapp/echo.jsp`**
 
 ```jsp
 <%@page contentType="text/plain" import="java.util.*"%><%
@@ -69,3 +80,52 @@ while (names.hasMoreElements()) {
 }
 %>
 ```
+
+**`webapp/cookie.jsp`**
+
+```jsp
+<%@page contentType="text/plain"%><%
+jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+if (cookies != null) {
+    for (jakarta.servlet.http.Cookie c : cookies) {
+        out.print(c.getName() + "=" + c.getValue() + "\n");
+    }
+}
+%>
+```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Tomcat');
+})();
+</script>

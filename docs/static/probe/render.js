@@ -735,7 +735,7 @@ window.ProbeRender = (function () {
     el.innerHTML = html;
   }
 
-  var CAT_LABELS = { Compliance: 'Compliance', Smuggling: 'Smuggling', MalformedInput: 'Malformed Input', Normalization: 'Normalization', Capabilities: 'Caching' };
+  var CAT_LABELS = { Compliance: 'Compliance', Smuggling: 'Smuggling', MalformedInput: 'Malformed Input', Normalization: 'Normalization', Capabilities: 'Caching', Cookies: 'Cookies' };
 
   function renderTable(targetId, categoryKey, ctx, testIdFilter, tableLabel) {
     injectScrollStyle();
@@ -758,7 +758,7 @@ window.ProbeRender = (function () {
     var orderedTests = scoredTests.concat(unscoredTests);
 
     var shortLabels = orderedTests.map(function (tid) {
-      return tid.replace(/^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-|NORM-)/, '');
+      return tid.replace(/^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-|NORM-|COOK-)/, '');
     });
 
     var unscoredStart = scoredTests.length;
@@ -1414,6 +1414,116 @@ window.ProbeRender = (function () {
     });
   }
 
+  // ── Per-server results page ────────────────────────────────────
+  var SERVER_CAT_ORDER = ['Compliance', 'Smuggling', 'MalformedInput', 'Capabilities', 'Cookies'];
+
+  function renderServerCategoryTable(catEl, results) {
+    var scored = results.filter(function (r) { return r.scored !== false; });
+    var unscoredR = results.filter(function (r) { return r.scored === false; });
+    var ordered = scored.concat(unscoredR);
+
+    var html = '<div class="probe-scroll"><table class="probe-table" style="border-collapse:collapse;font-size:13px;width:100%;">';
+    html += '<thead><tr>';
+    html += '<th style="padding:6px 10px;text-align:left;">Test</th>';
+    html += '<th style="padding:6px 8px;text-align:center;width:70px;">Got</th>';
+    html += '<th style="padding:6px 8px;text-align:center;width:80px;">Expected</th>';
+    html += '<th style="padding:6px 8px;text-align:center;width:60px;">Method</th>';
+    html += '<th style="padding:6px 8px;text-align:center;width:70px;">RFC Level</th>';
+    html += '<th style="padding:6px 10px;text-align:left;">Description</th>';
+    html += '</tr></thead><tbody>';
+
+    ordered.forEach(function (r) {
+      var isUnscored = r.scored === false;
+      var opacity = isUnscored ? 'opacity:0.6;' : '';
+      var url = testUrl(r.id);
+      var idHtml = url ? '<a href="' + url + '" style="color:#0969da;text-decoration:none;">' + r.id + '</a>' : r.id;
+      var method = methodFromRequest(r.rawRequest);
+      var level = r.rfcLevel || 'Must';
+
+      html += '<tr style="' + opacity + '">';
+      html += '<td style="padding:5px 10px;font-weight:600;font-size:12px;white-space:nowrap;">' + idHtml + '</td>';
+      html += '<td style="text-align:center;padding:3px 4px;">' + pill(verdictBg(r.verdict), r.got || r.verdict, r.rawResponse, r.behavioralNote, r.rawRequest, r.doubleFlush) + '</td>';
+      html += '<td style="text-align:center;padding:3px 4px;">' + expectedPill(EXPECT_BG, (r.expected || '').replace(/ or close/g, '/\u2715').replace(/\//g, '/\u200B')) + '</td>';
+      html += '<td style="text-align:center;padding:3px 4px;">' + methodTag(method) + '</td>';
+      html += '<td style="text-align:center;padding:3px 4px;">' + rfcLevelTag(level) + '</td>';
+      html += '<td style="padding:5px 10px;font-size:12px;white-space:normal;">' + (r.description || '') + '</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    catEl.innerHTML = html;
+  }
+
+  function renderServerPage(serverName) {
+    injectScrollStyle();
+    var summaryEl = document.getElementById('server-summary');
+    var data = window.PROBE_DATA;
+    if (!data || !data.servers) {
+      if (summaryEl) summaryEl.innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+      return;
+    }
+    var sv = null;
+    data.servers.forEach(function (s) { if (s.name === serverName) sv = s; });
+    if (!sv) {
+      if (summaryEl) summaryEl.innerHTML = '<p><em>No results found for <strong>' + serverName + '</strong>.</em></p>';
+      return;
+    }
+
+    // Summary counts
+    var scoredPass = 0, scoredWarn = 0, scoredFail = 0, unscored = 0, total = sv.results.length;
+    sv.results.forEach(function (r) {
+      if (r.scored === false) { unscored++; return; }
+      if (r.verdict === 'Pass') scoredPass++;
+      else if (r.verdict === 'Warn') scoredWarn++;
+      else scoredFail++;
+    });
+    var scored = total - unscored;
+
+    // Summary bar
+    if (summaryEl) {
+      var html = '<div style="margin-bottom:16px;">';
+      var trackBg = document.documentElement.classList.contains('dark') ? '#2a2f38' : '#f0f0f0';
+      html += '<div style="height:24px;background:' + trackBg + ';border-radius:4px;overflow:hidden;display:flex;margin-bottom:8px;">';
+      if (scored > 0) {
+        html += '<div style="height:100%;width:' + (scoredPass / total * 100) + '%;background:' + PASS_BG + ';"></div>';
+        if (scoredWarn > 0) html += '<div style="height:100%;width:' + (scoredWarn / total * 100) + '%;background:' + WARN_BG + ';"></div>';
+        if (scoredFail > 0) html += '<div style="height:100%;width:' + (scoredFail / total * 100) + '%;background:' + FAIL_BG + ';"></div>';
+      }
+      if (unscored > 0) html += '<div style="height:100%;width:' + (unscored / total * 100) + '%;background:' + SKIP_BG + ';"></div>';
+      html += '</div>';
+      html += '<div style="font-size:13px;">';
+      html += '<span style="font-weight:700;color:' + PASS_BG + ';">' + scoredPass + ' pass</span>';
+      if (scoredWarn > 0) html += ' &nbsp;<span style="font-weight:700;color:' + WARN_BG + ';">' + scoredWarn + ' warn</span>';
+      if (scoredFail > 0) html += ' &nbsp;<span style="font-weight:700;color:' + FAIL_BG + ';">' + scoredFail + ' fail</span>';
+      html += ' &nbsp;<span style="color:#656d76;">' + unscored + ' unscored &middot; ' + total + ' total</span>';
+      html += '</div></div>';
+      if (data.commit) {
+        html += '<p style="font-size:0.85em;color:#656d76;">Commit: <code>' + data.commit.id.substring(0, 7) + '</code> &mdash; ' + (data.commit.message || '') + '</p>';
+      }
+      summaryEl.innerHTML = html;
+    }
+
+    // Group by category
+    var byCat = {};
+    sv.results.forEach(function (r) {
+      var cat = r.category || 'Other';
+      if (!byCat[cat]) byCat[cat] = [];
+      byCat[cat].push(r);
+    });
+
+    // Render each category into its own div
+    SERVER_CAT_ORDER.forEach(function (cat) {
+      var catEl = document.getElementById('results-' + cat.toLowerCase());
+      if (!catEl) return;
+      var results = byCat[cat];
+      if (!results || results.length === 0) {
+        catEl.innerHTML = '<p style="font-size:13px;color:#656d76;"><em>No results for this category yet.</em></p>';
+        return;
+      }
+      renderServerCategoryTable(catEl, results);
+    });
+  }
+
   return {
     pill: pill,
     verdictBg: verdictBg,
@@ -1421,6 +1531,7 @@ window.ProbeRender = (function () {
     renderSummary: renderSummary,
     renderTable: renderTable,
     renderSubTables: renderSubTables,
+    renderServerPage: renderServerPage,
     renderLanguageFilter: renderLanguageFilter,
     filterByCategory: filterByCategory,
     renderCategoryFilter: renderCategoryFilter,

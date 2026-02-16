@@ -21,6 +21,22 @@ async fn handle(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Byt
             .body(Full::new(Bytes::from(body)))
             .unwrap());
     }
+    if req.uri().path() == "/cookie" {
+        let mut body = String::new();
+        if let Some(raw) = req.headers().get("cookie").and_then(|v| v.to_str().ok()) {
+            for pair in raw.split(';') {
+                let trimmed = pair.trim_start();
+                if let Some(eq) = trimmed.find('=') {
+                    body.push_str(&format!("{}={}\n", &trimmed[..eq], &trimmed[eq+1..]));
+                }
+            }
+        }
+        return Ok(Response::builder()
+            .status(200)
+            .header("Content-Type", "text/plain")
+            .body(Full::new(Bytes::from(body)))
+            .unwrap());
+    }
     if req.method() == hyper::Method::POST {
         let body = match http_body_util::BodyExt::collect(req.into_body()).await {
             Ok(collected) => collected.to_bytes(),
