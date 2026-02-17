@@ -4,7 +4,7 @@ HTTP/1.1 server compliance and security tester. Sends malformed, ambiguous, and 
 
 **Website:** [mda2av.github.io/Http11Probe](https://MDA2AV.github.io/Http11Probe/) — full documentation, test glossary with RFC citations, and live probe results across all tested servers.
 
-## 203 Tests across 5 Categories
+## 215 Tests across 6 Categories
 
 | Category | Tests | What it covers |
 |----------|------:|----------------|
@@ -12,7 +12,8 @@ HTTP/1.1 server compliance and security tester. Sends malformed, ambiguous, and 
 | **Smuggling** | 87 | CL/TE ambiguity, duplicate Content-Length, pipeline desync, TE obfuscation, chunk extension abuse, bare LF in chunked framing, URI/Host mismatch |
 | **Malformed Input** | 26 | Binary garbage, oversized URLs/headers/methods, NUL bytes, control characters, integer overflow, overlong UTF-8, encoded CRLF injection |
 | **Normalization** | 5 | Header name casing, whitespace trimming, and other normalization behaviors |
-| **Caching** | 9 | Conditional request support — ETag, Last-Modified, If-None-Match precedence, weak comparison, edge cases |
+| **Cookies** | 12 | Cookie parsing, Set-Cookie handling, and RFC 6265bis compliance |
+| **Capabilities** | 9 | Server capability detection — keep-alive, pipelining, chunked responses (unscored) |
 
 Each test is scored against RFC normative language (MUST/SHOULD/MAY) and classified as **Pass**, **Fail**, or **Warn** (when the RFC permits both strict and lenient behavior).
 
@@ -46,7 +47,7 @@ dotnet run --project src/Http11Probe.Cli -- --host localhost --port 8080
 |------|-------------|---------|
 | `--host` | Target hostname or IP address | `localhost` |
 | `--port` | Target port number | `8080` |
-| `--category` | Run only tests in this category (`Compliance`, `Smuggling`, `MalformedInput`, `Normalization`, `Capabilities`) | all |
+| `--category` | Run only tests in this category (`Compliance`, `Smuggling`, `MalformedInput`, `Normalization`, `Cookies`, `Capabilities`) | all |
 | `--test` | Run only specific test IDs, case-insensitive (repeatable) | all |
 | `--timeout` | Connect and read timeout in seconds per test | `5` |
 | `--output` | Write JSON results to file | — |
