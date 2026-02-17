@@ -34,12 +34,12 @@ Captures the `ETag` header from the response.
 ```http
 GET / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-If-None-Match: "abc123"\r\n
+If-None-Match: {ETag from step 1}\r\n
 If-Modified-Since: Thu, 01 Jan 1970 00:00:00 GMT\r\n
 \r\n
 ```
 
-The `If-None-Match` header matches the current ETag (should produce `304`), but the `If-Modified-Since` is set to epoch (should produce `200` since the resource was certainly modified after 1970). If the server returns `304`, it correctly evaluated `If-None-Match` first.
+Replays the `ETag` value captured from step 1 in `If-None-Match` (should produce `304`), combined with `If-Modified-Since` set to epoch (should produce `200` since the resource was certainly modified after 1970). If the server returns `304`, it correctly evaluated `If-None-Match` first.
 
 ## What the RFC says
 

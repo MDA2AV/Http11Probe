@@ -1,6 +1,6 @@
 ---
 title: "PARSED-MULTI"
-description: "COOK-PARSED-MULTI test documentation"
+description: "COOK-PARSED-MULTI cookie test documentation"
 weight: 10
 ---
 
@@ -9,9 +9,12 @@ weight: 10
 | **Test ID** | `COOK-PARSED-MULTI` |
 | **Category** | Cookies |
 | **Scored** | No |
-| **Expected** | `2xx` with `a=1`, `b=2`, `c=3` in body |
+| **RFC Level** | N/A |
+| **Expected** | `2xx with a=1, b=2, c=3 in body` |
 
 ## What it sends
+
+Multiple cookies parsed correctly by framework.
 
 ```http
 GET /cookie HTTP/1.1\r\n
@@ -20,24 +23,16 @@ Cookie: a=1; b=2; c=3\r\n
 \r\n
 ```
 
-A request with three cookies separated by `; ` (semicolon-space) in a single `Cookie` header.
-
-## What the RFC says
-
-> "cookie-string = cookie-pair *( ';' SP cookie-pair )" — RFC 6265 §4.2.1
-
-Multiple cookies in a single header are delimited by `; ` (semicolon followed by a space). The parser must split on this delimiter and extract all pairs.
-
 ## Why it matters
 
-Most real-world requests contain multiple cookies (session IDs, preferences, tracking tokens). If the framework parser fails to split on `; ` correctly, it will lose cookies — potentially dropping session tokens or authentication data.
+Tests the framework's ability to correctly split and parse multiple semicolon-delimited cookie pairs.
 
 ## Verdicts
 
-- **Pass** — `2xx` with all three cookies (`a=1`, `b=2`, `c=3`) in the response body
-- **Warn** — `404` (endpoint not available)
-- **Fail** — `2xx` with missing cookies, or `500`
+- **Pass** — 2xx and body contains all three pairs
+- **Warn** — 404 (endpoint not available)
+- **Fail** — Missing pairs or 500
 
 ## Sources
 
-- [RFC 6265 §4.2.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.2.1) — cookie-string syntax
+- [RFC 6265 §5.4](https://www.rfc-editor.org/rfc/rfc6265#section-5.4) — Cookie header

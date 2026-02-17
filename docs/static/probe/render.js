@@ -476,7 +476,19 @@ window.ProbeRender = (function () {
     'CAP-IMS-FUTURE': '/Http11Probe/docs/caching/ims-future/',
     'CAP-IMS-INVALID': '/Http11Probe/docs/caching/ims-invalid/',
     'CAP-INM-UNQUOTED': '/Http11Probe/docs/caching/inm-unquoted/',
-    'CAP-ETAG-WEAK': '/Http11Probe/docs/caching/etag-weak/'
+    'CAP-ETAG-WEAK': '/Http11Probe/docs/caching/etag-weak/',
+    'COOK-ECHO': '/Http11Probe/docs/cookies/echo/',
+    'COOK-OVERSIZED': '/Http11Probe/docs/cookies/oversized/',
+    'COOK-EMPTY': '/Http11Probe/docs/cookies/empty/',
+    'COOK-NUL': '/Http11Probe/docs/cookies/nul/',
+    'COOK-CONTROL-CHARS': '/Http11Probe/docs/cookies/control-chars/',
+    'COOK-MANY-PAIRS': '/Http11Probe/docs/cookies/many-pairs/',
+    'COOK-MALFORMED': '/Http11Probe/docs/cookies/malformed/',
+    'COOK-MULTI-HEADER': '/Http11Probe/docs/cookies/multi-header/',
+    'COOK-PARSED-BASIC': '/Http11Probe/docs/cookies/parsed-basic/',
+    'COOK-PARSED-MULTI': '/Http11Probe/docs/cookies/parsed-multi/',
+    'COOK-PARSED-EMPTY-VAL': '/Http11Probe/docs/cookies/parsed-empty-val/',
+    'COOK-PARSED-SPECIAL': '/Http11Probe/docs/cookies/parsed-special/'
   };
 
   function testUrl(tid) {

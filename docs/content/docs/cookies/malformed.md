@@ -1,6 +1,6 @@
 ---
 title: "MALFORMED"
-description: "COOK-MALFORMED test documentation"
+description: "COOK-MALFORMED cookie test documentation"
 weight: 7
 ---
 
@@ -9,9 +9,12 @@ weight: 7
 | **Test ID** | `COOK-MALFORMED` |
 | **Category** | Cookies |
 | **Scored** | No |
-| **Expected** | `2xx` or `400` |
+| **RFC Level** | N/A |
+| **Expected** | `2xx or 400` |
 
 ## What it sends
+
+Completely malformed cookie value (===;;;) — tests parser crash resilience.
 
 ```http
 GET /echo HTTP/1.1\r\n
@@ -20,25 +23,15 @@ Cookie: ===;;;\r\n
 \r\n
 ```
 
-A `Cookie` header with completely invalid syntax — no valid cookie-name, only equals signs and semicolons.
-
-## What the RFC says
-
-> "cookie-pair = cookie-name '=' cookie-value" — RFC 6265 §4.1.1
-
-> "cookie-name = token" — RFC 6265 §4.1.1
-
-The value `===;;;` does not match the `cookie-pair` grammar. There is no valid `cookie-name` (an empty name before the first `=` is not a valid token).
-
 ## Why it matters
 
-Framework cookie parsers must handle completely malformed cookie strings gracefully. This tests the worst-case scenario for parser resilience — the value bears no resemblance to valid cookie syntax.
+Garbage cookie values with no valid key=value structure can crash naive parsers that split on `=` without bounds checking.
 
 ## Verdicts
 
-- **Pass** — `2xx` (survived) or `400` (rejected gracefully)
-- **Fail** — `500` or connection crash
+- **Pass** — 2xx or 400
+- **Fail** — 500 (crash)
 
 ## Sources
 
-- [RFC 6265 §4.1.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1) — cookie-pair syntax
+- [RFC 6265 §5.4](https://www.rfc-editor.org/rfc/rfc6265#section-5.4) — Cookie header

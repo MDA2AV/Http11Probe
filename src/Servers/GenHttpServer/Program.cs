@@ -36,16 +36,12 @@ static string Echo(IRequest request)
 static string ParseCookies(IRequest request)
 {
     var sb = new System.Text.StringBuilder();
-    if (request.Headers.TryGetValue("Cookie", out var cookieHeader))
+
+    foreach (var cookie in request.Cookies.Values)
     {
-        foreach (var pair in cookieHeader.Split(';'))
-        {
-            var trimmed = pair.TrimStart();
-            var eqIdx = trimmed.IndexOf('=');
-            if (eqIdx > 0)
-                sb.AppendLine($"{trimmed[..eqIdx]}={trimmed[(eqIdx + 1)..]}");
-        }
+        sb.AppendLine($"{cookie.Name}={cookie.Value}");
     }
+
     return sb.ToString();
 }
 

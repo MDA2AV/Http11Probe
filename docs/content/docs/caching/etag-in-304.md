@@ -34,11 +34,11 @@ Captures the `ETag` header from the response.
 ```http
 GET / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-If-None-Match: "abc123"\r\n
+If-None-Match: {ETag from step 1}\r\n
 \r\n
 ```
 
-Sends the captured ETag. If the server returns `304`, this test checks whether the `ETag` header is present in that response.
+Replays the `ETag` value captured from step 1. If the server returns `304`, this test checks whether the `ETag` header is present in that response.
 
 ## What the RFC says
 

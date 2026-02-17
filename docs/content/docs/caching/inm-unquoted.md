@@ -34,11 +34,11 @@ Captures the `ETag` header from the response for use in step 2.
 ```http
 GET / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-If-None-Match: abc123\r\n
+If-None-Match: {ETag from step 1, unquoted}\r\n
 \r\n
 ```
 
-Sends the ETag value without the required surrounding double quotes. According to the RFC grammar, `entity-tag = [ weak ] opaque-tag` and `opaque-tag = DQUOTE *etagc DQUOTE` — the quotes are mandatory.
+Sends the ETag value captured from step 1, stripped of the required surrounding double quotes. According to the RFC grammar, `entity-tag = [ weak ] opaque-tag` and `opaque-tag = DQUOTE *etagc DQUOTE` — the quotes are mandatory.
 
 ## What the RFC says
 
