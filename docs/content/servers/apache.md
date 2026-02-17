@@ -1,6 +1,6 @@
 ---
 title: "Apache"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -14,10 +14,13 @@ FROM httpd:2.4
 COPY src/Servers/ApacheServer/httpd-probe.conf /usr/local/apache2/conf/httpd.conf
 RUN echo "OK" > /usr/local/apache2/htdocs/index.html
 COPY src/Servers/ApacheServer/echo.cgi /usr/local/apache2/cgi-bin/echo.cgi
-RUN chmod +x /usr/local/apache2/cgi-bin/echo.cgi
+COPY src/Servers/ApacheServer/cookie.cgi /usr/local/apache2/cgi-bin/cookie.cgi
+RUN chmod +x /usr/local/apache2/cgi-bin/echo.cgi /usr/local/apache2/cgi-bin/cookie.cgi
 ```
 
-## Source — `httpd-probe.conf`
+## Source
+
+**`httpd-probe.conf`**
 
 ```apache
 ServerRoot "/usr/local/apache2"
@@ -40,13 +43,14 @@ DocumentRoot "/usr/local/apache2/htdocs"
 </Directory>
 
 ScriptAlias /echo /usr/local/apache2/cgi-bin/echo.cgi
+ScriptAlias /cookie /usr/local/apache2/cgi-bin/cookie.cgi
 
 <Directory "/usr/local/apache2/cgi-bin">
     Require all granted
 </Directory>
 ```
 
-## Source — `echo.cgi`
+**`echo.cgi`**
 
 ```bash
 #!/bin/sh
@@ -62,3 +66,52 @@ if [ -n "$CONTENT_LENGTH" ]; then
     printf 'Content-Length: %s\n' "$CONTENT_LENGTH"
 fi
 ```
+
+**`cookie.cgi`**
+
+```bash
+#!/bin/sh
+printf 'Content-Type: text/plain\r\n\r\n'
+if [ -n "$HTTP_COOKIE" ]; then
+    echo "$HTTP_COOKIE" | tr ';' '\n' | while read -r pair; do
+        trimmed=$(echo "$pair" | sed 's/^ *//')
+        printf '%s\n' "$trimmed"
+    done
+fi
+```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Apache');
+})();
+</script>

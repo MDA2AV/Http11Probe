@@ -3,9 +3,21 @@ package main
 import (
 	"io"
 	"net/http"
+	"strings"
 )
 
 func main() {
+	http.HandleFunc("/cookie", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		raw := r.Header.Get("Cookie")
+		for _, pair := range strings.Split(raw, ";") {
+			pair = strings.TrimLeft(pair, " ")
+			if eq := strings.Index(pair, "="); eq > 0 {
+				w.Write([]byte(pair[:eq] + "=" + pair[eq+1:] + "\n"))
+			}
+		}
+	})
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)

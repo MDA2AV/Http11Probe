@@ -5,6 +5,18 @@ app = proc { |env|
     body += "Content-Type: #{env['CONTENT_TYPE']}\n" if env['CONTENT_TYPE']
     body += "Content-Length: #{env['CONTENT_LENGTH']}\n" if env['CONTENT_LENGTH']
     [200, { 'Content-Type' => 'text/plain' }, [body]]
+  elsif env['PATH_INFO'] == '/cookie'
+    body = ""
+    if env['HTTP_COOKIE']
+      env['HTTP_COOKIE'].split(';').each do |pair|
+        trimmed = pair.lstrip
+        eq = trimmed.index('=')
+        if eq && eq > 0
+          body += "#{trimmed[0...eq]}=#{trimmed[(eq+1)..]}\n"
+        end
+      end
+    end
+    [200, { 'Content-Type' => 'text/plain' }, [body]]
   elsif env['REQUEST_METHOD'] == 'POST'
     body = env['rack.input'].read
     [200, { 'content-type' => 'text/plain' }, [body]]

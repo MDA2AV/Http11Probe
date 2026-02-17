@@ -8,6 +8,19 @@ async fn echo(req: HttpRequest) -> impl Responder {
     HttpResponse::Ok().content_type("text/plain").body(body)
 }
 
+async fn cookie(req: HttpRequest) -> impl Responder {
+    let mut body = String::new();
+    if let Some(raw) = req.headers().get("cookie").and_then(|v| v.to_str().ok()) {
+        for pair in raw.split(';') {
+            let trimmed = pair.trim_start();
+            if let Some(eq) = trimmed.find('=') {
+                body.push_str(&format!("{}={}\n", &trimmed[..eq], &trimmed[eq+1..]));
+            }
+        }
+    }
+    HttpResponse::Ok().content_type("text/plain").body(body)
+}
+
 async fn handler(req: HttpRequest, body: web::Bytes) -> HttpResponse {
     if req.method() == actix_web::http::Method::POST {
         HttpResponse::Ok()
@@ -30,6 +43,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/echo", web::to(echo))
+            .route("/cookie", web::to(cookie))
             .default_service(web::to(handler))
     })
     .bind(("0.0.0.0", port))?

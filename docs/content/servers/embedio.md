@@ -1,6 +1,6 @@
 ---
 title: "EmbedIO"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,7 @@ COPY --from=build /app .
 ENTRYPOINT ["dotnet", "EmbedIOServer.dll", "8080"]
 ```
 
-## Source — `Program.cs`
+## Source
 
 ```csharp
 using EmbedIO;
@@ -34,6 +34,13 @@ var url = $"http://*:{port}/";
 using var server = new WebServer(o => o
     .WithUrlPrefix(url)
     .WithMode(HttpListenerMode.EmbedIO))
+    .WithModule(new ActionModule("/cookie", HttpVerbs.Any, async ctx =>
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (System.Net.Cookie cookie in ctx.Request.Cookies)
+            sb.AppendLine($"{cookie.Name}={cookie.Value}");
+        await ctx.SendStringAsync(sb.ToString(), "text/plain", System.Text.Encoding.UTF8);
+    }))
     .WithModule(new ActionModule("/echo", HttpVerbs.Any, async ctx =>
     {
         var sb = new System.Text.StringBuilder();
@@ -60,3 +67,39 @@ using var server = new WebServer(o => o
 Console.WriteLine($"EmbedIO listening on http://localhost:{port}");
 await server.RunAsync();
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('EmbedIO');
+})();
+</script>

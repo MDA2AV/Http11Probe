@@ -34,7 +34,7 @@ Captures the `ETag` header from the response. If the ETag is strong (e.g., `"abc
 ```http
 GET / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-If-None-Match: W/"abc123"\r\n
+If-None-Match: {ETag from step 1, weak}\r\n
 \r\n
 ```
 

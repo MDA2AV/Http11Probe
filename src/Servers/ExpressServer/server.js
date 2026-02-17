@@ -13,6 +13,17 @@ app.post("/", (req, res) => {
   req.on("end", () => res.send(Buffer.concat(chunks)));
 });
 
+app.all('/cookie', (req, res) => {
+  let body = '';
+  const raw = req.headers.cookie || '';
+  for (const pair of raw.split(';')) {
+    const trimmed = pair.trimStart();
+    const eq = trimmed.indexOf('=');
+    if (eq > 0) body += trimmed.substring(0, eq) + '=' + trimmed.substring(eq + 1) + '\n';
+  }
+  res.set('Content-Type', 'text/plain').send(body);
+});
+
 app.all('/echo', (req, res) => {
   let body = '';
   for (const [name, value] of Object.entries(req.headers)) {

@@ -1,6 +1,18 @@
 def app(environ, start_response):
     path = environ.get('PATH_INFO', '/')
 
+    if path == '/cookie':
+        cookie_str = environ.get('HTTP_COOKIE', '')
+        lines = []
+        for pair in cookie_str.split(';'):
+            pair = pair.strip()
+            eq = pair.find('=')
+            if eq > 0:
+                lines.append(f"{pair[:eq]}={pair[eq+1:]}")
+        body = ('\n'.join(lines) + '\n').encode('utf-8') if lines else b''
+        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return [body]
+
     if path == '/echo':
         lines = []
         for key, value in environ.items():

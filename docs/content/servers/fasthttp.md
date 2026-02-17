@@ -1,6 +1,6 @@
 ---
 title: "FastHTTP"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -20,13 +20,14 @@ COPY --from=build /fasthttp-server /usr/local/bin/
 ENTRYPOINT ["fasthttp-server", "8080"]
 ```
 
-## Source — `main.go`
+## Source
 
 ```go
 package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/valyala/fasthttp"
 )
@@ -45,6 +46,15 @@ func main() {
 			ctx.Request.Header.VisitAll(func(key, value []byte) {
 				ctx.WriteString(string(key) + ": " + string(value) + "\n")
 			})
+		case "/cookie":
+			ctx.SetContentType("text/plain")
+			raw := string(ctx.Request.Header.Peek("Cookie"))
+			for _, pair := range strings.Split(raw, ";") {
+				pair = strings.TrimLeft(pair, " ")
+				if eq := strings.Index(pair, "="); eq > 0 {
+					ctx.WriteString(pair[:eq] + "=" + pair[eq+1:] + "\n")
+				}
+			}
 		default:
 			if string(ctx.Method()) == "POST" {
 				ctx.SetBody(ctx.Request.Body())
@@ -57,3 +67,39 @@ func main() {
 	fasthttp.ListenAndServe("0.0.0.0:"+port, handler)
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('FastHTTP');
+})();
+</script>

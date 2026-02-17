@@ -1,6 +1,6 @@
 ---
 title: "RFC Requirement Dashboard"
-description: "Complete RFC 2119 requirement-level analysis for all 203 Http11Probe tests"
+description: "Complete RFC 2119 requirement-level analysis for all 215 Http11Probe tests"
 weight: 2
 breadcrumbs: false
 ---
@@ -15,10 +15,10 @@ This dashboard classifies every Http11Probe test by its [RFC 2119](https://www.r
 | **SHOULD** | 29 | Recommended — valid exceptions exist but must be understood |
 | **MAY** | 10 | Truly optional — either behavior is fully compliant |
 | **"ought to"** | 1 | Weaker than SHOULD — recommended but not normative |
-| **Unscored** | 39 | Informational — no pass/fail judgement |
+| **Unscored** | 51 | Informational — no pass/fail judgement |
 | **N/A** | 11 | Best-practice / no single RFC verb applies |
 
-**Total: 203 tests**
+**Total: 215 tests**
 
 ---
 
@@ -222,7 +222,7 @@ Weaker than SHOULD — recommends but does not normatively require.
 
 ---
 
-## Unscored Tests (39 tests)
+## Unscored Tests (51 tests)
 
 These tests are informational — they produce warnings but never fail.
 
@@ -267,6 +267,18 @@ These tests are informational — they produce warnings but never fail.
 | 37 | `CAP-IMS-INVALID` | Capabilities | [RFC 9110 §13.1.3](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.3) | If-Modified-Since with a garbage (non-HTTP-date) value must be ignored — server should return 200. |
 | 38 | `CAP-INM-UNQUOTED` | Capabilities | [RFC 9110 §8.8.3](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3) | If-None-Match with an unquoted ETag violates entity-tag syntax — server should return 200, not 304. |
 | 39 | `CAP-ETAG-WEAK` | Capabilities | [RFC 9110 §13.1.2](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.2) | Weak ETag comparison for GET If-None-Match — server must use weak comparison and return 304. |
+| 40 | `COOK-ECHO` | Cookies | [RFC 6265 §5.4](https://www.rfc-editor.org/rfc/rfc6265#section-5.4) | Baseline — confirms /echo endpoint reflects Cookie header. |
+| 41 | `COOK-OVERSIZED` | Cookies | [RFC 6265 §6.1](https://www.rfc-editor.org/rfc/rfc6265#section-6.1) | 64KB Cookie header — tests header size limits on cookie data. 400/431 or 2xx both acceptable. |
+| 42 | `COOK-EMPTY` | Cookies | [RFC 6265 §4.2](https://www.rfc-editor.org/rfc/rfc6265#section-4.2) | Empty Cookie value — tests parser resilience on empty cookie-string. |
+| 43 | `COOK-NUL` | Cookies | [RFC 9110 §5.5](https://www.rfc-editor.org/rfc/rfc9110#section-5.5) | NUL byte in cookie value — dangerous if preserved by parser. |
+| 44 | `COOK-CONTROL-CHARS` | Cookies | [RFC 6265 §4.1.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1) | Control characters (0x01-0x03) in cookie value — not valid cookie-octets. |
+| 45 | `COOK-MANY-PAIRS` | Cookies | [RFC 6265 §6.1](https://www.rfc-editor.org/rfc/rfc6265#section-6.1) | 1000 cookie pairs — tests parser performance limits. |
+| 46 | `COOK-MALFORMED` | Cookies | [RFC 6265 §4.1.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1) | Completely malformed cookie syntax (===;;;) — tests crash resilience. |
+| 47 | `COOK-MULTI-HEADER` | Cookies | [RFC 6265 §5.4](https://www.rfc-editor.org/rfc/rfc6265#section-5.4) | Two separate Cookie headers — should be folded per RFC 6265. |
+| 48 | `COOK-PARSED-BASIC` | Cookies | [RFC 6265 §4.1.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1) | Single cookie parsed by framework. |
+| 49 | `COOK-PARSED-MULTI` | Cookies | [RFC 6265 §4.2.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.2.1) | Three cookies parsed from semicolon-delimited header. |
+| 50 | `COOK-PARSED-EMPTY-VAL` | Cookies | [RFC 6265 §4.1.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1) | Cookie with empty value — *cookie-octet allows zero or more. |
+| 51 | `COOK-PARSED-SPECIAL` | Cookies | [RFC 6265 §4.1.1](https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1) | Spaces and = in cookie values — edge cases for parser splitting. |
 
 ---
 
@@ -336,6 +348,12 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 |-------|-------|
 | Unscored | 9 |
 
+### Cookies Suite (12 tests)
+
+| Level | Tests |
+|-------|-------|
+| Unscored | 12 |
+
 ---
 
 ## RFC Section Cross-Reference
@@ -376,4 +394,5 @@ These tests don't map to a single RFC 2119 keyword but enforce defensive best pr
 | RFC 6585 | 3 | 431 status code |
 | RFC 3629 | 1 | UTF-8 encoding |
 | RFC 9113 | 1 | HTTP/2 preface |
+| RFC 6265 | 12 | Cookie handling |
 | N/A | 7 | Best practice / defensive |

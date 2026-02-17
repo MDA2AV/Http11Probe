@@ -82,6 +82,26 @@ sealed class OptionsRoot : EndpointWithoutRequest
     }
 }
 
+// ── GET/POST /cookie ──────────────────────────────────────────
+
+sealed class CookieEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Verbs("GET", "POST");
+        Routes("/cookie");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var cookie in HttpContext.Request.Cookies)
+            sb.AppendLine($"{cookie.Key}={cookie.Value}");
+        await HttpContext.Response.WriteAsync(sb.ToString(), ct);
+    }
+}
+
 // ── POST /echo ─────────────────────────────────────────────────
 
 sealed class PostEcho : EndpointWithoutRequest

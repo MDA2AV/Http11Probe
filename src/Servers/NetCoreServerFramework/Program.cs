@@ -31,6 +31,25 @@ class OkHttpSession : HttpSession
             }
             SendResponseAsync(Response.MakeOkResponse(200).SetBody(sb.ToString()));
         }
+        else if (request.Url == "/cookie")
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < request.Headers; i++)
+            {
+                var (name, value) = request.Header(i);
+                if (string.Equals(name, "Cookie", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var pair in value.Split(';'))
+                    {
+                        var trimmed = pair.TrimStart();
+                        var eqIdx = trimmed.IndexOf('=');
+                        if (eqIdx > 0)
+                            sb.AppendLine($"{trimmed[..eqIdx]}={trimmed[(eqIdx + 1)..]}");
+                    }
+                }
+            }
+            SendResponseAsync(Response.MakeOkResponse(200).SetBody(sb.ToString()));
+        }
         else if (request.Method == "POST" && request.Body.Length > 0)
             SendResponseAsync(Response.MakeOkResponse(200).SetBody(request.Body));
         else

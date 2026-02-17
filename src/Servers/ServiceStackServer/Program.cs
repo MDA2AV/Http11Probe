@@ -12,6 +12,13 @@ app.Map("/echo", (HttpContext ctx) =>
             sb.AppendLine($"{h.Key}: {v}");
     return Results.Text(sb.ToString());
 });
+app.Map("/cookie", (HttpContext ctx) =>
+{
+    var sb = new System.Text.StringBuilder();
+    foreach (var cookie in ctx.Request.Cookies)
+        sb.AppendLine($"{cookie.Key}={cookie.Value}");
+    return Results.Text(sb.ToString());
+});
 app.MapFallback(async (HttpContext ctx) =>
 {
     if (ctx.Request.Method == "POST")

@@ -1,6 +1,6 @@
 ---
 title: "Glyph11"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,7 @@ COPY --from=build /app .
 ENTRYPOINT ["dotnet", "GlyphServer.dll", "8080"]
 ```
 
-## Source — `Program.cs`
+## Source
 
 ```csharp
 using System.Buffers;
@@ -309,6 +309,24 @@ static byte[] BuildResponse(string method, string path, string? echoBody, List<K
             sb.AppendLine($"{h.Key}: {h.Value}");
         return MakeResponse(200, "OK", sb.ToString());
     }
+    if (path == "/cookie")
+    {
+        var sb = new StringBuilder();
+        foreach (var h in headers)
+        {
+            if (string.Equals(h.Key, "Cookie", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var pair in h.Value.Split(';'))
+                {
+                    var trimmed = pair.TrimStart();
+                    var eqIdx = trimmed.IndexOf('=');
+                    if (eqIdx > 0)
+                        sb.AppendLine($"{trimmed[..eqIdx]}={trimmed[(eqIdx + 1)..]}");
+                }
+            }
+        }
+        return MakeResponse(200, "OK", sb.ToString());
+    }
     var body = method == "POST" && echoBody is not null
         ? echoBody
         : $"Hello from GlyphServer\r\nMethod: {method}\r\nPath: {path}\r\n";
@@ -332,3 +350,39 @@ static byte[] MakeErrorResponse(int status, string reason)
     return MakeResponse(status, reason, $"{status} {reason}\r\n");
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Glyph11');
+})();
+</script>

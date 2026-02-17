@@ -20,5 +20,14 @@
         file_server
     }
 
+    handle /cookie {
+        root * /srv
+        templates {
+            mime text/plain
+        }
+        rewrite * /cookie.html
+        file_server
+    }
+
     respond "OK" 200
 }

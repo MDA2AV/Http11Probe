@@ -34,11 +34,11 @@ Captures the `ETag` header from the response for use in step 2.
 ```http
 GET / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-If-None-Match: "abc123"\r\n
+If-None-Match: {ETag from step 1}\r\n
 \r\n
 ```
 
-Sends the captured ETag value in an `If-None-Match` header. If the resource hasn't changed, the server should return `304 Not Modified`.
+Replays the `ETag` value captured from step 1 in an `If-None-Match` header. If the resource hasn't changed, the server should return `304 Not Modified`. If the server did not include an `ETag` header in step 1, the test reports Warn immediately.
 
 ## What the RFC says
 

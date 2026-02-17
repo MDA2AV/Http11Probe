@@ -22,6 +22,7 @@ Choose the correct suite file based on category:
 | Smuggling | `src/Http11Probe/TestCases/Suites/SmugglingSuite.cs` |
 | Malformed Input | `src/Http11Probe/TestCases/Suites/MalformedInputSuite.cs` |
 | Normalization | `src/Http11Probe/TestCases/Suites/NormalizationSuite.cs` |
+| Cookies | `src/Http11Probe/TestCases/Suites/CookieSuite.cs` |
 
 Append a `yield return new TestCase { ... };` inside the `GetTestCases()` method. Here is the full schema:
 
@@ -57,6 +58,7 @@ yield return new TestCase
 | `SMUG-` | Smuggling |
 | `MAL-` | Malformed Input |
 | `NORM-` | Normalization |
+| `COOK-` | Cookies |
 | `RFC9112-X.X-` or `RFC9110-X.X-` | Compliance (maps directly to an RFC section) |
 
 **Validation patterns — choose ONE:**
@@ -137,6 +139,7 @@ This step is **only needed** for `COMP-*` and `RFC*` prefixed tests. The followi
 - `SMUG-XYZ` → `smuggling/xyz` (lowercased)
 - `MAL-XYZ` → `malformed-input/xyz` (lowercased)
 - `NORM-XYZ` → `normalization/xyz` (lowercased)
+- `COOK-XYZ` → `cookies/xyz` (lowercased)
 
 For compliance tests, add an entry to the `ComplianceSlugs` dictionary:
 ```csharp
@@ -166,6 +169,7 @@ Category slug mapping:
 | Smuggling | `smuggling` |
 | Malformed Input | `malformed-input` |
 | Normalization | `normalization` |
+| Cookies | `cookies` |
 
 Use this exact template:
 
@@ -272,7 +276,8 @@ Your server MUST listen on **port 8080** and implement these endpoints:
 | `/` | `HEAD` | Return `200 OK` with no body |
 | `/` | `POST` | Read the full request body and return it in the response body |
 | `/` | `OPTIONS` | Return `200 OK` |
-| `/echo` | `POST` | Return all received request headers in the response body, one per line as `Name: Value` |
+| `/echo` | `GET`, `POST` | Return all received request headers in the response body, one per line as `Name: Value` |
+| `/cookie` | `GET`, `POST` | Parse the `Cookie` header and return each cookie as `name=value` on its own line |
 
 The `/echo` endpoint is critical for normalization tests. It must echo back all headers the server received, preserving the names as the server internally represents them.
 
@@ -281,6 +286,14 @@ Example `/echo` response body:
 Host: localhost:8080
 Content-Length: 11
 Content-Type: text/plain
+```
+
+The `/cookie` endpoint is used by the Cookies test suite. It must split the `Cookie` header on `;`, trim leading whitespace from each pair, find the first `=`, and output `name=value\n` for each cookie.
+
+Example — given `Cookie: foo=bar; baz=qux`, the response body should be:
+```
+foo=bar
+baz=qux
 ```
 
 ### Step 3 — Add a Dockerfile
@@ -352,6 +365,7 @@ Rules:
    - `curl http://localhost:8080/` returns 200
    - `curl -X POST -d "hello" http://localhost:8080/` returns "hello"
    - `curl -X POST -d "test" http://localhost:8080/echo` returns headers
+   - `curl -H "Cookie: foo=bar; baz=qux" http://localhost:8080/cookie` returns `foo=bar` and `baz=qux` on separate lines
 4. Run the probe: `dotnet run --project src/Http11Probe.Cli -- --host localhost --port 8080`
 
 No changes to CI workflows, configs, or other files are needed. The pipeline auto-discovers servers from `src/Servers/*/probe.json`.

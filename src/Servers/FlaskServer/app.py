@@ -4,6 +4,13 @@ from werkzeug.routing import Rule
 
 app = Flask(__name__)
 
+@app.route('/cookie', methods=['GET','POST','PUT','DELETE','PATCH','OPTIONS','HEAD'])
+def cookie_endpoint():
+    lines = []
+    for name, value in request.cookies.items():
+        lines.append(f"{name}={value}")
+    return '\n'.join(lines) + '\n', 200, {'Content-Type': 'text/plain'}
+
 @app.route('/echo', methods=['GET','POST','PUT','DELETE','PATCH','OPTIONS','HEAD'])
 def echo():
     lines = []

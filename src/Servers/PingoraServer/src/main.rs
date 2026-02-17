@@ -17,6 +17,30 @@ impl ProxyHttp for OkProxy {
         session: &mut Session,
         _ctx: &mut Self::CTX,
     ) -> Result<bool> {
+        let is_cookie = session.req_header().uri.path() == "/cookie";
+        if is_cookie {
+            let mut body_str = String::new();
+            if let Some(raw) = session.req_header().headers.get("cookie").and_then(|v| v.to_str().ok()) {
+                for pair in raw.split(';') {
+                    let trimmed = pair.trim_start();
+                    if let Some(eq) = trimmed.find('=') {
+                        body_str.push_str(&format!("{}={}\n", &trimmed[..eq], &trimmed[eq+1..]));
+                    }
+                }
+            }
+            let body = Bytes::from(body_str);
+            let mut header = ResponseHeader::build(200, None)?;
+            header.insert_header("Content-Type", "text/plain")?;
+            header.insert_header("Content-Length", &body.len().to_string())?;
+            session
+                .write_response_header(Box::new(header), false)
+                .await?;
+            session
+                .write_response_body(Some(body), true)
+                .await?;
+            return Ok(true);
+        }
+
         let is_echo = session.req_header().uri.path() == "/echo";
         if is_echo {
             let mut body_str = String::new();

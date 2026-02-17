@@ -1,6 +1,6 @@
 ---
 title: "Quarkus"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,7 @@ COPY --from=build /src/target/quarkus-app/ quarkus-app/
 ENTRYPOINT ["java", "-Dquarkus.http.port=8080", "-jar", "quarkus-app/quarkus-run.jar"]
 ```
 
-## Source — `src/main/java/server/Application.java`
+## Source
 
 ```java
 package server;
@@ -59,6 +59,20 @@ public class Application {
     }
 
     @GET
+    @Path("/cookie")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response cookieGet(@Context HttpHeaders headers) {
+        return parseCookies(headers);
+    }
+
+    @POST
+    @Path("/cookie")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response cookiePost(@Context HttpHeaders headers) {
+        return parseCookies(headers);
+    }
+
+    @GET
     @Path("/echo")
     @Produces(MediaType.TEXT_PLAIN)
     public Response echoGet(@Context HttpHeaders headers) {
@@ -72,6 +86,23 @@ public class Application {
         return echoHeaders(headers);
     }
 
+    private Response parseCookies(HttpHeaders headers) {
+        StringBuilder sb = new StringBuilder();
+        List<String> cookieHeaders = headers.getRequestHeader("Cookie");
+        if (cookieHeaders != null) {
+            for (String raw : cookieHeaders) {
+                for (String pair : raw.split(";")) {
+                    String trimmed = pair.stripLeading();
+                    int eq = trimmed.indexOf('=');
+                    if (eq > 0) {
+                        sb.append(trimmed, 0, eq).append("=").append(trimmed.substring(eq + 1)).append("\n");
+                    }
+                }
+            }
+        }
+        return Response.ok(sb.toString(), MediaType.TEXT_PLAIN).build();
+    }
+
     private Response echoHeaders(HttpHeaders headers) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, List<String>> entry : headers.getRequestHeaders().entrySet()) {
@@ -83,3 +114,39 @@ public class Application {
     }
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Quarkus');
+})();
+</script>

@@ -7,6 +7,13 @@ var url = $"http://*:{port}/";
 using var server = new WebServer(o => o
     .WithUrlPrefix(url)
     .WithMode(HttpListenerMode.EmbedIO))
+    .WithModule(new ActionModule("/cookie", HttpVerbs.Any, async ctx =>
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (System.Net.Cookie cookie in ctx.Request.Cookies)
+            sb.AppendLine($"{cookie.Name}={cookie.Value}");
+        await ctx.SendStringAsync(sb.ToString(), "text/plain", System.Text.Encoding.UTF8);
+    }))
     .WithModule(new ActionModule("/echo", HttpVerbs.Any, async ctx =>
     {
         var sb = new System.Text.StringBuilder();

@@ -1,6 +1,6 @@
 ---
 title: "Jetty"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,7 @@ COPY --from=build /src/target/jetty-server-1.0.0.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar", "8080"]
 ```
 
-## Source — `src/main/java/server/Application.java`
+## Source
 
 ```java
 package server;
@@ -48,7 +48,22 @@ public class Application extends Handler.Abstract {
         response.setStatus(200);
         response.getHeaders().put("Content-Type", "text/plain");
 
-        if ("/echo".equals(request.getHttpURI().getPath())) {
+        if ("/cookie".equals(request.getHttpURI().getPath())) {
+            StringBuilder sb = new StringBuilder();
+            for (HttpField field : request.getHeaders()) {
+                if ("Cookie".equalsIgnoreCase(field.getName())) {
+                    for (String pair : field.getValue().split(";")) {
+                        String trimmed = pair.stripLeading();
+                        int eq = trimmed.indexOf('=');
+                        if (eq > 0) {
+                            sb.append(trimmed, 0, eq).append("=").append(trimmed.substring(eq + 1)).append("\n");
+                        }
+                    }
+                }
+            }
+            byte[] cookieBody = sb.toString().getBytes(StandardCharsets.UTF_8);
+            response.write(true, ByteBuffer.wrap(cookieBody), callback);
+        } else if ("/echo".equals(request.getHttpURI().getPath())) {
             StringBuilder sb = new StringBuilder();
             for (HttpField field : request.getHeaders()) {
                 sb.append(field.getName()).append(": ").append(field.getValue()).append("\n");
@@ -78,3 +93,39 @@ public class Application extends Handler.Abstract {
     }
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Jetty');
+})();
+</script>

@@ -1,6 +1,6 @@
 ---
 title: "Gunicorn"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -17,11 +17,23 @@ EXPOSE 8080
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
 ```
 
-## Source — `app.py`
+## Source
 
 ```python
 def app(environ, start_response):
     path = environ.get('PATH_INFO', '/')
+
+    if path == '/cookie':
+        cookie_str = environ.get('HTTP_COOKIE', '')
+        lines = []
+        for pair in cookie_str.split(';'):
+            pair = pair.strip()
+            eq = pair.find('=')
+            if eq > 0:
+                lines.append(f"{pair[:eq]}={pair[eq+1:]}")
+        body = ('\n'.join(lines) + '\n').encode('utf-8') if lines else b''
+        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return [body]
 
     if path == '/echo':
         lines = []
@@ -47,3 +59,39 @@ def app(environ, start_response):
         return [body]
     return [b'OK']
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Gunicorn');
+})();
+</script>

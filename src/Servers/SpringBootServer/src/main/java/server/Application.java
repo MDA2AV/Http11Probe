@@ -31,6 +31,18 @@ public class Application {
         return request.getInputStream().readAllBytes();
     }
 
+    @RequestMapping("/cookie")
+    public ResponseEntity<String> cookieEndpoint(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie c : cookies) {
+                sb.append(c.getName()).append("=").append(c.getValue()).append("\n");
+            }
+        }
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(sb.toString());
+    }
+
     @RequestMapping("/echo")
     public ResponseEntity<String> echo(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder();

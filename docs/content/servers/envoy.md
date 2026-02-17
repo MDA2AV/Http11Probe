@@ -1,6 +1,6 @@
 ---
 title: "Envoy"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -13,7 +13,7 @@ FROM envoyproxy/envoy:v1.32-latest
 COPY src/Servers/EnvoyServer/envoy.yaml /etc/envoy/envoy.yaml
 ```
 
-## Source — `envoy.yaml`
+## Source
 
 ```yaml
 static_resources:
@@ -46,6 +46,19 @@ static_resources:
                                 end
                               end
                               request_handle:respond({[":status"] = "200", ["content-type"] = "text/plain"}, body)
+                            elseif path == "/cookie" then
+                              local body = ""
+                              local raw = request_handle:headers():get("cookie")
+                              if raw then
+                                for pair in raw:gmatch("[^;]+") do
+                                  local trimmed = pair:match("^%s*(.*)")
+                                  local eq = trimmed:find("=")
+                                  if eq and eq > 1 then
+                                    body = body .. trimmed:sub(1, eq-1) .. "=" .. trimmed:sub(eq+1) .. "\n"
+                                  end
+                                end
+                              end
+                              request_handle:respond({[":status"] = "200", ["content-type"] = "text/plain"}, body)
                             end
                           end
                   - name: envoy.filters.http.router
@@ -63,3 +76,39 @@ static_resources:
                             body:
                               inline_string: "OK"
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Envoy');
+})();
+</script>

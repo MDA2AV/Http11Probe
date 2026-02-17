@@ -282,6 +282,24 @@ static byte[] BuildResponse(string method, string path, string? echoBody, List<K
             sb.AppendLine($"{h.Key}: {h.Value}");
         return MakeResponse(200, "OK", sb.ToString());
     }
+    if (path == "/cookie")
+    {
+        var sb = new StringBuilder();
+        foreach (var h in headers)
+        {
+            if (string.Equals(h.Key, "Cookie", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var pair in h.Value.Split(';'))
+                {
+                    var trimmed = pair.TrimStart();
+                    var eqIdx = trimmed.IndexOf('=');
+                    if (eqIdx > 0)
+                        sb.AppendLine($"{trimmed[..eqIdx]}={trimmed[(eqIdx + 1)..]}");
+                }
+            }
+        }
+        return MakeResponse(200, "OK", sb.ToString());
+    }
     var body = method == "POST" && echoBody is not null
         ? echoBody
         : $"Hello from GlyphServer\r\nMethod: {method}\r\nPath: {path}\r\n";

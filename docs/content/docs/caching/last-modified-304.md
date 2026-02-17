@@ -34,11 +34,11 @@ Captures the `Last-Modified` header from the response for use in step 2.
 ```http
 GET / HTTP/1.1\r\n
 Host: localhost:8080\r\n
-If-Modified-Since: Sun, 01 Jan 2025 00:00:00 GMT\r\n
+If-Modified-Since: {Last-Modified from step 1}\r\n
 \r\n
 ```
 
-Sends the captured Last-Modified value in an `If-Modified-Since` header. If the resource hasn't changed since that date, the server should return `304 Not Modified`.
+Replays the `Last-Modified` value captured from step 1 in an `If-Modified-Since` header. If the resource hasn't changed since that date, the server should return `304 Not Modified`. If the server did not include a `Last-Modified` header in step 1, the test reports Warn immediately.
 
 ## What the RFC says
 

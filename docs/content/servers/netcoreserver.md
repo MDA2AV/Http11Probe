@@ -1,6 +1,6 @@
 ---
 title: "NetCoreServer"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -22,7 +22,7 @@ COPY --from=build /app .
 ENTRYPOINT ["dotnet", "NetCoreServerFramework.dll", "8080"]
 ```
 
-## Source — `Program.cs`
+## Source
 
 ```csharp
 using System.Net;
@@ -58,6 +58,25 @@ class OkHttpSession : HttpSession
             }
             SendResponseAsync(Response.MakeOkResponse(200).SetBody(sb.ToString()));
         }
+        else if (request.Url == "/cookie")
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < request.Headers; i++)
+            {
+                var (name, value) = request.Header(i);
+                if (string.Equals(name, "Cookie", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var pair in value.Split(';'))
+                    {
+                        var trimmed = pair.TrimStart();
+                        var eqIdx = trimmed.IndexOf('=');
+                        if (eqIdx > 0)
+                            sb.AppendLine($"{trimmed[..eqIdx]}={trimmed[(eqIdx + 1)..]}");
+                    }
+                }
+            }
+            SendResponseAsync(Response.MakeOkResponse(200).SetBody(sb.ToString()));
+        }
         else if (request.Method == "POST" && request.Body.Length > 0)
             SendResponseAsync(Response.MakeOkResponse(200).SetBody(request.Body));
         else
@@ -81,3 +100,39 @@ class OkHttpServer : NetCoreServer.HttpServer
     protected override void OnError(SocketError error) { }
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('NetCoreServer');
+})();
+</script>

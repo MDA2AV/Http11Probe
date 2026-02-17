@@ -47,6 +47,11 @@ menu:
       parent: test-details
       pageRef: /caching
       weight: 5
+    - name: Cookies
+      identifier: test-details-cookies
+      parent: test-details
+      pageRef: /cookies
+      weight: 6
     - name: Glossary
       identifier: glossary
       pageRef: /docs

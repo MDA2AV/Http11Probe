@@ -15,6 +15,9 @@ var rootMethods = new  HashSet<FlexibleRequestMethod>
 };
 
 var app = Inline.Create()
+                .Get("/cookie", (IRequest request) => ParseCookies(request))
+                .Post("/cookie", (IRequest request) => ParseCookies(request))
+                .Get("/echo", (IRequest request) => Echo(request))
                 .Post("/echo", (IRequest request) => Echo(request))
                 .Post((Stream body) => RequestContent(body))
                 .On(() => StringContent(), rootMethods);
@@ -35,6 +38,18 @@ static string Echo(IRequest request)
     }
 
     return headers.ToString();
+}
+
+static string ParseCookies(IRequest request)
+{
+    var sb = new System.Text.StringBuilder();
+
+    foreach (var cookie in request.Cookies.Values)
+    {
+        sb.AppendLine($"{cookie.Name}={cookie.Value}");
+    }
+
+    return sb.ToString();
 }
 
 static string StringContent() => "OK";

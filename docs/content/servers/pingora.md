@@ -1,6 +1,6 @@
 ---
 title: "Pingora"
-toc: false
+toc: true
 breadcrumbs: false
 ---
 
@@ -26,7 +26,7 @@ COPY --from=build /src/target/release/pingora-server /usr/local/bin/
 ENTRYPOINT ["pingora-server", "8080"]
 ```
 
-## Source — `src/main.rs`
+## Source
 
 ```rust
 use async_trait::async_trait;
@@ -48,6 +48,30 @@ impl ProxyHttp for OkProxy {
         session: &mut Session,
         _ctx: &mut Self::CTX,
     ) -> Result<bool> {
+        let is_cookie = session.req_header().uri.path() == "/cookie";
+        if is_cookie {
+            let mut body_str = String::new();
+            if let Some(raw) = session.req_header().headers.get("cookie").and_then(|v| v.to_str().ok()) {
+                for pair in raw.split(';') {
+                    let trimmed = pair.trim_start();
+                    if let Some(eq) = trimmed.find('=') {
+                        body_str.push_str(&format!("{}={}\n", &trimmed[..eq], &trimmed[eq+1..]));
+                    }
+                }
+            }
+            let body = Bytes::from(body_str);
+            let mut header = ResponseHeader::build(200, None)?;
+            header.insert_header("Content-Type", "text/plain")?;
+            header.insert_header("Content-Length", &body.len().to_string())?;
+            session
+                .write_response_header(Box::new(header), false)
+                .await?;
+            session
+                .write_response_body(Some(body), true)
+                .await?;
+            return Ok(true);
+        }
+
         let is_echo = session.req_header().uri.path() == "/echo";
         if is_echo {
             let mut body_str = String::new();
@@ -115,3 +139,39 @@ fn main() {
     server.run_forever();
 }
 ```
+
+## Test Results
+
+<div id="server-summary"><p><em>Loading results...</em></p></div>
+
+### Compliance
+
+<div id="results-compliance"></div>
+
+### Smuggling
+
+<div id="results-smuggling"></div>
+
+### Malformed Input
+
+<div id="results-malformedinput"></div>
+
+### Caching
+
+<div id="results-capabilities"></div>
+
+### Cookies
+
+<div id="results-cookies"></div>
+
+<script src="/Http11Probe/probe/data.js"></script>
+<script src="/Http11Probe/probe/render.js"></script>
+<script>
+(function() {
+  if (!window.PROBE_DATA) {
+    document.getElementById('server-summary').innerHTML = '<p><em>No probe data available yet. Run the Probe workflow on <code>main</code> to generate results.</em></p>';
+    return;
+  }
+  ProbeRender.renderServerPage('Pingora');
+})();
+</script>
