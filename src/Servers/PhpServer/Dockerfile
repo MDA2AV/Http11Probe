@@ -1,4 +1,4 @@
-FROM php:8.3-cli
+FROM php:8.5-cli
 COPY src/Servers/PhpServer/index.php /app/index.php
 WORKDIR /app
 EXPOSE 8080
