@@ -1,5 +1,7 @@
 FROM php:8.5-cli
 
+RUN apt install -y git
+
 COPY --from=composer/composer:latest-bin --link /composer /usr/local/bin/composer
 
 WORKDIR /workerman
