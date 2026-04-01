@@ -18,8 +18,8 @@ COPY composer.json .
 RUN composer install --optimize-autoloader --classmap-authoritative --no-dev --quiet
 COPY php.ini /etc/php/8.5/cli/php.ini
 
-COPY Server.php .
+COPY start.php .
 
 EXPOSE 8080
 
-CMD ["php", "/workerman/Server.php", "start"]
+CMD ["php", "/workerman/start.php", "start"]
