@@ -14,11 +14,11 @@ RUN apt-get install -y php-pear php8.5-dev libevent-dev git > /dev/null && \
     pecl install event-3.1.4 > /dev/null && echo "extension=event.so" > /etc/php/8.5/cli/conf.d/30-event.ini
 
 WORKDIR /workerman
-COPY composer.json .
+COPY src/Servers/WorkermanServer/composer.json .
 RUN composer install --optimize-autoloader --classmap-authoritative --no-dev --quiet
-COPY php.ini /etc/php/8.5/cli/php.ini
+COPY src/Servers/WorkermanServer/php.ini /etc/php/8.5/cli/php.ini
 
-COPY start.php .
+COPY src/Servers/WorkermanServer/start.php .
 
 EXPOSE 8080
 
