@@ -18,7 +18,7 @@ COPY composer.json .
 RUN composer install --optimize-autoloader --classmap-authoritative --no-dev --quiet
 COPY php.ini /etc/php/8.5/cli/php.ini
 
-COPY server.php .
+COPY ./server.php .
 
 EXPOSE 8080
 
