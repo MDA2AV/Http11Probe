@@ -1,6 +1,11 @@
 FROM php:8.5-cli
 
-RUN apt install -y git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    unzip \
+    libzip-dev \
+    && docker-php-ext-install zip \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer/composer:latest-bin --link /composer /usr/local/bin/composer
 
