@@ -14,28 +14,43 @@ $http_worker->name = 'bench';
 // Data received
 $http_worker->onMessage = static function ($connection, $request) {
 
-    return match($request->path()) {
+    $path = $request->path();
 
-        '/echo'   => $connection->send( new Response(
-                                        200, 
-                                        ['Content-Type' => 'text/plain'],
-                                        implode("\n", array_map(fn($name, $value) => "$name: $value", $request->header(), $request->header())))
-                                        ),
+    if ($path === '/echo') {
+        $body = '';
+        foreach ($request->header() as $name => $value) {
+            $body .= "$name: $value\n";
+        }
+;
+        return $connection->send( new Response(
+            200, 
+            ['Content-Type' => 'text/plain'],
+            $body
+        ));
+    }
 
-        '/cookie' => $connection->send( new Response(
-                                        200,
-                                        ['Content-Type' => 'text/plain'],
-                                        implode("\n", array_map(fn($name, $value) => "$name=$value", $request->cookie(), $request->cookie())))
-                                        ),
-
-        '/'       => $connection->send( new Response(
-                                        200,
-                                        ['Content-Type' => 'text/plain'],
-                                        $request->method() === 'POST' ? $request->rawBody() : 'OK')
-                                        ),
+    if ($path === '/cookie') {
+        $body = '';
+        foreach ($request->cookie() as $name => $value) {
+            $body .= "$name=$value\n";
+        }
         
-        default => null,
-    };
+        return $connection->send( new Response(
+            200,
+            ['Content-Type' => 'text/plain'],
+            $body
+        ));
+    }
+
+    if ($path === '/') {
+        $body = $request->method() === 'POST' ? $request->rawBody() : 'OK';
+        
+        return $connection->send( new Response(
+            200,
+            ['Content-Type' => 'text/plain'],
+            $body
+        ));
+    }
 };
 
 // Run all workers
