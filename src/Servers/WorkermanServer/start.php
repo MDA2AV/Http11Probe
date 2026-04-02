@@ -21,7 +21,7 @@ $http_worker->onMessage = static function ($connection, $request) {
         foreach ($request->header() as $name => $value) {
             $body .= "$name: $value\n";
         }
-;
+
         return $connection->send( new Response(
             200, 
             ['Content-Type' => 'text/plain'],
