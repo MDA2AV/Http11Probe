@@ -4,7 +4,7 @@ toc: true
 breadcrumbs: false
 ---
 
-**Language:** PHP · [View source on GitHub](https://github.com/MDA2AV/Http11Probe/tree/main/src/Servers/PhpServer)
+**Language:** PHP · [View source on GitHub](https://github.com/MDA2AV/tree/main/src/Servers/PhpServer)
 
 ## Dockerfile
 
@@ -68,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div id="results-cookies"></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function() {
   if (!window.PROBE_DATA) {

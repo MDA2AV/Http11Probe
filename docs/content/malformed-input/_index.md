@@ -24,8 +24,8 @@ A well-implemented server should respond with `400 Bad Request`, `414 URI Too Lo
 </div>
 <div id="table-malformed"><p><em>Loading...</em></p></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {

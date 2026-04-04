@@ -24,8 +24,8 @@ Each test sends a request that violates a specific **MUST** or **MUST NOT** requ
 </div>
 <div id="table-compliance"><p><em>Loading...</em></p></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {

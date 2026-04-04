@@ -22,8 +22,8 @@ These tests check how servers handle the HTTP `Upgrade` mechanism, primarily use
 </div>
 <div id="table-websockets"><p><em>Loading...</em></p></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {

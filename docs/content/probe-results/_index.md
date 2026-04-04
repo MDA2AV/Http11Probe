@@ -31,8 +31,8 @@ These results are from CI runs (`ubuntu-latest`). Click a **server name** to vie
 
 **Unscored** — tests marked with `*` in the detail tables. These cover RFC language that uses "MAY" or permits multiple valid behaviors, so there is no single correct answer to score against. They are still run and displayed for visibility, but do not count toward the pass/fail score.
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {

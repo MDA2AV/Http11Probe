@@ -2,7 +2,7 @@
 
 HTTP/1.1 server compliance and security tester. Sends malformed, ambiguous, and oversized requests over raw TCP sockets and validates responses against RFC 9110/9112 requirements.
 
-**Website:** [mda2av.github.io/Http11Probe](https://MDA2AV.github.io/Http11Probe/) — full documentation, test glossary with RFC citations, and live probe results across all tested servers.
+**Website:** [http-probe.com](https://www.http-probe.com/) — full documentation, test glossary with RFC citations, and live probe results across all tested servers.
 
 ## 215 Tests across 6 Categories
 
@@ -85,4 +85,4 @@ The [Probe workflow](.github/workflows/probe.yml) runs on PRs and `workflow_disp
 
 ## Results
 
-See the [live comparison](https://MDA2AV.github.io/Http11Probe/probe-results/) across all servers, or browse the [test glossary](https://MDA2AV.github.io/Http11Probe/docs/) for per-test RFC references and explanations.
+See the [live comparison](https://www.http-probe.com/probe-results/) across all servers, or browse the [test glossary](https://www.http-probe.com/docs/) for per-test RFC references and explanations.

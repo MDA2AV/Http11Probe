@@ -30,8 +30,8 @@ Some tests are **unscored** (marked with `*`). These cover behaviors like case n
 </div>
 <div id="table-normalization"><p><em>Loading...</em></p></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {

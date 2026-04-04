@@ -10,11 +10,11 @@ Pick the suite that matches your test's category and add a `yield return new Tes
 
 | Category | File |
 |----------|------|
-| Compliance | `src/Http11Probe/TestCases/Suites/ComplianceSuite.cs` |
-| Smuggling | `src/Http11Probe/TestCases/Suites/SmugglingSuite.cs` |
-| Malformed Input | `src/Http11Probe/TestCases/Suites/MalformedInputSuite.cs` |
-| Normalization | `src/Http11Probe/TestCases/Suites/NormalizationSuite.cs` |
-| Cookies | `src/Http11Probe/TestCases/Suites/CookieSuite.cs` |
+| Compliance | `src/TestCases/Suites/ComplianceSuite.cs` |
+| Smuggling | `src/TestCases/Suites/SmugglingSuite.cs` |
+| Malformed Input | `src/TestCases/Suites/MalformedInputSuite.cs` |
+| Normalization | `src/TestCases/Suites/NormalizationSuite.cs` |
+| Cookies | `src/TestCases/Suites/CookieSuite.cs` |
 
 ```csharp
 yield return new TestCase

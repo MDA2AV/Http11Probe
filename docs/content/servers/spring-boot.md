@@ -4,7 +4,7 @@ toc: true
 breadcrumbs: false
 ---
 
-**Language:** Java · [View source on GitHub](https://github.com/MDA2AV/Http11Probe/tree/main/src/Servers/SpringBootServer)
+**Language:** Java · [View source on GitHub](https://github.com/MDA2AV/tree/main/src/Servers/SpringBootServer)
 
 ## Dockerfile
 
@@ -110,8 +110,8 @@ public class Application {
 
 <div id="results-cookies"></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function() {
   if (!window.PROBE_DATA) {

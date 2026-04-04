@@ -16,7 +16,7 @@ weight: 11
 
 ## What it does
 
-This is a **sequence test** — it sends multiple requests on the same TCP connection to verify server behavior across the full exchange. It is a mirror of [CLTE-CONN-CLOSE](/Http11Probe/docs/smuggling/clte-conn-close/) with the header order reversed.
+This is a **sequence test** — it sends multiple requests on the same TCP connection to verify server behavior across the full exchange. It is a mirror of [CLTE-CONN-CLOSE](/docs/smuggling/clte-conn-close/) with the header order reversed.
 
 ### Step 1: Ambiguous POST (TE+CL)
 

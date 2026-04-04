@@ -22,8 +22,8 @@ These tests check how servers and frameworks handle adversarial `Cookie` headers
 </div>
 <div id="table-cookies"><p><em>Loading...</em></p></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function () {
   if (!window.PROBE_DATA) {

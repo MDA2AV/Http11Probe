@@ -4,7 +4,7 @@ toc: true
 breadcrumbs: false
 ---
 
-**Language:** TypeScript · [View source on GitHub](https://github.com/MDA2AV/Http11Probe/tree/main/src/Servers/DenoServer)
+**Language:** TypeScript · [View source on GitHub](https://github.com/MDA2AV/tree/main/src/Servers/DenoServer)
 
 ## Dockerfile
 
@@ -71,8 +71,8 @@ Deno.serve({ port: 8080, hostname: "0.0.0.0" }, async (req) => {
 
 <div id="results-cookies"></div>
 
-<script src="/Http11Probe/probe/data.js"></script>
-<script src="/Http11Probe/probe/render.js"></script>
+<script src="/probe/data.js"></script>
+<script src="/probe/render.js"></script>
 <script>
 (function() {
   if (!window.PROBE_DATA) {

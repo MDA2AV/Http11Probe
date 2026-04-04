@@ -1,4 +1,4 @@
-baseURL: https://MDA2AV.github.io/Http11Probe/
+baseURL: https://www.http-probe.com/
 languageCode: en-us
 title: Http11Probe
 
@@ -111,7 +111,7 @@ params:
     displayTitle: true
     displayLogo: true
     logo:
-      link: /Http11Probe/
+      link: /
       light: images/logo.svg
       dark: images/logo-dark.svg
       width: 32
