@@ -480,7 +480,7 @@ window.ProbeRender = (function () {
     'COOK-ECHO': '/docs/cookies/echo/',
     'COOK-OVERSIZED': '/docs/cookies/oversized/',
     'COOK-EMPTY': '/docs/cookies/empty/',
-    'COOK-NUL': '/docs/cookies/nul/',
+    'COOK-NUL': '/docs/cookies/null/',
     'COOK-CONTROL-CHARS': '/docs/cookies/control-chars/',
     'COOK-MANY-PAIRS': '/docs/cookies/many-pairs/',
     'COOK-MALFORMED': '/docs/cookies/malformed/',
