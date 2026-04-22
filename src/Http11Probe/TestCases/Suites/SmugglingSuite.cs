@@ -1082,13 +1082,15 @@ public static class SmugglingSuite
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 5\r\nExpect: 100-continue\r\n\r\nhello"),
             Expected = new ExpectedBehavior
             {
-                Description = "400 or 2xx",
+                Description = "100, 400 or 2xx",
                 CustomValidator = (response, state) =>
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
                     if (response.StatusCode == 400)
                         return TestVerdict.Pass;
+                    if (response.StatusCode == 100)
+                        return TestVerdict.Warn;
                     if (response.StatusCode is >= 200 and < 300)
                         return TestVerdict.Warn;
                     return TestVerdict.Fail;

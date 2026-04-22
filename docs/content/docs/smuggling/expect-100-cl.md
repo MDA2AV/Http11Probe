@@ -10,7 +10,7 @@ weight: 33
 | **Category** | Smuggling |
 | **RFC** | [RFC 9110 §10.1.1](https://www.rfc-editor.org/rfc/rfc9110#section-10.1.1) |
 | **Requirement** | Unscored |
-| **Expected** | `400` or `2xx` |
+| **Expected** | `100`, `400` or `2xx` |
 
 ## What it sends
 
@@ -39,7 +39,7 @@ The body is sent immediately without waiting for a `100 Continue` response.
 The RFC requires the server to send either a `100 Continue` interim response or a final status code when it receives `Expect: 100-continue`. However, the client in this test sends the body immediately without waiting. The server may still process the body normally (responding `2xx`), or it may reject the request. Both behaviors are implementation-dependent and valid.
 
 **Pass:** Server rejects with `400` (strict, safe).
-**Warn:** Server accepts and responds `2xx` (processes body despite Expect header).
+**Warn:** Server responds `100 Continue` (valid — sent interim response despite already having the body) or `2xx` (processes body despite Expect header).
 
 ## Why it matters
 

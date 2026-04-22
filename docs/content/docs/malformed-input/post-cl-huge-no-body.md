@@ -9,7 +9,7 @@ weight: 26
 | **Test ID** | `MAL-POST-CL-HUGE-NO-BODY` |
 | **Category** | Malformed Input |
 | **RFC** | [RFC 9112 Section 6.2](https://www.rfc-editor.org/rfc/rfc9112#section-6.2) |
-| **Expected** | `400`/close/timeout |
+| **Expected** | `400`/`413`/close/timeout |
 
 ## What it sends
 
@@ -34,7 +34,7 @@ The value `999999999` (~1GB) is a syntactically valid Content-Length, but no bod
 
 > "The 400 (Bad Request) status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error." — RFC 9110 Section 15.5.1
 
-A server may reject the request with 400 if the declared body size exceeds its limits, close the connection, or timeout waiting for body data that never arrives.
+A server may reject the request with 400 or 413 if the declared body size exceeds its limits, close the connection, or timeout waiting for body data that never arrives.
 
 ## Why it matters
 

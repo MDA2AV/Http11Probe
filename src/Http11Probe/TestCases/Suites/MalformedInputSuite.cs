@@ -585,12 +585,12 @@ public static class MalformedInputSuite
                 $"POST / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\nContent-Length: 999999999\r\n\r\n"),
             Expected = new ExpectedBehavior
             {
-                Description = "400/close/timeout",
+                Description = "400/413/close/timeout",
                 CustomValidator = (response, state) =>
                 {
-                    // If server sent a response, only 400 is acceptable
+                    // If server sent a response, 400 or 413 are acceptable
                     if (response is not null)
-                        return response.StatusCode == 400 ? TestVerdict.Pass : TestVerdict.Fail;
+                        return response.StatusCode is 400 or 413 ? TestVerdict.Pass : TestVerdict.Fail;
                     // No response: close or timeout means server correctly waited
                     if (state is ConnectionState.TimedOut or ConnectionState.ClosedByServer)
                         return TestVerdict.Pass;
