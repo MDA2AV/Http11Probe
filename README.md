@@ -37,6 +37,8 @@ Tested across 11 languages:
 
 ## Usage
 
+The probe is **target-agnostic** — it tests whatever HTTP/1.1 server is already listening on `--host:--port`. There's no flag to select a framework; start the server first (or use [`probe-local.sh`](#probing-the-bundled-servers-locally) to spin one up for you), then point the probe at it.
+
 ```
 dotnet run --project src/Http11Probe.Cli -- --host localhost --port 8080
 ```
@@ -69,6 +71,55 @@ Results stream to the console as each test completes, with a summary at the end:
 
 ```
 Score: 97/97  19 warnings  (146 tests, 35.5s)
+```
+
+## Probing the bundled servers locally
+
+The probe only sends requests — it does not start servers. To probe one of the bundled servers under `src/Servers/`, use `scripts/probe-local.sh`. It mirrors the CI pipeline: builds the server's Docker image, runs it on `--network host`, waits for it to come up, probes it, then tears it down.
+
+```
+# Probe a single server — pass the directory name under src/Servers/, e.g. ActixServer
+scripts/probe-local.sh --server ActixServer
+
+# Probe every bundled server
+scripts/probe-local.sh --all
+```
+
+The `--server` value is the **directory name** (`ActixServer`), not the display name (`Actix`). If your Docker daemon requires root, add `--docker-sudo` so you don't have to run the whole script with `sudo`:
+
+```
+scripts/probe-local.sh --server ActixServer --docker-sudo
+```
+
+### Script options
+
+| Flag | Description |
+|------|-------------|
+| `--server <Dir>` | Probe a single server by its directory name under `src/Servers/` (e.g. `NginxServer`) |
+| `--all` | Probe every server under `src/Servers/*/probe.json` |
+| `--port <Port>` | Target port (default: `8080`) |
+| `--skip-build` | Skip `dotnet build` (assumes a Release build already exists) |
+| `--verbose` | Pass `--verbose` to the CLI |
+| `--docker-sudo` | Run Docker commands via `sudo` (lets you run the script without `sudo`) |
+| `-h`, `--help` | Show help |
+
+It writes `probe-<ServerDir>.json` (one per server), plus `probe-data.js` and `docs/static/probe/data.js` for local Hugo rendering. Requires `jq`, `docker`, `curl`, `python3`, and the .NET 10 SDK.
+
+### Probing a server manually
+
+`probe-local.sh` is just a convenience wrapper. To do the same by hand — for example to keep a server up across several probe runs — build and run the container, then point the probe at it. Run these from the repo root, since the Docker build context is the repo root:
+
+```
+docker build -t probe-actix -f src/Servers/ActixServer/Dockerfile .
+docker run -d --name probe-target --network host probe-actix
+dotnet run --project src/Http11Probe.Cli -- --host localhost --port 8080
+docker rm -f probe-target
+```
+
+You can also point the probe at any HTTP/1.1 server you already have running:
+
+```
+dotnet run --project src/Http11Probe.Cli -- --host localhost --port 9000
 ```
 
 ## Building
