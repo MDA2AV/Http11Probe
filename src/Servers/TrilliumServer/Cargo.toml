@@ -1,0 +1,13 @@
+[package]
+name = "trillium-server"
+version = "1.0.0"
+edition = "2024"
+
+[dependencies]
+trillium = "1"
+trillium-cookies = "0.5"
+trillium-head = "0.3"
+trillium-router = "0.5"
+trillium-smol = "0.6"
+trillium-http = { version = "1", features = ["parse"] }
+trillium-caching-headers = "0.4"

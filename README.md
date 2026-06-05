@@ -17,7 +17,7 @@ HTTP/1.1 server compliance and security tester. Sends malformed, ambiguous, and 
 
 Each test is scored against RFC normative language (MUST/SHOULD/MAY) and classified as **Pass**, **Fail**, or **Warn** (when the RFC permits both strict and lenient behavior).
 
-## 36 Server Targets
+## 41 Server Targets
 
 Tested across 11 languages:
 
@@ -25,7 +25,7 @@ Tested across 11 languages:
 |----------|---------|
 | C# | Kestrel, EmbedIO, FastEndpoints, GenHTTP, Glyph11, NetCoreServer, ServiceStack, SimpleW, Sisk |
 | C | Apache, H2O, HAProxy, Lighttpd, Nginx |
-| Rust | Actix, Hyper, Ntex, Pingora |
+| Rust | Actix, Hyper, Ntex, Pingora, Trillium |
 | Go | Caddy, FastHTTP, Gin, Traefik |
 | Java | Jetty, Quarkus, Spring Boot, Tomcat |
 | Python | Flask, Gunicorn, Uvicorn |
