@@ -3,6 +3,7 @@ WORKDIR /src
 
 # Cache dependencies with dummy main
 COPY src/Servers/TrilliumServer/Cargo.toml .
+COPY src/Servers/TrilliumServer/Cargo.lock .
 RUN mkdir src &&\
     echo "fn main() {}" > src/main.rs &&\
     cargo build --release --locked &&\
