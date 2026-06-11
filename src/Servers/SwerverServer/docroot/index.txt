@@ -1,0 +1,1 @@
+Hello from swerver static probe target. This file exists to exercise conditional and range requests.

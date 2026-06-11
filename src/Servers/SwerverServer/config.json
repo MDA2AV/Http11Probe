@@ -1,0 +1,1 @@
+{ "server": { "address": "0.0.0.0", "port": 8080, "workers": 1, "static_root": "/app/docroot" } }
