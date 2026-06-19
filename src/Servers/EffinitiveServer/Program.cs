@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text;
 using EffinitiveFramework.Core;
 using EffinitiveFramework.Core.Http;
@@ -35,10 +36,23 @@ namespace EffinitiveServer.Endpoints
         protected override string Route => "/";
         protected override string ContentType => Helpers.TextPlain;
 
-        public override ValueTask<string> HandleAsync(CancellationToken ct = default)
+        public override async ValueTask<string> HandleAsync(CancellationToken ct = default)
         {
+            if (HttpContext?.BodyDeferred == true && HttpContext.BodyStream != null)
+            {
+                using var ms = new MemoryStream();
+                var buf = ArrayPool<byte>.Shared.Rent(4096);
+                try
+                {
+                    int r;
+                    while ((r = await HttpContext.BodyStream.ReadAsync(buf.AsMemory(), ct)) > 0)
+                        ms.Write(buf, 0, r);
+                }
+                finally { ArrayPool<byte>.Shared.Return(buf); }
+                return ms.Length > 0 ? Encoding.UTF8.GetString(ms.ToArray()) : "";
+            }
             var body = HttpContext?.Body;
-            return ValueTask.FromResult(body is { Length: > 0 } ? Encoding.UTF8.GetString(body.Value.Span) : "");
+            return body is { Length: > 0 } ? Encoding.UTF8.GetString(body.Value.Span) : "";
         }
     }
 
