@@ -4,6 +4,7 @@ use trillium_caching_headers::caching_headers;
 use trillium_cookies::{CookiesConnExt, cookies};
 use trillium_head::head;
 use trillium_router::router;
+use trillium_websockets::websocket;
 
 async fn echo_body(mut conn: Conn) -> Conn {
     match conn.request_body().read_bytes().await {
@@ -30,6 +31,7 @@ fn app() -> impl Handler {
         head(),
         caching_headers(),
         cookies(),
+        websocket(|_| async move { () }),
         router()
             .get("/", "OK")
             .post("/", echo_body)
