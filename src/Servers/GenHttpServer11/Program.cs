@@ -9,7 +9,7 @@ using GenHTTP.Modules.Practices;
 
 var port = (args.Length > 0 && ushort.TryParse(args[0], out var p)) ? p : (ushort)8080;
 
-var rootMethods = new  HashSet<RequestMethod> { RequestMethod.Get, RequestMethod.Head, RequestMethod.Options };
+var rootMethods = new HashSet<RequestMethod> { RequestMethod.Get, RequestMethod.Head, RequestMethod.Options };
 
 var app = Inline.Create()
                 .Get("/cookie", (IRequest request) => ParseCookies(request))
@@ -35,10 +35,7 @@ static string Echo(IRequest request)
     {
         var header = source[i];
 
-        var key = Encoding.ASCII.GetString(header.Key.Span);
-        var value = Encoding.ASCII.GetString(header.Value.Span);
-
-        headers.AppendLine($"{key}: {value}");
+        headers.AppendLine($"{header.Key}: {header.Value}");
     }
 
     return headers.ToString();
@@ -48,34 +45,13 @@ static string ParseCookies(IRequest request)
 {
     var sb = new StringBuilder();
 
-    var cookieHeader = request.Header.Headers.GetEntry("Cookie");
+    var cookies = request.Header.Headers.GetCookies();
 
-    if (cookieHeader == null)
+    for (var i = 0; i < cookies.Count; i++)
     {
-        return string.Empty;
-    }
+        var cookie = cookies[i];
 
-    var remaining = cookieHeader.AsSpan();
-
-    while (!remaining.IsEmpty)
-    {
-        var delimiterIndex = remaining.IndexOf("; ");
-
-        var segment = delimiterIndex >= 0
-            ? remaining[..delimiterIndex]
-            : remaining;
-
-        var equalsIndex = segment.IndexOf('=');
-
-        if (equalsIndex > 0)
-        {
-            var key = segment[..equalsIndex].Trim();
-            var value = segment[(equalsIndex + 1)..].Trim();
-
-            sb.AppendLine($"{key}: {value}");
-        }
-
-        remaining = delimiterIndex >= 0 ? remaining[(delimiterIndex + 2)..] : ReadOnlySpan<char>.Empty;
+        sb.AppendLine($"{cookie.Key}: {cookie.Value}");
     }
 
     return sb.ToString();
