@@ -77,43 +77,7 @@
     return h;
   }
   const ENT_MAX=Math.log2(3);   // max for {Pass,Warn,Fail} — bar normalisation
-  const ANOM_T=0.75;            // |residual| above which a cell is a genuine anomaly (confident model, contradicted)
-
-  // ---- matrix-study helpers (Entropy page insight panel) ----
-  function pearson(a,b){
-    const N=a.length; let sa=0,sb=0; for(let i=0;i<N;i++){sa+=a[i];sb+=b[i];}
-    const ma=sa/N,mb=sb/N; let num=0,da=0,db=0;
-    for(let i=0;i<N;i++){const x=a[i]-ma,y=b[i]-mb; num+=x*y; da+=x*x; db+=y*y;}
-    return (da>1e-12&&db>1e-12)?num/Math.sqrt(da*db):0;
-  }
-  function jacobiEigenvalues(A){          // eigenvalues of a symmetric matrix, descending
-    const N=A.length, a=A.map(r=>r.slice());
-    for(let sweep=0;sweep<50;sweep++){
-      let off=0; for(let p=0;p<N;p++)for(let q=p+1;q<N;q++)off+=a[p][q]*a[p][q];
-      if(off<1e-11) break;
-      for(let p=0;p<N;p++)for(let q=p+1;q<N;q++){
-        if(Math.abs(a[p][q])<1e-13) continue;
-        const phi=0.5*Math.atan2(2*a[p][q],a[q][q]-a[p][p]), c=Math.cos(phi), s=Math.sin(phi);
-        for(let k=0;k<N;k++){const kp=a[k][p],kq=a[k][q]; a[k][p]=c*kp-s*kq; a[k][q]=s*kp+c*kq;}
-        for(let k=0;k<N;k++){const pk=a[p][k],qk=a[q][k]; a[p][k]=c*pk-s*qk; a[q][k]=s*pk+c*qk;}
-      }
-    }
-    return a.map((r,i)=>r[i]).sort((x,y)=>y-x);
-  }
-  function effectiveRank(V){               // participation ratio of singular values of grand-centered V
-    const rows=V.length, cols=V[0].length; let g=0; for(const r of V)for(const v of r)g+=v; g/=rows*cols;
-    const useCols=cols<=rows, d=useCols?cols:rows;
-    const G=Array.from({length:d},()=>new Array(d).fill(0));
-    for(let i=0;i<d;i++)for(let j=i;j<d;j++){ let s=0;
-      if(useCols){ for(let k=0;k<rows;k++) s+=(V[k][i]-g)*(V[k][j]-g); }
-      else { for(let k=0;k<cols;k++) s+=(V[i][k]-g)*(V[j][k]-g); }
-      G[i][j]=G[j][i]=s;
-    }
-    const ev=jacobiEigenvalues(G).filter(x=>x>1e-8);
-    const tot=ev.reduce((a,b)=>a+b,0); if(tot<=0) return {rank:0,var2:0};
-    let h=0; for(const l of ev){const p=l/tot; if(p>0) h-=p*Math.log(p);}
-    return {rank:Math.exp(h), var2:(ev[0]+(ev[1]||0))/tot};
-  }
+  // ---- global structure metrics (Entropy insight panel) ----
   function raschResiduals(V){               // additive-logit fit logit p = theta_col - beta_row; residual = obs - pred
     const m=V.length, n=V[0].length;
     const rowsum=V.map(r=>r.reduce((a,b)=>a+b,0));
@@ -134,28 +98,36 @@
     const m=vts.length,n=srvs.length,enc={Pass:1,Warn:0.5,Fail:0};
     const V=vts.map(t=>srvs.map(s=>{const r=s.byId[t.id]; return r?(enc[r.verdict]??0):0;}));
     const density=V.reduce((a,r)=>a+r.reduce((x,y)=>x+y,0),0)/(m*n);
-    const colpat=new Set(srvs.map(s=>vts.map(t=>{const r=s.byId[t.id];return r?r.verdict:"NA";}).join("|"))).size;
-    const er=effectiveRank(V), rf=raschResiduals(V);
-    const colsum=srvs.map((s,j)=>{let x=0;for(let i=0;i<m;i++)x+=V[i][j];return x;});
-    const byId={}, residKey={}; let anom=0;
-    for(let i=0;i<m;i++){
-      const disc=pearson(V[i],colsum);
-      const passN=srvs.reduce((a,s)=>a+(((s.byId[vts[i].id]||{}).verdict==="Pass")?1:0),0);
-      byId[vts[i].id]={disc,passN,H:entropy(vts[i],srvs)};
-      for(let j=0;j<n;j++){const r=rf.resid[i][j]; residKey[vts[i].id+"|"+srvs[j].name]=r; if(Math.abs(r)>=ANOM_T)anom++;}
+    const explained=raschResiduals(V).explained;
+    // binary compliance matrix (pass=1 else 0) for the structure metrics
+    const B=vts.map(t=>srvs.map(s=>((s.byId[t.id]||{}).verdict==="Pass")?1:0));
+    // systematic vs idiosyncratic: share of all fails that land on tests >=3 servers fail
+    let totalFails=0, systematic=0;
+    for(let i=0;i<m;i++){ let fc=0; for(let j=0;j<n;j++) if(!B[i][j]) fc++;
+      totalFails+=fc; if(fc>=3) systematic+=fc; }
+    const systematicPct = totalFails>0 ? systematic/totalFails : 1;
+    // behavioural families: single-linkage clusters of servers agreeing >=85% of the time
+    const parent=srvs.map((_,i)=>i);
+    const find=x=>{while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+      let same=0; for(let k=0;k<m;k++) if(B[k][i]===B[k][j]) same++;
+      if(same/m>=0.85) parent[find(i)]=find(j);
     }
-    return {density,colpat,n,effRank:er.rank,var2:er.var2,explained:rf.explained,anom,byId,residKey};
+    const families=new Set(srvs.map((_,i)=>find(i))).size;
+    // per-test stats for the test-name hover
+    const byId={};
+    for(let i=0;i<m;i++){ let passN=0; for(let j=0;j<n;j++) if(B[i][j]) passN++;
+      byId[vts[i].id]={passN,H:entropy(vts[i],srvs)}; }
+    return {density,explained,systematicPct,families,n,byId};
   }
   function renderInsight(INS){
     const box=document.getElementById("insight"); if(!box) return;
     if(!INS){ box.innerHTML=""; return; }
-    const pct=Math.round(INS.explained*100);
     const tiles=[
       ["Density",(INS.density*100).toFixed(0)+"%","MUST verdicts that pass (warn = ½)"],
-      ["Distinct behaviours",INS.colpat+" / "+INS.n,"unique verdict fingerprints among shown servers"],
-      ["Effective rank",INS.effRank.toFixed(1),"independent behavioural axes · 1 = pure strictness"],
-      ["Strictness explains",pct+"%","of the pattern — the other "+(100-pct)+"% is residual divergence"],
-      ["Anomalies",String(INS.anom),"cells defying the strictness model (|residual| ≥ 0.75)"],
+      ["Strictness explains",Math.round(INS.explained*100)+"%","captured by a simple difficulty × strictness gradient"],
+      ["Systematic failures",(INS.systematicPct*100).toFixed(0)+"%","of fails land on tests ≥3 servers fail — shared, not scattered"],
+      ["Behavioural families",String(INS.families),"groups agreeing ≥85% among the "+INS.n+" shown servers"],
     ];
     box.innerHTML=tiles.map(([k,v,d])=>`<div class="itile"><div class="iv">${v}</div><div class="ik">${k}</div><div class="idesc">${d}</div></div>`).join("");
   }
@@ -286,7 +258,6 @@
       srvs.forEach(s=>{
         const r=s.byId[t.id]; const v=r?r.verdict:"NA";
         const td=el("td","cell "+v);
-        if(INSIGHT){const rk=INSIGHT.residKey[t.id+"|"+s.name]; if(rk!==undefined&&Math.abs(rk)>=ANOM_T) td.classList.add("anom");}
         const code=esc(statusText(r));
         td.innerHTML=t.url?`<a href="${t.url}" tabindex="-1">${code}</a>`:`<span>${code}</span>`;
         td.dataset.s=s.name;td.dataset.t=t.id;td.dataset.v=v;
@@ -315,7 +286,7 @@
           `<div class="tip-h"><b>${esc(t.id)}</b></div>`+
           `<div class="tip-sub">${esc(t.cat)} · ${esc(t.lvl==="Must"?"MUST":t.lvl)}${t.rfc?" · "+esc(t.rfc):""} · expected ${esc(t.exp||"?")}</div>`+
           `<div class="tip-desc">${esc(t.desc||"No description available.")}</div>`+
-          (st?`<div class="tip-stat">entropy <b>${st.H.toFixed(2)}</b> bits · discrimination <b>${st.disc>=0?"+":""}${st.disc.toFixed(2)}</b> · <b>${st.passN}/${INSIGHT.n}</b> pass${st.disc<0.2?` · <span class="warn-tag">low-discrimination</span>`:""}</div>`:"")+
+          (st?`<div class="tip-stat">entropy <b>${st.H.toFixed(2)}</b> bits · <b>${st.passN}/${INSIGHT.n}</b> pass</div>`:"")+
           (t.url?`<div class="tip-foot">Click the name to open the full test page →</div>`:"");
         positionTip(rid,tip);
         document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));
@@ -326,13 +297,9 @@
       const req=(r&&r.rawRequest)?trunc(r.rawRequest,700):"(request unavailable)";
       const res=(r&&r.rawResponse)?trunc(r.rawResponse,700)
         :((r&&r.connectionState==="ClosedByServer")?"(connection closed by server — no response)":"(no response captured)");
-      let residHtml="";
-      if(INSIGHT){ const rk=INSIGHT.residKey[c.dataset.t+"|"+c.dataset.s];
-        if(rk!==undefined) residHtml=`<div class="tip-stat">residual <b>${rk>=0?"+":""}${rk.toFixed(2)}</b>${Math.abs(rk)>=ANOM_T?` · <span class="warn-tag">anomaly — ${rk>0?"passes where its strictness predicts a fail":"fails where its strictness predicts a pass"}</span>`:""}</div>`; }
       tip.innerHTML=
         `<div class="tip-h"><b>${esc(c.dataset.s)}</b> · <span class="v-${c.dataset.v}">${(c.dataset.v||"n/a").toUpperCase()}</span> → ${esc(statusText(r))}</div>`+
         `<div class="tip-sub">${esc(t.id)} · ${esc(t.cat)} · ${esc(t.lvl)} · expected ${esc(t.exp||"")}</div>`+
-        residHtml+
         `<span class="lbl">request sent</span><pre>${esc(req)}</pre>`+
         `<span class="lbl">response</span><pre>${esc(res)}</pre>`;
       positionTip(c,tip);
