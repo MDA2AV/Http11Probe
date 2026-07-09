@@ -47,6 +47,12 @@
     switch(r.connectionState){case "ClosedByServer":return "close";case "TimedOut":return "t/o";case "Error":return "err";}
     return "—";
   }
+  // grid display name: replace the category/RFC id prefix with "<rfc>-<section>-"
+  function displayName(t){
+    const core=t.id.replace(/^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-|NORM-|COOK-|CAP-|WS-)/i,"");
+    const m=(t.rfc||"").match(/RFC\s*(\d+)\s*§?\s*([\d.]+)/i);
+    return m?`${m[1]}-${m[2]}-${core}`:core;
+  }
   function selectedServers(){
     return servers.filter(s=>state.sel.has(s.name)).sort((a,b)=>b.score-a.score);
   }
@@ -180,7 +186,8 @@
       const row=el("tr",t.scored?null:"unscored");
       const rid=el("td","rid");
       rid.dataset.t=t.id;
-      const idHtml=t.url?`<a href="${t.url}">${t.id}</a>`:`<span>${t.id}</span>`;
+      const nm=esc(displayName(t));
+      const idHtml=t.url?`<a href="${t.url}" title="${esc(t.id)}">${nm}</a>`:`<span title="${esc(t.id)}">${nm}</span>`;
       rid.innerHTML=`${idHtml}<span class="lv${t.lvl==="Must"?" must":""}">${t.lvl==="Must"?"MUST":t.lvl}</span>`;
       row.appendChild(rid);
       if(CFG.showEntropy){
