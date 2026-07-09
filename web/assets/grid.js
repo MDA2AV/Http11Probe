@@ -179,6 +179,7 @@
     vts.forEach(t=>{
       const row=el("tr",t.scored?null:"unscored");
       const rid=el("td","rid");
+      rid.dataset.t=t.id;
       const idHtml=t.url?`<a href="${t.url}">${t.id}</a>`:`<span>${t.id}</span>`;
       rid.innerHTML=`${idHtml}<span class="lv${t.lvl==="Must"?" must":""}">${t.lvl==="Must"?"MUST":t.lvl}</span>`;
       row.appendChild(rid);
@@ -211,6 +212,18 @@
     const mx=document.getElementById("matrix");
     const trunc=(x,n)=>{x=x||"";return x.length>n?x.slice(0,n)+" …[truncated]":x;};
     mx.addEventListener("mouseover",e=>{
+      const rid=e.target.closest("td.rid");
+      if(rid){
+        const t=tById[rid.dataset.t]; if(!t) return;
+        tip.innerHTML=
+          `<div class="tip-h"><b>${esc(t.id)}</b></div>`+
+          `<div class="tip-sub">${esc(t.cat)} · ${esc(t.lvl==="Must"?"MUST":t.lvl)}${t.rfc?" · "+esc(t.rfc):""} · expected ${esc(t.exp||"?")}</div>`+
+          `<div class="tip-desc">${esc(t.desc||"No description available.")}</div>`+
+          (t.url?`<div class="tip-foot">Click the name to open the full test page →</div>`:"");
+        positionTip(rid,tip);
+        document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));
+        return;
+      }
       const c=e.target.closest("td.cell");if(!c)return;
       const t=tById[c.dataset.t], s=srvByName[c.dataset.s], r=s&&s.byId[c.dataset.t];
       const req=(r&&r.rawRequest)?trunc(r.rawRequest,700):"(request unavailable)";
