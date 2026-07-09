@@ -38,7 +38,7 @@
   const CATS=[...new Set(tests.map(t=>t.cat))];
 
   const defaultServers = CFG.defaultTiers ? servers.filter(s=>CFG.defaultTiers.includes(s.tier)) : servers;
-  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false };
+  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false, byFamily:false };
   let INSIGHT=null;   // matrix-study metrics for the Entropy page (recomputed each render)
 
   // ----- helpers -----
@@ -235,6 +235,12 @@
     stgl.setAttribute("aria-pressed",state.scoredOnly);
     stgl.onclick=()=>{state.scoredOnly=!state.scoredOnly;stgl.setAttribute("aria-pressed",state.scoredOnly);render();};
     bar.appendChild(stgl);
+    if(CFG.showEntropy){
+      const ftg=el("button","chip","group by family");ftg.dataset.tgl="1";
+      ftg.setAttribute("aria-pressed",state.byFamily);
+      ftg.onclick=()=>{state.byFamily=!state.byFamily;ftg.setAttribute("aria-pressed",state.byFamily);render();};
+      bar.appendChild(ftg);
+    }
     const lg=el("div","legend");
     lg.innerHTML=`<span><i class="swatch sw-pass">${GLYPH.Pass}</i>pass</span>
       <span><i class="swatch sw-warn">${GLYPH.Warn}</i>warn</span>
@@ -244,18 +250,23 @@
 
   // ----- matrix -----
   function render(){
-    const srvs=selectedServers();
+    let srvs=selectedServers();
     const head=document.getElementById("mhead"), body=document.getElementById("mbody");
     head.innerHTML="";body.innerHTML="";
     if(!srvs.length){ document.getElementById("rowcount").textContent="No frameworks selected."; return; }
     const vts=visibleTests(srvs);
     INSIGHT=(CFG.showEntropy && vts.length>=3 && srvs.length>=3)?computeInsight(vts,srvs):null;
-    renderInsight(INSIGHT); renderFamilies(INSIGHT);
+    renderInsight(INSIGHT);
+    const famBox=document.getElementById("families");
+    const grouped = state.byFamily && INSIGHT && INSIGHT.famOf;
+    if(grouped){ renderFamilies(INSIGHT);
+      srvs=srvs.slice().sort((a,b)=>{const fa=INSIGHT.famOf[a.name]||99,fb=INSIGHT.famOf[b.name]||99; return fa!==fb?fa-fb:b.score-a.score;});
+    } else if(famBox) famBox.innerHTML="";
     const tr=el("tr");
     tr.appendChild(el("th","corner",`test · ${srvs.length} shown →`));
     if(CFG.showEntropy) tr.appendChild(el("th","ent-h","entropy<br>bits"));
     srvs.forEach(s=>{const th=el("th","srv");th.title=`${s.name} — ${s.score}/${s.scored} (${s.tier})`;
-      const fam=INSIGHT&&INSIGHT.famOf?INSIGHT.famOf[s.name]:null;
+      const fam=grouped?INSIGHT.famOf[s.name]:null;
       th.innerHTML=`<div class="rot">${s.name}</div><div class="sc">${s.score}</div>`+(fam?`<div class="fam-badge">F${fam}</div>`:"");
       tr.appendChild(th);});
     head.appendChild(tr);
