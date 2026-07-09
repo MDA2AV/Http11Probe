@@ -251,14 +251,17 @@ function main(){
   const adst=path.join(DIST,"assets"); fs.mkdirSync(adst,{recursive:true});
   for(const f of fs.readdirSync(ASSETS)) fs.copyFileSync(path.join(ASSETS,f), path.join(adst,f));
 
-  // data.js: prefer freshly-pulled scratchpad copy, else repo static, else stub
+  // data.js: env override, local web/ copy, or the CI/pipeline location; else stub
   const dataCandidates=[
-    "/tmp/claude-1000/-home-diogo-Desktop-H1Probe-Http11Probe/d44e61f8-46bb-41e2-b21a-108176c27194/scratchpad/data.js",
+    process.env.PROBE_DATA_JS,
+    path.resolve(__dir,"data.js"),
     path.resolve(__dir,"../docs/static/probe/data.js"),
-  ];
+  ].filter(Boolean);
   const src=dataCandidates.find(exists);
   if(src) fs.copyFileSync(src, path.join(DIST,"data.js"));
   else fs.writeFileSync(path.join(DIST,"data.js"),"window.PROBE_DATA={servers:[]};");
+  // GitHub Pages custom domain (keeps www.http-probe.com pointed at this deploy)
+  fs.writeFileSync(path.join(DIST,"CNAME"), "www.http-probe.com\n");
 
   console.log(`Built ${pages.length} pages + landing → dist/`);
   console.log(`  glossary test links: ${Object.keys(slugmap).length}  ·  search entries: ${idx.length}  ·  data.js: ${src?"copied":"STUB"}`);

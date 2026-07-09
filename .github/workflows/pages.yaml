@@ -5,7 +5,9 @@ on:
     branches:
       - main
     paths:
-      - 'docs/**'
+      - 'web/**'
+      - 'docs/content/**'
+      - '.github/workflows/pages.yaml'
   workflow_dispatch:
 
 concurrency:
@@ -21,16 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          go-version: '1.22'
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
-        with:
-          hugo-version: 'latest'
-          extended: true
+          node-version: '20'
 
       - name: Fetch probe data from latest-results
         run: |
@@ -38,13 +34,16 @@ jobs:
           mkdir -p docs/static/probe
           git show origin/latest-results:probe/data.js > docs/static/probe/data.js 2>/dev/null || true
 
-      - name: Build
-        run: hugo --minify --source docs
+      - name: Build site
+        working-directory: web
+        run: |
+          npm ci
+          node build.mjs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/public
+          path: web/dist
 
   deploy:
     environment:
