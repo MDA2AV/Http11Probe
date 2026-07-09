@@ -225,6 +225,7 @@ function entropyPage(navHtml){
     <div class="provstrip" id="provstrip"></div>
   </div>
   <div class="insight" id="insight"></div>
+  <div class="families" id="families"></div>
   <div class="toolbar">
     <div class="fw-dd" id="fw-dd">
       <button class="fw-trigger" id="fw-trigger" aria-expanded="false" aria-haspopup="true">

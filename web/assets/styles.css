@@ -257,6 +257,19 @@ tr.unscored td.ent{opacity:.5}
 .itile .idesc{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
 #tip .tip-stat{padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--ink-2);border-top:1px solid var(--line)}
 #tip .tip-stat b{color:var(--ink)}
+/* behavioural families */
+.families{margin:16px 0 4px}
+.fam-title{font-family:var(--mono);font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;font-weight:600}
+.fam-title span{text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400}
+.fam-grid{display:flex;flex-wrap:wrap;gap:10px}
+.fam-card{border:1px solid var(--line-2);background:var(--surface);box-shadow:var(--shadow);padding:10px 12px;min-width:150px}
+.fam-card.loners{border-style:dashed;box-shadow:none;background:var(--surface-2)}
+.fam-h{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-2);margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.fam-tag{background:var(--accent);color:var(--accent-ink);padding:1px 6px;font-weight:800}
+.fam-chips{display:flex;flex-wrap:wrap;gap:5px}
+.fam-chip{font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);padding:3px 9px}
+.fam-card.loners .fam-chip{background:var(--surface)}
+th.srv .fam-badge{writing-mode:horizontal-tb;font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--accent);text-align:center;margin-top:2px}
 td.cell a{color:inherit;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 td.cell a:hover{text-decoration:none}
 td.cell>span{display:flex;align-items:center;justify-content:center;width:100%;height:100%}

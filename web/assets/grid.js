@@ -106,19 +106,24 @@
     for(let i=0;i<m;i++){ let fc=0; for(let j=0;j<n;j++) if(!B[i][j]) fc++;
       totalFails+=fc; if(fc>=3) systematic+=fc; }
     const systematicPct = totalFails>0 ? systematic/totalFails : 1;
-    // behavioural families: single-linkage clusters of servers agreeing >=85% of the time
-    const parent=srvs.map((_,i)=>i);
-    const find=x=>{while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
-    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
-      let same=0; for(let k=0;k<m;k++) if(B[k][i]===B[k][j]) same++;
-      if(same/m>=0.85) parent[find(i)]=find(j);
+    // behavioural families: complete-linkage clusters (EVERY pair in a family agrees >=85%)
+    const A=Array.from({length:n},()=>new Array(n).fill(1));
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){let s=0;for(let k=0;k<m;k++)if(B[k][i]===B[k][j])s++; A[i][j]=A[j][i]=s/m;}
+    let clusters=srvs.map((_,i)=>[i]);
+    const cdist=(a,b)=>{let mn=1;for(const x of a)for(const y of b)if(A[x][y]<mn)mn=A[x][y];return mn;};
+    for(;;){ let best=-1,bi=-1,bj=-1;
+      for(let a=0;a<clusters.length;a++)for(let b=a+1;b<clusters.length;b++){const d=cdist(clusters[a],clusters[b]); if(d>=0.85&&d>best){best=d;bi=a;bj=b;}}
+      if(bi<0)break; clusters[bi]=clusters[bi].concat(clusters[bj]); clusters.splice(bj,1);
     }
-    const families=new Set(srvs.map((_,i)=>find(i))).size;
+    clusters.sort((a,b)=>b.length-a.length);
+    const famGroups=clusters.filter(c=>c.length>=2).map(c=>c.map(i=>srvs[i].name));
+    const loners=clusters.filter(c=>c.length===1).map(c=>srvs[c[0]].name);
+    const famOf={}; famGroups.forEach((g,idx)=>g.forEach(nm=>famOf[nm]=idx+1));
     // per-test stats for the test-name hover
     const byId={};
     for(let i=0;i<m;i++){ let passN=0; for(let j=0;j<n;j++) if(B[i][j]) passN++;
       byId[vts[i].id]={passN,H:entropy(vts[i],srvs)}; }
-    return {density,explained,systematicPct,families,n,byId};
+    return {density,explained,systematicPct,families:famGroups.length,famGroups,loners,famOf,n,byId};
   }
   function renderInsight(INS){
     const box=document.getElementById("insight"); if(!box) return;
@@ -130,6 +135,18 @@
       ["Behavioural families",String(INS.families),"groups agreeing ≥85% among the "+INS.n+" shown servers"],
     ];
     box.innerHTML=tiles.map(([k,v,d])=>`<div class="itile"><div class="iv">${v}</div><div class="ik">${k}</div><div class="idesc">${d}</div></div>`).join("");
+  }
+  function renderFamilies(INS){
+    const box=document.getElementById("families"); if(!box) return;
+    if(!INS||!INS.famGroups){ box.innerHTML=""; return; }
+    let html=`<div class="fam-title">Behavioural families <span>· every pair in a family gives the same verdict ≥85% of the time</span></div><div class="fam-grid">`;
+    INS.famGroups.forEach((g,i)=>{
+      html+=`<div class="fam-card"><div class="fam-h"><span class="fam-tag">F${i+1}</span> ${g.length} servers</div>`+
+        `<div class="fam-chips">${g.map(nm=>`<span class="fam-chip">${esc(nm)}</span>`).join("")}</div></div>`;
+    });
+    if(INS.loners.length) html+=`<div class="fam-card loners"><div class="fam-h">Distinct · ${INS.loners.length}</div>`+
+      `<div class="fam-chips">${INS.loners.map(nm=>`<span class="fam-chip">${esc(nm)}</span>`).join("")}</div></div>`;
+    box.innerHTML=html+`</div>`;
   }
   function visibleTests(srvs){
     let ts=tests.filter(t=>state.cats.has(t.cat)&&(!state.scoredOnly||t.scored));
@@ -231,15 +248,17 @@
     const head=document.getElementById("mhead"), body=document.getElementById("mbody");
     head.innerHTML="";body.innerHTML="";
     if(!srvs.length){ document.getElementById("rowcount").textContent="No frameworks selected."; return; }
+    const vts=visibleTests(srvs);
+    INSIGHT=(CFG.showEntropy && vts.length>=3 && srvs.length>=3)?computeInsight(vts,srvs):null;
+    renderInsight(INSIGHT); renderFamilies(INSIGHT);
     const tr=el("tr");
     tr.appendChild(el("th","corner",`test · ${srvs.length} shown →`));
     if(CFG.showEntropy) tr.appendChild(el("th","ent-h","entropy<br>bits"));
     srvs.forEach(s=>{const th=el("th","srv");th.title=`${s.name} — ${s.score}/${s.scored} (${s.tier})`;
-      th.innerHTML=`<div class="rot">${s.name}</div><div class="sc">${s.score}</div>`;tr.appendChild(th);});
+      const fam=INSIGHT&&INSIGHT.famOf?INSIGHT.famOf[s.name]:null;
+      th.innerHTML=`<div class="rot">${s.name}</div><div class="sc">${s.score}</div>`+(fam?`<div class="fam-badge">F${fam}</div>`:"");
+      tr.appendChild(th);});
     head.appendChild(tr);
-    const vts=visibleTests(srvs);
-    INSIGHT=(CFG.showEntropy && vts.length>=3 && srvs.length>=3)?computeInsight(vts,srvs):null;
-    renderInsight(INSIGHT);
     const frag=document.createDocumentFragment();
     vts.forEach(t=>{
       const row=el("tr",t.scored?null:"unscored");
