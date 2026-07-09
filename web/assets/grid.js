@@ -2,6 +2,7 @@
 (function(){
   const DATA = window.PROBE_DATA;
   const SLUG = window.SLUGMAP || {};
+  const RFCMAP = window.RFCMAP || {};   // testId -> "RFC <n> §<s>" from glossary pages (fallback when probe data has none)
   const root = document.getElementById("results");
   if(!DATA || !DATA.servers){ root.innerHTML='<p class="prose">No probe data loaded. Run the pipeline to generate <code>data.js</code>.</p>'; return; }
   const CFG = window.GRID_CONFIG || {};   // {cats,levels,showCatChips,showEntropy,sort}
@@ -50,7 +51,7 @@
   // grid display name: replace the category/RFC id prefix with "<rfc>-<section>-"
   function displayName(t){
     const core=t.id.replace(/^(RFC\d+-[\d.]+-|COMP-|SMUG-|MAL-|NORM-|COOK-|CAP-|WS-)/i,"");
-    const m=(t.rfc||"").match(/RFC\s*(\d+)\s*§?\s*([\d.]+)/i);
+    const m=(t.rfc||RFCMAP[t.id]||"").match(/RFC\s*(\d+\w*)\s*§?\s*([\d.]+)/i);
     return m?`${m[1]}-${m[2]}-${core}`:core;
   }
   function selectedServers(){

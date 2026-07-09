@@ -209,7 +209,7 @@ function landing(navHtml){
   <div class="rowcount" id="rowcount"></div>
   <div id="tip"></div>`;
   return shell({ title:"Results", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
-    scripts:`\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/assets/grid.js"></script>` });
+    scripts:`\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
 function entropyPage(navHtml){
@@ -235,7 +235,7 @@ function entropyPage(navHtml){
   <div class="rowcount" id="rowcount"></div>
   <div id="tip"></div>`;
   return shell({ title:"Entropy", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
-    scripts:`\n<script>window.GRID_CONFIG=${JSON.stringify(cfg)};</script>\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/assets/grid.js"></script>` });
+    scripts:`\n<script>window.GRID_CONFIG=${JSON.stringify(cfg)};</script>\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
 // ---------- slugmap + search index ----------
@@ -248,12 +248,24 @@ function buildSlugmap(pages){
   return map;
 }
 function testIdOf(pg){ const m=pg.body.match(/\*\*Test ID\*\*\s*\|\s*`([^`]+)`/); return m?m[1].trim():null; }
+// testId -> "RFC <num> §<section>": first §-qualified RFC reference on the glossary page
+// (the metadata row for Compliance/Smuggling; the body citation for Malformed/Cookies/Normalization)
+function buildRfcmap(pages){
+  const map={};
+  for(const pg of pages){ if(pg.isIndex) continue;
+    const id=pg.body.match(/\*\*Test ID\*\*\s*\|\s*`([^`]+)`/); if(!id) continue;
+    const m=pg.body.match(/RFC\s*(\d+\w*)\s*(?:§|Section)\s*([\d.]+)/i);
+    if(m) map[id[1].trim()]=`RFC ${m[1]} §${m[2]}`;
+  }
+  return map;
+}
 
 // ---------- run ----------
 function main(){
   if(exists(DIST)) fs.rmSync(DIST,{recursive:true});
   const pages=buildPages();
   const slugmap=buildSlugmap(pages);
+  const rfcmap=buildRfcmap(pages);
 
   // per-page
   for(const pg of pages){
@@ -274,6 +286,7 @@ function main(){
     return { title:pg.forceTitle||pg.title, url:pg.url, id, cat:pg.group }; });
   fs.writeFileSync(path.join(DIST,"search-index.js"), "window.SEARCH_INDEX="+JSON.stringify(idx)+";");
   fs.writeFileSync(path.join(DIST,"slugmap.js"), "window.SLUGMAP="+JSON.stringify(slugmap)+";");
+  fs.writeFileSync(path.join(DIST,"rfcmap.js"), "window.RFCMAP="+JSON.stringify(rfcmap)+";");
 
   // assets
   const adst=path.join(DIST,"assets"); fs.mkdirSync(adst,{recursive:true});
