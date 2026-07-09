@@ -249,6 +249,18 @@ td.ent .ent-bar{display:block;height:3px;background:var(--surface-2);margin-top:
 td.ent .ent-bar i{display:block;height:100%;background:var(--accent)}
 tr:hover td.ent{background:var(--surface-2)}
 tr.unscored td.ent{opacity:.5}
+/* Entropy insight panel */
+.insight{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0 4px}
+.itile{flex:1;min-width:158px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);padding:14px 16px}
+.itile .iv{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.itile .ik{font-size:12px;font-weight:650;color:var(--ink-2);margin-top:7px}
+.itile .idesc{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+/* anomaly marker on residual-defying cells */
+td.cell.anom{position:relative}
+td.cell.anom::after{content:"";position:absolute;top:0;right:0;border:5px solid transparent;border-top-color:var(--ink);border-right-color:var(--ink);opacity:.9}
+#tip .tip-stat{padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--ink-2);border-top:1px solid var(--line)}
+#tip .tip-stat b{color:var(--ink)}
+#tip .warn-tag{color:var(--fail);font-weight:700}
 td.cell a{color:inherit;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 td.cell a:hover{text-decoration:none}
 td.cell>span{display:flex;align-items:center;justify-content:center;width:100%;height:100%}

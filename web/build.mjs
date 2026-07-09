@@ -214,7 +214,8 @@ function landing(navHtml){
 
 function entropyPage(navHtml){
   const cfg={ cats:["Compliance","Smuggling","MalformedInput"], levels:["Must"],
-    showCatChips:false, showEntropy:true, sort:"entropy" };
+    showCatChips:false, showEntropy:true, sort:"entropy",
+    defaultTiers:["Flagship","Infrastructure"] };
   const body=`<div class="hero-lite">
     <h1>Entropy</h1>
     <p>A matrix study of the <strong>MUST / MUST&nbsp;NOT</strong> tests in Compliance, Smuggling and
@@ -223,6 +224,7 @@ function entropyPage(navHtml){
        higher means the field is split on a hard requirement. Rows are ranked most-contested first.</p>
     <div class="provstrip" id="provstrip"></div>
   </div>
+  <div class="insight" id="insight"></div>
   <div class="toolbar">
     <div class="fw-dd" id="fw-dd">
       <button class="fw-trigger" id="fw-trigger" aria-expanded="false" aria-haspopup="true">

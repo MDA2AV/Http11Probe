@@ -37,7 +37,9 @@
   if(CFG.levels) tests=tests.filter(t=>CFG.levels.includes(t.lvl));
   const CATS=[...new Set(tests.map(t=>t.cat))];
 
-  const state={ sel:new Set(servers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false };
+  const defaultServers = CFG.defaultTiers ? servers.filter(s=>CFG.defaultTiers.includes(s.tier)) : servers;
+  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false };
+  let INSIGHT=null;   // matrix-study metrics for the Entropy page (recomputed each render)
 
   // ----- helpers -----
   const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
@@ -75,6 +77,88 @@
     return h;
   }
   const ENT_MAX=Math.log2(3);   // max for {Pass,Warn,Fail} — bar normalisation
+  const ANOM_T=0.75;            // |residual| above which a cell is a genuine anomaly (confident model, contradicted)
+
+  // ---- matrix-study helpers (Entropy page insight panel) ----
+  function pearson(a,b){
+    const N=a.length; let sa=0,sb=0; for(let i=0;i<N;i++){sa+=a[i];sb+=b[i];}
+    const ma=sa/N,mb=sb/N; let num=0,da=0,db=0;
+    for(let i=0;i<N;i++){const x=a[i]-ma,y=b[i]-mb; num+=x*y; da+=x*x; db+=y*y;}
+    return (da>1e-12&&db>1e-12)?num/Math.sqrt(da*db):0;
+  }
+  function jacobiEigenvalues(A){          // eigenvalues of a symmetric matrix, descending
+    const N=A.length, a=A.map(r=>r.slice());
+    for(let sweep=0;sweep<50;sweep++){
+      let off=0; for(let p=0;p<N;p++)for(let q=p+1;q<N;q++)off+=a[p][q]*a[p][q];
+      if(off<1e-11) break;
+      for(let p=0;p<N;p++)for(let q=p+1;q<N;q++){
+        if(Math.abs(a[p][q])<1e-13) continue;
+        const phi=0.5*Math.atan2(2*a[p][q],a[q][q]-a[p][p]), c=Math.cos(phi), s=Math.sin(phi);
+        for(let k=0;k<N;k++){const kp=a[k][p],kq=a[k][q]; a[k][p]=c*kp-s*kq; a[k][q]=s*kp+c*kq;}
+        for(let k=0;k<N;k++){const pk=a[p][k],qk=a[q][k]; a[p][k]=c*pk-s*qk; a[q][k]=s*pk+c*qk;}
+      }
+    }
+    return a.map((r,i)=>r[i]).sort((x,y)=>y-x);
+  }
+  function effectiveRank(V){               // participation ratio of singular values of grand-centered V
+    const rows=V.length, cols=V[0].length; let g=0; for(const r of V)for(const v of r)g+=v; g/=rows*cols;
+    const useCols=cols<=rows, d=useCols?cols:rows;
+    const G=Array.from({length:d},()=>new Array(d).fill(0));
+    for(let i=0;i<d;i++)for(let j=i;j<d;j++){ let s=0;
+      if(useCols){ for(let k=0;k<rows;k++) s+=(V[k][i]-g)*(V[k][j]-g); }
+      else { for(let k=0;k<cols;k++) s+=(V[i][k]-g)*(V[j][k]-g); }
+      G[i][j]=G[j][i]=s;
+    }
+    const ev=jacobiEigenvalues(G).filter(x=>x>1e-8);
+    const tot=ev.reduce((a,b)=>a+b,0); if(tot<=0) return {rank:0,var2:0};
+    let h=0; for(const l of ev){const p=l/tot; if(p>0) h-=p*Math.log(p);}
+    return {rank:Math.exp(h), var2:(ev[0]+(ev[1]||0))/tot};
+  }
+  function raschResiduals(V){               // additive-logit fit logit p = theta_col - beta_row; residual = obs - pred
+    const m=V.length, n=V[0].length;
+    const rowsum=V.map(r=>r.reduce((a,b)=>a+b,0));
+    const colsum=new Array(n).fill(0); for(let i=0;i<m;i++)for(let j=0;j<n;j++)colsum[j]+=V[i][j];
+    const theta=new Array(n).fill(0), beta=new Array(m).fill(0);
+    const lg=x=>1/(1+Math.exp(-Math.max(-30,Math.min(30,x))));
+    for(let it=0;it<200;it++){
+      for(let i=0;i<m;i++){ let pr=0,dd=0; for(let j=0;j<n;j++){const p=lg(theta[j]-beta[i]); pr+=p; dd+=p*(1-p);}
+        beta[i]=Math.max(-8,Math.min(8, beta[i]+(pr-rowsum[i])/Math.max(dd,1e-6))); }
+      for(let j=0;j<n;j++){ let pc=0,dd=0; for(let i=0;i<m;i++){const p=lg(theta[j]-beta[i]); pc+=p; dd+=p*(1-p);}
+        theta[j]=Math.max(-8,Math.min(8, theta[j]-(pc-colsum[j])/Math.max(dd,1e-6))); }
+    }
+    const gm=rowsum.reduce((a,b)=>a+b,0)/(m*n); let ssTot=0,ssRes=0;
+    const resid=V.map((r,i)=>r.map((v,j)=>{const e=v-lg(theta[j]-beta[i]); ssTot+=(v-gm)**2; ssRes+=e*e; return e;}));
+    return {resid, explained:ssTot>0?1-ssRes/ssTot:0};
+  }
+  function computeInsight(vts,srvs){
+    const m=vts.length,n=srvs.length,enc={Pass:1,Warn:0.5,Fail:0};
+    const V=vts.map(t=>srvs.map(s=>{const r=s.byId[t.id]; return r?(enc[r.verdict]??0):0;}));
+    const density=V.reduce((a,r)=>a+r.reduce((x,y)=>x+y,0),0)/(m*n);
+    const colpat=new Set(srvs.map(s=>vts.map(t=>{const r=s.byId[t.id];return r?r.verdict:"NA";}).join("|"))).size;
+    const er=effectiveRank(V), rf=raschResiduals(V);
+    const colsum=srvs.map((s,j)=>{let x=0;for(let i=0;i<m;i++)x+=V[i][j];return x;});
+    const byId={}, residKey={}; let anom=0;
+    for(let i=0;i<m;i++){
+      const disc=pearson(V[i],colsum);
+      const passN=srvs.reduce((a,s)=>a+(((s.byId[vts[i].id]||{}).verdict==="Pass")?1:0),0);
+      byId[vts[i].id]={disc,passN,H:entropy(vts[i],srvs)};
+      for(let j=0;j<n;j++){const r=rf.resid[i][j]; residKey[vts[i].id+"|"+srvs[j].name]=r; if(Math.abs(r)>=ANOM_T)anom++;}
+    }
+    return {density,colpat,n,effRank:er.rank,var2:er.var2,explained:rf.explained,anom,byId,residKey};
+  }
+  function renderInsight(INS){
+    const box=document.getElementById("insight"); if(!box) return;
+    if(!INS){ box.innerHTML=""; return; }
+    const pct=Math.round(INS.explained*100);
+    const tiles=[
+      ["Density",(INS.density*100).toFixed(0)+"%","MUST verdicts that pass (warn = ½)"],
+      ["Distinct behaviours",INS.colpat+" / "+INS.n,"unique verdict fingerprints among shown servers"],
+      ["Effective rank",INS.effRank.toFixed(1),"independent behavioural axes · 1 = pure strictness"],
+      ["Strictness explains",pct+"%","of the pattern — the other "+(100-pct)+"% is residual divergence"],
+      ["Anomalies",String(INS.anom),"cells defying the strictness model (|residual| ≥ 0.75)"],
+    ];
+    box.innerHTML=tiles.map(([k,v,d])=>`<div class="itile"><div class="iv">${v}</div><div class="ik">${k}</div><div class="idesc">${d}</div></div>`).join("");
+  }
   function visibleTests(srvs){
     let ts=tests.filter(t=>state.cats.has(t.cat)&&(!state.scoredOnly||t.scored));
     ts=ts.map(t=>({t,d:disagreement(t,srvs),h:entropy(t,srvs)}));
@@ -182,6 +266,8 @@
       th.innerHTML=`<div class="rot">${s.name}</div><div class="sc">${s.score}</div>`;tr.appendChild(th);});
     head.appendChild(tr);
     const vts=visibleTests(srvs);
+    INSIGHT=(CFG.showEntropy && vts.length>=3 && srvs.length>=3)?computeInsight(vts,srvs):null;
+    renderInsight(INSIGHT);
     const frag=document.createDocumentFragment();
     vts.forEach(t=>{
       const row=el("tr",t.scored?null:"unscored");
@@ -200,6 +286,7 @@
       srvs.forEach(s=>{
         const r=s.byId[t.id]; const v=r?r.verdict:"NA";
         const td=el("td","cell "+v);
+        if(INSIGHT){const rk=INSIGHT.residKey[t.id+"|"+s.name]; if(rk!==undefined&&Math.abs(rk)>=ANOM_T) td.classList.add("anom");}
         const code=esc(statusText(r));
         td.innerHTML=t.url?`<a href="${t.url}" tabindex="-1">${code}</a>`:`<span>${code}</span>`;
         td.dataset.s=s.name;td.dataset.t=t.id;td.dataset.v=v;
@@ -223,10 +310,12 @@
       const rid=e.target.closest("td.rid");
       if(rid){
         const t=tById[rid.dataset.t]; if(!t) return;
+        const st=INSIGHT&&INSIGHT.byId[t.id];
         tip.innerHTML=
           `<div class="tip-h"><b>${esc(t.id)}</b></div>`+
           `<div class="tip-sub">${esc(t.cat)} · ${esc(t.lvl==="Must"?"MUST":t.lvl)}${t.rfc?" · "+esc(t.rfc):""} · expected ${esc(t.exp||"?")}</div>`+
           `<div class="tip-desc">${esc(t.desc||"No description available.")}</div>`+
+          (st?`<div class="tip-stat">entropy <b>${st.H.toFixed(2)}</b> bits · discrimination <b>${st.disc>=0?"+":""}${st.disc.toFixed(2)}</b> · <b>${st.passN}/${INSIGHT.n}</b> pass${st.disc<0.2?` · <span class="warn-tag">low-discrimination</span>`:""}</div>`:"")+
           (t.url?`<div class="tip-foot">Click the name to open the full test page →</div>`:"");
         positionTip(rid,tip);
         document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));
@@ -237,9 +326,13 @@
       const req=(r&&r.rawRequest)?trunc(r.rawRequest,700):"(request unavailable)";
       const res=(r&&r.rawResponse)?trunc(r.rawResponse,700)
         :((r&&r.connectionState==="ClosedByServer")?"(connection closed by server — no response)":"(no response captured)");
+      let residHtml="";
+      if(INSIGHT){ const rk=INSIGHT.residKey[c.dataset.t+"|"+c.dataset.s];
+        if(rk!==undefined) residHtml=`<div class="tip-stat">residual <b>${rk>=0?"+":""}${rk.toFixed(2)}</b>${Math.abs(rk)>=ANOM_T?` · <span class="warn-tag">anomaly — ${rk>0?"passes where its strictness predicts a fail":"fails where its strictness predicts a pass"}</span>`:""}</div>`; }
       tip.innerHTML=
         `<div class="tip-h"><b>${esc(c.dataset.s)}</b> · <span class="v-${c.dataset.v}">${(c.dataset.v||"n/a").toUpperCase()}</span> → ${esc(statusText(r))}</div>`+
         `<div class="tip-sub">${esc(t.id)} · ${esc(t.cat)} · ${esc(t.lvl)} · expected ${esc(t.exp||"")}</div>`+
+        residHtml+
         `<span class="lbl">request sent</span><pre>${esc(req)}</pre>`+
         `<span class="lbl">response</span><pre>${esc(res)}</pre>`;
       positionTip(c,tip);
