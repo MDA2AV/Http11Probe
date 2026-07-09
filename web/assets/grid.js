@@ -4,6 +4,7 @@
   const SLUG = window.SLUGMAP || {};
   const root = document.getElementById("results");
   if(!DATA || !DATA.servers){ root.innerHTML='<p class="prose">No probe data loaded. Run the pipeline to generate <code>data.js</code>.</p>'; return; }
+  const CFG = window.GRID_CONFIG || {};   // {cats,levels,showCatChips,showEntropy,sort}
 
   // ----- server tiers (editable classification) -----
   const TIERS = {
@@ -29,8 +30,10 @@
   const srvByName=Object.fromEntries(servers.map(s=>[s.name,s]));
   // canonical test list + metadata from the first server
   const base=DATA.servers[0].results;
-  const tests=base.map(r=>({ id:r.id, cat:r.category, lvl:r.rfcLevel||"Must", scored:r.scored!==false,
+  let tests=base.map(r=>({ id:r.id, cat:r.category, lvl:r.rfcLevel||"Must", scored:r.scored!==false,
     exp:r.expected, desc:r.description, rfc:r.rfc||r.rfcReference||null, url:SLUG[r.id]||null }));
+  if(CFG.cats) tests=tests.filter(t=>CFG.cats.includes(t.cat));
+  if(CFG.levels) tests=tests.filter(t=>CFG.levels.includes(t.lvl));
   const CATS=[...new Set(tests.map(t=>t.cat))];
 
   const state={ sel:new Set(servers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false };
@@ -57,11 +60,21 @@
     const top=Math.max(c.Pass,c.Warn,c.Fail,c.Other);
     return 1-top/tot;
   }
+  function entropy(t,srvs){   // Shannon entropy (bits) of the verdict distribution
+    const c={}; let n=0;
+    srvs.forEach(s=>{const r=s.byId[t.id]; const v=r&&r.verdict; if(v){c[v]=(c[v]||0)+1;n++;}});
+    if(!n) return 0;
+    let h=0; for(const k in c){const p=c[k]/n; h-=p*Math.log2(p);}
+    return h;
+  }
+  const ENT_MAX=Math.log2(3);   // max for {Pass,Warn,Fail} — bar normalisation
   function visibleTests(srvs){
     let ts=tests.filter(t=>state.cats.has(t.cat)&&(!state.scoredOnly||t.scored));
-    ts=ts.map(t=>({t,d:disagreement(t,srvs)}));
+    ts=ts.map(t=>({t,d:disagreement(t,srvs),h:entropy(t,srvs)}));
     if(state.divOnly) ts=ts.filter(x=>x.d>0);
-    ts.sort((a,b)=>b.d-a.d||a.t.id.localeCompare(b.t.id));
+    const key=CFG.sort==="entropy"?(x=>x.h):(x=>x.d);
+    ts.sort((a,b)=>key(b)-key(a)||a.t.id.localeCompare(b.t.id));
+    ts.forEach(x=>x.t._h=x.h);
     return ts.map(x=>x.t);
   }
 
@@ -116,22 +129,24 @@
   // ----- category chips -----
   function renderChips(){
     const bar=document.getElementById("chips");
-    const refresh=()=>[...bar.querySelectorAll(".chip[data-cat]")].forEach(x=>x.setAttribute("aria-pressed",state.cats.has(x.dataset.cat)));
-    const allBtn=el("button","chip","All");
-    allBtn.onclick=()=>{state.cats=new Set(CATS);refresh();render();};
-    bar.appendChild(allBtn);
-    const noneBtn=el("button","chip","None");
-    noneBtn.onclick=()=>{state.cats.clear();refresh();render();};
-    bar.appendChild(noneBtn);
-    CATS.forEach(cat=>{
-      const n=tests.filter(t=>t.cat===cat).length;
-      const b=el("button","chip",`${cat}<span class="n">${n}</span>`);
-      b.dataset.cat=cat;
-      b.setAttribute("aria-pressed",state.cats.has(cat));
-      b.onclick=()=>{state.cats.has(cat)?state.cats.delete(cat):state.cats.add(cat);
-        b.setAttribute("aria-pressed",state.cats.has(cat));render();};
-      bar.appendChild(b);
-    });
+    if(CFG.showCatChips!==false){
+      const refresh=()=>[...bar.querySelectorAll(".chip[data-cat]")].forEach(x=>x.setAttribute("aria-pressed",state.cats.has(x.dataset.cat)));
+      const allBtn=el("button","chip","All");
+      allBtn.onclick=()=>{state.cats=new Set(CATS);refresh();render();};
+      bar.appendChild(allBtn);
+      const noneBtn=el("button","chip","None");
+      noneBtn.onclick=()=>{state.cats.clear();refresh();render();};
+      bar.appendChild(noneBtn);
+      CATS.forEach(cat=>{
+        const n=tests.filter(t=>t.cat===cat).length;
+        const b=el("button","chip",`${cat}<span class="n">${n}</span>`);
+        b.dataset.cat=cat;
+        b.setAttribute("aria-pressed",state.cats.has(cat));
+        b.onclick=()=>{state.cats.has(cat)?state.cats.delete(cat):state.cats.add(cat);
+          b.setAttribute("aria-pressed",state.cats.has(cat));render();};
+        bar.appendChild(b);
+      });
+    }
     const tgl=el("button","chip","divergent only");tgl.dataset.tgl="1";tgl.style.marginLeft="4px";
     tgl.setAttribute("aria-pressed",state.divOnly);
     tgl.onclick=()=>{state.divOnly=!state.divOnly;tgl.setAttribute("aria-pressed",state.divOnly);render();};
@@ -155,6 +170,7 @@
     if(!srvs.length){ document.getElementById("rowcount").textContent="No frameworks selected."; return; }
     const tr=el("tr");
     tr.appendChild(el("th","corner",`test · ${srvs.length} shown →`));
+    if(CFG.showEntropy) tr.appendChild(el("th","ent-h","entropy<br>bits"));
     srvs.forEach(s=>{const th=el("th","srv");th.title=`${s.name} — ${s.score}/${s.scored} (${s.tier})`;
       th.innerHTML=`<div class="rot">${s.name}</div><div class="sc">${s.score}</div>`;tr.appendChild(th);});
     head.appendChild(tr);
@@ -166,6 +182,12 @@
       const idHtml=t.url?`<a href="${t.url}">${t.id}</a>`:`<span>${t.id}</span>`;
       rid.innerHTML=`${idHtml}<span class="lv${t.lvl==="Must"?" must":""}">${t.lvl==="Must"?"MUST":t.lvl}</span>`;
       row.appendChild(rid);
+      if(CFG.showEntropy){
+        const ent=el("td","ent");
+        const pct=Math.min(100,Math.round((t._h||0)/ENT_MAX*100));
+        ent.innerHTML=`<span class="ent-v">${(t._h||0).toFixed(2)}</span><span class="ent-bar"><i style="width:${pct}%"></i></span>`;
+        row.appendChild(ent);
+      }
       srvs.forEach(s=>{
         const r=s.byId[t.id]; const v=r?r.verdict:"NA";
         const td=el("td","cell "+v);
@@ -221,5 +243,6 @@
     (c.id?`<div><span class="k">commit</span>${c.id.slice(0,7)}</div>`:"")+
     (c.timestamp?`<div><span class="k">run</span>${c.timestamp.slice(0,10)}</div>`:"");
 
+  document.getElementById("matrix").classList.toggle("we",!!CFG.showEntropy);
   renderSelector();renderChips();wireInteractions();render();
 })();

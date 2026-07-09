@@ -110,6 +110,7 @@ function buildNav(pages, activeUrl){
   const bySection={};
   for(const pg of pages){ (bySection[pg.section] ||= {}); (bySection[pg.section][pg.group] ||= []).push(pg); }
   let html=`<a class="nav-link top ${activeUrl==="/"?"active":""}" href="/">Results matrix</a>`;
+  html+=`<a class="nav-link top ${activeUrl==="/entropy.html"?"active":""}" href="/entropy.html">Entropy</a>`;
   for(const section of SECTION_ORDER){
     const groups=bySection[section]; if(!groups) continue;
     const gkeys=Object.keys(groups).sort((a,b)=>gWeight(groups[a])-gWeight(groups[b]));
@@ -211,6 +212,32 @@ function landing(navHtml){
     scripts:`\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
+function entropyPage(navHtml){
+  const cfg={ cats:["Compliance","Smuggling","MalformedInput"], levels:["Must"],
+    showCatChips:false, showEntropy:true, sort:"entropy" };
+  const body=`<div class="hero-lite">
+    <h1>Entropy</h1>
+    <p>A matrix study of the <strong>MUST / MUST&nbsp;NOT</strong> tests in Compliance, Smuggling and
+       Malformed&nbsp;Input. Each row's <em>entropy</em> is the Shannon entropy (in bits) of its verdict
+       distribution across the selected frameworks: <strong>0</strong> means every framework agrees,
+       higher means the field is split on a hard requirement. Rows are ranked most-contested first.</p>
+    <div class="provstrip" id="provstrip"></div>
+  </div>
+  <div class="toolbar">
+    <div class="fw-dd" id="fw-dd">
+      <button class="fw-trigger" id="fw-trigger" aria-expanded="false" aria-haspopup="true">
+        <span>Frameworks</span><span class="selcount" id="selcount"></span><span class="caret">▾</span></button>
+      <div class="fw-menu" id="fw-menu" hidden></div>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="matrix-scroll"><table class="matrix" id="matrix"><thead id="mhead"></thead><tbody id="mbody"></tbody></table></div>
+  <div class="rowcount" id="rowcount"></div>
+  <div id="tip"></div>`;
+  return shell({ title:"Entropy", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
+    scripts:`\n<script>window.GRID_CONFIG=${JSON.stringify(cfg)};</script>\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/assets/grid.js"></script>` });
+}
+
 // ---------- slugmap + search index ----------
 function buildSlugmap(pages){
   const map={};
@@ -238,8 +265,9 @@ function main(){
       breadcrumb:breadcrumbFor(pg), wide:pg.url==="/docs/rfc-requirement-dashboard.html" });
     fs.writeFileSync(out, html);
   }
-  // landing
+  // landing + entropy study
   fs.writeFileSync(path.join(DIST,"index.html"), landing(buildNav(pages,"/")));
+  fs.writeFileSync(path.join(DIST,"entropy.html"), entropyPage(buildNav(pages,"/entropy.html")));
 
   // search index
   const idx=pages.map(pg=>{ const id=pg.section==="Glossary"&&!pg.isIndex?testIdOf(pg):null;
