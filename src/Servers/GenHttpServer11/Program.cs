@@ -59,4 +59,13 @@ static string ParseCookies(IRequest request)
 
 static string StringContent() => "OK";
 
-static Stream RequestContent(Stream body) => body;
+static async Task<Stream> RequestContent(Stream body)
+{
+    var memoryStream = new MemoryStream();
+    
+    await body.CopyToAsync(memoryStream);
+
+    memoryStream.Seek(0, SeekOrigin.Begin);
+
+    return memoryStream;
+}
