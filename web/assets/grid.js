@@ -38,7 +38,7 @@
   const CATS=[...new Set(tests.map(t=>t.cat))];
 
   const defaultServers = CFG.defaultTiers ? servers.filter(s=>CFG.defaultTiers.includes(s.tier)) : servers;
-  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false, byFamily:false };
+  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false, byFamily:false, byName:false };
   let INSIGHT=null;   // matrix-study metrics for the Entropy page (recomputed each render)
 
   // ----- helpers -----
@@ -57,7 +57,8 @@
     return m?`${m[1]}-${m[2]}-${core}`:core;
   }
   function selectedServers(){
-    return servers.filter(s=>state.sel.has(s.name)).sort((a,b)=>b.score-a.score);
+    const arr=servers.filter(s=>state.sel.has(s.name));
+    return state.byName ? arr.sort((a,b)=>a.name.localeCompare(b.name)) : arr.sort((a,b)=>b.score-a.score);
   }
   function verdictCounts(t,srvs){
     const c={Pass:0,Warn:0,Fail:0,Other:0};
@@ -235,10 +236,17 @@
     stgl.setAttribute("aria-pressed",state.scoredOnly);
     stgl.onclick=()=>{state.scoredOnly=!state.scoredOnly;stgl.setAttribute("aria-pressed",state.scoredOnly);render();};
     bar.appendChild(stgl);
+    let ftg=null;
+    const ntg=el("button","chip","by name");ntg.dataset.tgl="1";
+    ntg.setAttribute("aria-pressed",state.byName);
+    ntg.onclick=()=>{state.byName=!state.byName; if(state.byName)state.byFamily=false;
+      ntg.setAttribute("aria-pressed",state.byName); if(ftg)ftg.setAttribute("aria-pressed",state.byFamily); render();};
+    bar.appendChild(ntg);
     if(CFG.showEntropy){
-      const ftg=el("button","chip","group by family");ftg.dataset.tgl="1";
+      ftg=el("button","chip","group by family");ftg.dataset.tgl="1";
       ftg.setAttribute("aria-pressed",state.byFamily);
-      ftg.onclick=()=>{state.byFamily=!state.byFamily;ftg.setAttribute("aria-pressed",state.byFamily);render();};
+      ftg.onclick=()=>{state.byFamily=!state.byFamily; if(state.byFamily)state.byName=false;
+        ftg.setAttribute("aria-pressed",state.byFamily); ntg.setAttribute("aria-pressed",state.byName); render();};
       bar.appendChild(ftg);
     }
     const lg=el("div","legend");
