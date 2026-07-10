@@ -262,12 +262,15 @@
     if(grouped){ renderFamilies(INSIGHT);
       srvs=srvs.slice().sort((a,b)=>{const fa=INSIGHT.famOf[a.name]||99,fb=INSIGHT.famOf[b.name]||99; return fa!==fb?fa-fb:b.score-a.score;});
     } else if(famBox) famBox.innerHTML="";
+    // column boundaries between family groups (loners treated as one trailing block)
+    const bd = grouped ? srvs.map((s,j)=> j>0 && (INSIGHT.famOf[s.name]||"L")!==(INSIGHT.famOf[srvs[j-1].name]||"L")) : null;
     const tr=el("tr");
     tr.appendChild(el("th","corner",`test · ${srvs.length} shown →`));
     if(CFG.showEntropy) tr.appendChild(el("th","ent-h","entropy<br>bits"));
-    srvs.forEach(s=>{const th=el("th","srv");th.title=`${s.name} — ${s.score}/${s.scored} (${s.tier})`;
+    srvs.forEach((s,j)=>{const th=el("th","srv");th.title=`${s.name} — ${s.score}/${s.scored} (${s.tier})`;
       const fam=grouped?INSIGHT.famOf[s.name]:null;
       th.innerHTML=`<div class="rot">${s.name}</div><div class="sc">${s.score}</div>`+(fam?`<div class="fam-badge">F${fam}</div>`:"");
+      if(bd&&bd[j])th.classList.add("fam-bd");
       tr.appendChild(th);});
     head.appendChild(tr);
     const frag=document.createDocumentFragment();
@@ -285,9 +288,10 @@
         ent.innerHTML=`<span class="ent-v">${(t._h||0).toFixed(2)}</span><span class="ent-bar"><i style="width:${pct}%"></i></span>`;
         row.appendChild(ent);
       }
-      srvs.forEach(s=>{
+      srvs.forEach((s,j)=>{
         const r=s.byId[t.id]; const v=r?r.verdict:"NA";
         const td=el("td","cell "+v);
+        if(bd&&bd[j])td.classList.add("fam-bd");
         const code=esc(statusText(r));
         td.innerHTML=`<span>${code}</span>`;   // click opens the popup; glossary is via the test name
         td.dataset.s=s.name;td.dataset.t=t.id;td.dataset.v=v;

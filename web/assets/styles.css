@@ -270,6 +270,7 @@ tr.unscored td.ent{opacity:.5}
 .fam-chip{font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);padding:3px 9px}
 .fam-card.loners .fam-chip{background:var(--surface)}
 th.srv .fam-badge{writing-mode:horizontal-tb;font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--accent);text-align:center;margin-top:2px}
+td.fam-bd,th.fam-bd{border-left:3px solid var(--accent)}
 td.cell a{color:inherit;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 td.cell a:hover{text-decoration:none}
 td.cell>span{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
