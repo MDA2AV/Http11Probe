@@ -27,12 +27,21 @@ def app(environ, start_response):
         start_response('200 OK', [('Content-Type', 'text/plain')])
         return [body]
 
-    start_response('200 OK', [('Content-Type', 'text/plain')])
     if environ['REQUEST_METHOD'] == 'POST':
-        try:
-            length = int(environ.get('CONTENT_LENGTH', 0) or 0)
-        except ValueError:
-            length = 0
-        body = environ['wsgi.input'].read(length) if length > 0 else b''
+        if environ.get('HTTP_TRANSFER_ENCODING'):
+            # chunked request: no Content-Length; Gunicorn's worker dechunks, so read to EOF
+            try:
+                body = environ['wsgi.input'].read()
+            except Exception:
+                start_response('400 Bad Request', [('Content-Type', 'text/plain')])
+                return [b'']
+        else:
+            try:
+                length = int(environ.get('CONTENT_LENGTH', 0) or 0)
+            except ValueError:
+                length = 0
+            body = environ['wsgi.input'].read(length) if length > 0 else b''
+        start_response('200 OK', [('Content-Type', 'text/plain')])
         return [body]
+    start_response('200 OK', [('Content-Type', 'text/plain')])
     return [b'OK']
