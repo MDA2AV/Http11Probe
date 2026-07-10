@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GenHTTP.Core" Version="11.0.0-preview.19" />
-    <PackageReference Include="GenHTTP.Modules.Functional" Version="11.0.0-preview.19" />
-    <PackageReference Include="GenHTTP.Modules.Practices" Version="11.0.0-preview.19" />
+    <PackageReference Include="GenHTTP.Core" Version="11.0.0-preview.20" />
+    <PackageReference Include="GenHTTP.Modules.Functional" Version="11.0.0-preview.20" />
+    <PackageReference Include="GenHTTP.Modules.Practices" Version="11.0.0-preview.20" />
   </ItemGroup>
 
 </Project>
