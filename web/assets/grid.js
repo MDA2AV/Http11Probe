@@ -289,7 +289,7 @@
         const r=s.byId[t.id]; const v=r?r.verdict:"NA";
         const td=el("td","cell "+v);
         const code=esc(statusText(r));
-        td.innerHTML=t.url?`<a href="${t.url}" tabindex="-1">${code}</a>`:`<span>${code}</span>`;
+        td.innerHTML=`<span>${code}</span>`;   // click opens the popup; glossary is via the test name
         td.dataset.s=s.name;td.dataset.t=t.id;td.dataset.v=v;
         row.appendChild(td);
       });
@@ -302,40 +302,50 @@
       (state.cats.size<CATS.length?` · ${state.cats.size} categor${state.cats.size===1?"y":"ies"}`:"");
   }
 
-  // ----- tooltip + column sort -----
+  // ----- tooltip: hover to preview, click a cell to pin -----
   function wireInteractions(){
     const tip=document.getElementById("tip");const tById=Object.fromEntries(tests.map(t=>[t.id,t]));
     const mx=document.getElementById("matrix");
     const trunc=(x,n)=>{x=x||"";return x.length>n?x.slice(0,n)+" …[truncated]":x;};
-    mx.addEventListener("mouseover",e=>{
-      const rid=e.target.closest("td.rid");
-      if(rid){
-        const t=tById[rid.dataset.t]; if(!t) return;
-        const st=INSIGHT&&INSIGHT.byId[t.id];
-        tip.innerHTML=
-          `<div class="tip-h"><b>${esc(t.id)}</b></div>`+
-          `<div class="tip-sub">${esc(t.cat)} · ${esc(t.lvl==="Must"?"MUST":t.lvl)}${t.rfc?" · "+esc(t.rfc):""} · expected ${esc(t.exp||"?")}</div>`+
-          `<div class="tip-desc">${esc(t.desc||"No description available.")}</div>`+
-          (st?`<div class="tip-stat">entropy <b>${st.H.toFixed(2)}</b> bits · <b>${st.passN}/${INSIGHT.n}</b> pass</div>`:"")+
-          (t.url?`<div class="tip-foot">Click the name to open the full test page →</div>`:"");
-        positionTip(rid,tip);
-        document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));
-        return;
-      }
-      const c=e.target.closest("td.cell");if(!c)return;
+    let pinned=false;
+    const clearHl=()=>document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));
+    function closePin(){pinned=false;tip.classList.remove("pinned");tip.style.opacity="0";clearHl();}
+    function ridTip(t){
+      const st=INSIGHT&&INSIGHT.byId[t.id];
+      return `<div class="tip-h"><b>${esc(t.id)}</b></div>`+
+        `<div class="tip-sub">${esc(t.cat)} · ${esc(t.lvl==="Must"?"MUST":t.lvl)}${t.rfc?" · "+esc(t.rfc):""} · expected ${esc(t.exp||"?")}</div>`+
+        `<div class="tip-desc">${esc(t.desc||"No description available.")}</div>`+
+        (st?`<div class="tip-stat">entropy <b>${st.H.toFixed(2)}</b> bits · <b>${st.passN}/${INSIGHT.n}</b> pass</div>`:"")+
+        (t.url?`<div class="tip-foot">Click the name to open the full test page →</div>`:"");
+    }
+    function cellTip(c,pin){
       const t=tById[c.dataset.t], s=srvByName[c.dataset.s], r=s&&s.byId[c.dataset.t];
-      const req=(r&&r.rawRequest)?trunc(r.rawRequest,700):"(request unavailable)";
-      const res=(r&&r.rawResponse)?trunc(r.rawResponse,700)
+      const req=(r&&r.rawRequest)?trunc(r.rawRequest,2500):"(request unavailable)";
+      const res=(r&&r.rawResponse)?trunc(r.rawResponse,2500)
         :((r&&r.connectionState==="ClosedByServer")?"(connection closed by server — no response)":"(no response captured)");
-      tip.innerHTML=
+      return (pin?`<button class="tip-close" id="tip-close" aria-label="Close">✕</button>`:"")+
         `<div class="tip-h"><b>${esc(c.dataset.s)}</b> · <span class="v-${c.dataset.v}">${(c.dataset.v||"n/a").toUpperCase()}</span> → ${esc(statusText(r))}</div>`+
         `<div class="tip-sub">${esc(t.id)} · ${esc(t.cat)} · ${esc(t.lvl)} · expected ${esc(t.exp||"")}</div>`+
         `<span class="lbl">request sent</span><pre>${esc(req)}</pre>`+
         `<span class="lbl">response</span><pre>${esc(res)}</pre>`;
-      positionTip(c,tip);
-      document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));c.classList.add("hl");
+    }
+    mx.addEventListener("mouseover",e=>{
+      if(pinned) return;
+      const rid=e.target.closest("td.rid");
+      if(rid){ const t=tById[rid.dataset.t]; if(!t) return; tip.innerHTML=ridTip(t); positionTip(rid,tip); clearHl(); return; }
+      const c=e.target.closest("td.cell"); if(!c) return;
+      tip.innerHTML=cellTip(c,false); positionTip(c,tip); clearHl(); c.classList.add("hl");
     });
-    mx.addEventListener("mouseleave",()=>{tip.style.opacity="0";document.querySelectorAll("td.cell.hl").forEach(x=>x.classList.remove("hl"));});
+    mx.addEventListener("mouseleave",()=>{ if(pinned) return; tip.style.opacity="0"; clearHl(); });
+    mx.addEventListener("click",e=>{
+      const c=e.target.closest("td.cell"); if(!c) return;
+      e.stopPropagation();
+      pinned=true; tip.classList.add("pinned"); tip.innerHTML=cellTip(c,true); positionTip(c,tip);
+      clearHl(); c.classList.add("hl");
+      const cl=document.getElementById("tip-close"); if(cl) cl.onclick=ev=>{ev.stopPropagation();closePin();};
+    });
+    document.addEventListener("click",e=>{ if(pinned && !e.target.closest("#tip")) closePin(); });
+    document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&pinned) closePin(); });
   }
   function positionTip(cell,tip){
     tip.style.opacity="1";
