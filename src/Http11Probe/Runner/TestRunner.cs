@@ -98,9 +98,7 @@ public sealed class TestRunner
 
             if (connectionState == ConnectionState.Open)
             {
-                // Brief pause then check if server closed the connection
-                await Task.Delay(50);
-                connectionState = client.CheckConnectionState();
+                connectionState = await ResolveCloseAsync(client, response);
             }
 
             var verdict = testCase.Expected.Evaluate(response, connectionState);
@@ -265,8 +263,7 @@ public sealed class TestRunner
 
                 if (connectionState == ConnectionState.Open)
                 {
-                    await Task.Delay(50);
-                    connectionState = client.CheckConnectionState();
+                    connectionState = await ResolveCloseAsync(client, response);
                 }
 
                 stepResults.Add(new StepResult
@@ -332,5 +329,20 @@ public sealed class TestRunner
                 Duration = sw.Elapsed
             };
         }
+    }
+
+    // A server that responded but kept the socket open may still be about to close it — some proxies
+    // (e.g. Envoy) tear the connection down shortly after responding. Give it a longer window to close
+    // ONLY when it advertised Connection: close; keep-alive responses stay open by design, so they get a
+    // brief check (keeps the common path fast, and servers that ignore Connection: close still read Open).
+    private static async Task<ConnectionState> ResolveCloseAsync(RawTcpClient client, HttpResponse? response)
+    {
+        var advertisedClose = response is not null
+            && response.Headers.TryGetValue("Connection", out var conn)
+            && conn.Contains("close", StringComparison.OrdinalIgnoreCase);
+        if (advertisedClose)
+            return await client.WaitForCloseAsync(20, 100);   // up to ~2s (Envoy delays close ~1s); returns early once closed
+        await Task.Delay(50);
+        return client.CheckConnectionState();
     }
 }

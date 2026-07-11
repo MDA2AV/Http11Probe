@@ -155,6 +155,22 @@ public sealed class RawTcpClient : IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// Polls up to <paramref name="checks"/> times (<paramref name="intervalMs"/> apart), returning as
+    /// soon as the peer closes. Gives slow-to-close peers — e.g. proxies that tear the socket down shortly
+    /// after responding — time to actually close, instead of a single early snapshot.
+    /// </summary>
+    public async Task<ConnectionState> WaitForCloseAsync(int checks, int intervalMs)
+    {
+        for (var i = 0; ; i++)
+        {
+            var state = CheckConnectionState();
+            if (state != ConnectionState.Open || i >= checks)
+                return state;
+            await Task.Delay(intervalMs);
+        }
+    }
+
     private static int FindHeaderTerminator(ReadOnlySpan<byte> data)
     {
         ReadOnlySpan<byte> terminator = "\r\n\r\n"u8;
