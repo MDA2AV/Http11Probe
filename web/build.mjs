@@ -209,7 +209,7 @@ function landing(navHtml){
   <div class="rowcount" id="rowcount"></div>
   <div id="tip"></div>`;
   return shell({ title:"Results", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
-    scripts:`\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
+    scripts:`\n<script src="/data.js"></script>\n<script src="/assets/llm-choice.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
 function entropyPage(navHtml){
@@ -238,7 +238,7 @@ function entropyPage(navHtml){
   <div class="rowcount" id="rowcount"></div>
   <div id="tip"></div>`;
   return shell({ title:"Entropy", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
-    scripts:`\n<script>window.GRID_CONFIG=${JSON.stringify(cfg)};</script>\n<script src="/data.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
+    scripts:`\n<script>window.GRID_CONFIG=${JSON.stringify(cfg)};</script>\n<script src="/data.js"></script>\n<script src="/assets/llm-choice.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
 // ---------- slugmap + search index ----------

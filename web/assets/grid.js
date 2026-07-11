@@ -7,14 +7,22 @@
   if(!DATA || !DATA.servers){ root.innerHTML='<p class="prose">No probe data loaded. Run the pipeline to generate <code>data.js</code>.</p>'; return; }
   const CFG = window.GRID_CONFIG || {};   // {cats,levels,showCatChips,showEntropy,sort}
 
+  // Prune inert tests — ones whose condition can't be elicited from a black-box
+  // echo harness (e.g. "no Content-Length in a 204" when the server never emits a
+  // 204), so they only ever score Warn and add no signal. Filtered here so the
+  // site drops them immediately, without waiting for a full re-probe.
+  const EXCLUDE = new Set(["COMP-NO-CL-IN-204", "COMP-405-ALLOW"]);
+  DATA.servers.forEach(s => { s.results = s.results.filter(r => !EXCLUDE.has(r.id)); });
+
   // ----- server tiers (editable classification) -----
   const TIERS = {
+    Reference:["LLM's Choice"],
     Infrastructure:["Nginx","Apache","HAProxy","Envoy","Caddy","Traefik","Pingora","Lighttpd","H2O"],
     Flagship:["Kestrel","Spring Boot","Tomcat","Jetty","Quarkus","Node","Express","Deno","Bun","Uvicorn","Gunicorn","Flask","Puma","Gin","Actix","Hyper"],
     Emerging:["FastHTTP","Ntex","Sisk","ServiceStack","GenHTTP","Workerman","Trillium"],
     Experimental:["Swerver","Horse","Glyph11","Effinitive","SimpleW","NetCoreServer","EmbedIO","FastEndpoints","FastPySGI","GenHTTP 11","PHP"],
   };
-  const TIER_ORDER=["Flagship","Infrastructure","Emerging","Experimental","Other"];
+  const TIER_ORDER=["Reference","Flagship","Infrastructure","Emerging","Experimental","Other"];
   const tierOf={}; for(const t in TIERS) TIERS[t].forEach(n=>tierOf[n]=t);
 
   const GLYPH={Pass:"●",Warn:"▲",Fail:"✕",Error:"!",Skip:"·",NA:"·"};
