@@ -1,39 +1,10 @@
 # Http11Probe
 
-HTTP/1.1 server compliance and security tester. Sends malformed, ambiguous, and oversized requests over raw TCP sockets and validates responses against RFC 9110/9112 requirements.
+Http11Probe is an HTTP/1.1 compliance and security tester. It sends malformed, ambiguous, and oversized requests over raw TCP sockets and checks each response against the normative requirements of RFC 9110 and RFC 9112 — the edge cases (bare LF, obs-fold, CL/TE request smuggling, chunk-framing abuse, oversized headers, NUL bytes) that separate a strict parser from a lenient one.
 
-**Website:** [http-probe.com](https://www.http-probe.com/) — full documentation, test glossary with RFC citations, and live probe results across all tested servers.
+The same suite of 215 tests runs against 41 reference servers spanning 12 languages — from Nginx, Apache, and Envoy to Kestrel, Gin, Actix, and the built-in servers of Node, Bun, and Deno. Each result is scored against the RFC's MUST/SHOULD/MAY language as **Pass**, **Fail**, or **Warn** (Warn where the spec permits both strict and lenient behaviour).
 
-## 215 Tests across 6 Categories
-
-| Category | Tests | What it covers |
-|----------|------:|----------------|
-| **Compliance** | 76 | RFC 9110/9112 protocol requirements — bare LF, obs-fold, missing Host, invalid versions, chunked encoding, connection semantics, upgrade handling, etc. |
-| **Smuggling** | 87 | CL/TE ambiguity, duplicate Content-Length, pipeline desync, TE obfuscation, chunk extension abuse, bare LF in chunked framing, URI/Host mismatch |
-| **Malformed Input** | 26 | Binary garbage, oversized URLs/headers/methods, NUL bytes, control characters, integer overflow, overlong UTF-8, encoded CRLF injection |
-| **Normalization** | 5 | Header name casing, whitespace trimming, and other normalization behaviors |
-| **Cookies** | 12 | Cookie parsing, Set-Cookie handling, and RFC 6265bis compliance |
-| **Capabilities** | 9 | Server capability detection — keep-alive, pipelining, chunked responses (unscored) |
-
-Each test is scored against RFC normative language (MUST/SHOULD/MAY) and classified as **Pass**, **Fail**, or **Warn** (when the RFC permits both strict and lenient behavior).
-
-## 41 Server Targets
-
-Tested across 11 languages:
-
-| Language | Servers |
-|----------|---------|
-| C# | Kestrel, EmbedIO, FastEndpoints, GenHTTP, Glyph11, NetCoreServer, ServiceStack, SimpleW, Sisk |
-| C | Apache, H2O, HAProxy, Lighttpd, Nginx |
-| Rust | Actix, Hyper, Ntex, Pingora, Trillium |
-| Go | Caddy, FastHTTP, Gin, Traefik |
-| Java | Jetty, Quarkus, Spring Boot, Tomcat |
-| Python | Flask, Gunicorn, Uvicorn |
-| JavaScript | Bun, Express, Node |
-| C++ | Envoy |
-| TypeScript | Deno |
-| Ruby | Puma |
-| PHP | PHP built-in |
+Full documentation, the per-test glossary with RFC citations, and the live results matrix across every server live at **[http-probe.com](https://www.http-probe.com/)**.
 
 ## Usage
 
@@ -103,7 +74,7 @@ scripts/probe-local.sh --server ActixServer --docker-sudo
 | `--docker-sudo` | Run Docker commands via `sudo` (lets you run the script without `sudo`) |
 | `-h`, `--help` | Show help |
 
-It writes `probe-<ServerDir>.json` (one per server), plus `probe-data.js` and `docs/static/probe/data.js` for local Hugo rendering. Requires `jq`, `docker`, `curl`, `python3`, and the .NET 10 SDK.
+It writes `probe-<ServerDir>.json` (one per server), plus `probe-data.js` and `docs/static/probe/data.js` for local rendering. Requires `jq`, `docker`, `curl`, `python3`, and the .NET 10 SDK.
 
 ### Probing a server manually
 
@@ -133,7 +104,3 @@ dotnet build Http11Probe.slnx
 ## CI
 
 The [Probe workflow](.github/workflows/probe.yml) runs on PRs and `workflow_dispatch`. It builds each server's Docker image, probes it, and posts a comparison table as a PR comment.
-
-## Results
-
-See the [live comparison](https://www.http-probe.com/probe-results/) across all servers, or browse the [test glossary](https://www.http-probe.com/docs/) for per-test RFC references and explanations.
