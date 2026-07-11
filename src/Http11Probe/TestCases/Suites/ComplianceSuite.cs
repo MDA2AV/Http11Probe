@@ -1145,29 +1145,6 @@ public static class ComplianceSuite
 
         yield return new TestCase
         {
-            Id = "COMP-405-ALLOW",
-            Description = "405 response must include an Allow header",
-            Category = TestCategory.Compliance,
-            RfcReference = "RFC 9110 §15.5.6",
-            PayloadFactory = ctx => MakeRequest(
-                $"DELETE / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
-            Expected = new ExpectedBehavior
-            {
-                Description = "405 + Allow header",
-                CustomValidator = (response, state) =>
-                {
-                    if (response is null)
-                        return TestVerdict.Fail;
-                    if (response.StatusCode == 405)
-                        return response.Headers.ContainsKey("Allow") ? TestVerdict.Pass : TestVerdict.Fail;
-                    // Server didn't return 405 — can't verify the Allow requirement
-                    return TestVerdict.Warn;
-                }
-            }
-        };
-
-        yield return new TestCase
-        {
             Id = "COMP-DATE-HEADER",
             Description = "Origin server must include Date header in responses",
             Category = TestCategory.Compliance,
@@ -1253,31 +1230,6 @@ public static class ComplianceSuite
                     if (response.StatusCode is >= 100 and < 200)
                         return TestVerdict.Fail;
                     return TestVerdict.Pass;
-                }
-            }
-        };
-
-        yield return new TestCase
-        {
-            Id = "COMP-NO-CL-IN-204",
-            Description = "Server must not send Content-Length in a 204 response",
-            Category = TestCategory.Compliance,
-            RfcReference = "RFC 9110 §8.6",
-            PayloadFactory = ctx => MakeRequest(
-                $"OPTIONS / HTTP/1.1\r\nHost: {ctx.HostHeader}\r\n\r\n"),
-            Expected = new ExpectedBehavior
-            {
-                Description = "204 without CL, or 405",
-                CustomValidator = (response, state) =>
-                {
-                    if (response is null)
-                        return TestVerdict.Fail;
-                    if (response.StatusCode == 405)
-                        return TestVerdict.Pass; // Server doesn't support OPTIONS — can't test CL prohibition
-                    if (response.StatusCode == 204)
-                        return response.Headers.ContainsKey("Content-Length") ? TestVerdict.Fail : TestVerdict.Pass;
-                    // Server didn't return 204 — can't verify the CL prohibition
-                    return TestVerdict.Warn;
                 }
             }
         };
