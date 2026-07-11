@@ -215,7 +215,7 @@ function landing(navHtml){
 function entropyPage(navHtml){
   const cfg={ cats:["Compliance","Smuggling","MalformedInput"], levels:["Must"],
     showCatChips:false, showEntropy:true, sort:"entropy",
-    defaultTiers:["Flagship","Infrastructure"] };
+    defaultTiers:["Flagship","Infrastructure"], scoredDefault:true };
   const body=`<div class="hero-lite">
     <h1>Entropy</h1>
     <p>A matrix study of the <strong>MUST / MUST&nbsp;NOT</strong> tests in Compliance, Smuggling and

@@ -38,7 +38,7 @@
   const CATS=[...new Set(tests.map(t=>t.cat))];
 
   const defaultServers = CFG.defaultTiers ? servers.filter(s=>CFG.defaultTiers.includes(s.tier)) : servers;
-  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:false, byFamily:false, byName:false };
+  const state={ sel:new Set(defaultServers.map(s=>s.name)), cats:new Set(CATS), divOnly:false, scoredOnly:!!CFG.scoredDefault, byFamily:false, byName:false };
   let INSIGHT=null;   // matrix-study metrics for the Entropy page (recomputed each render)
 
   // ----- helpers -----
