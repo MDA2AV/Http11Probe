@@ -1,43 +1,14 @@
 # Http11Probe
 
-HTTP/1.1 server compliance and security tester. Sends malformed, ambiguous, and oversized requests over raw TCP sockets and validates responses against RFC 9110/9112 requirements.
+Http11Probe is a compliance and security tester for HTTP/1.1 servers. It throws malformed, ambiguous, and oversized requests at a server over raw TCP sockets and checks how it responds against what RFC 9110 and RFC 9112 actually require. These are the awkward cases like bare LF line endings, obsolete line folding, CL/TE request smuggling, chunk-framing tricks, oversized headers, and NUL bytes, where a strict parser and a lenient one start to disagree.
 
-**Website:** [http-probe.com](https://www.http-probe.com/) — full documentation, test glossary with RFC citations, and live probe results across all tested servers.
+The same 215 tests run against 41 reference servers written in 12 languages, from Nginx, Apache, and Envoy to Kestrel, Gin, Actix, and the built-in servers in Node, Bun, and Deno. Every result is scored against the MUST/SHOULD/MAY wording in the spec and marked **Pass**, **Fail**, or **Warn**. A Warn just means the RFC allows both the strict and the lenient behavior, so neither one is wrong.
 
-## 215 Tests across 6 Categories
-
-| Category | Tests | What it covers |
-|----------|------:|----------------|
-| **Compliance** | 76 | RFC 9110/9112 protocol requirements — bare LF, obs-fold, missing Host, invalid versions, chunked encoding, connection semantics, upgrade handling, etc. |
-| **Smuggling** | 87 | CL/TE ambiguity, duplicate Content-Length, pipeline desync, TE obfuscation, chunk extension abuse, bare LF in chunked framing, URI/Host mismatch |
-| **Malformed Input** | 26 | Binary garbage, oversized URLs/headers/methods, NUL bytes, control characters, integer overflow, overlong UTF-8, encoded CRLF injection |
-| **Normalization** | 5 | Header name casing, whitespace trimming, and other normalization behaviors |
-| **Cookies** | 12 | Cookie parsing, Set-Cookie handling, and RFC 6265bis compliance |
-| **Capabilities** | 9 | Server capability detection — keep-alive, pipelining, chunked responses (unscored) |
-
-Each test is scored against RFC normative language (MUST/SHOULD/MAY) and classified as **Pass**, **Fail**, or **Warn** (when the RFC permits both strict and lenient behavior).
-
-## 41 Server Targets
-
-Tested across 11 languages:
-
-| Language | Servers |
-|----------|---------|
-| C# | Kestrel, EmbedIO, FastEndpoints, GenHTTP, Glyph11, NetCoreServer, ServiceStack, SimpleW, Sisk |
-| C | Apache, H2O, HAProxy, Lighttpd, Nginx |
-| Rust | Actix, Hyper, Ntex, Pingora, Trillium |
-| Go | Caddy, FastHTTP, Gin, Traefik |
-| Java | Jetty, Quarkus, Spring Boot, Tomcat |
-| Python | Flask, Gunicorn, Uvicorn |
-| JavaScript | Bun, Express, Node |
-| C++ | Envoy |
-| TypeScript | Deno |
-| Ruby | Puma |
-| PHP | PHP built-in |
+You'll find the full documentation, a per-test glossary with RFC citations, and the live results matrix for every server at [http-probe.com](https://www.http-probe.com/).
 
 ## Usage
 
-The probe is **target-agnostic** — it tests whatever HTTP/1.1 server is already listening on `--host:--port`. There's no flag to select a framework; start the server first (or use [`probe-local.sh`](#probing-the-bundled-servers-locally) to spin one up for you), then point the probe at it.
+The probe is target-agnostic. It tests whatever HTTP/1.1 server is already listening on `--host:--port`, and there's no flag to pick a framework. Start the server first (or let [`probe-local.sh`](#probing-the-bundled-servers-locally) spin one up for you), then point the probe at it.
 
 ```
 dotnet run --project src/Http11Probe.Cli -- --host localhost --port 8080
@@ -52,7 +23,7 @@ dotnet run --project src/Http11Probe.Cli -- --host localhost --port 8080
 | `--category` | Run only tests in this category (`Compliance`, `Smuggling`, `MalformedInput`, `Normalization`, `Cookies`, `Capabilities`) | all |
 | `--test` | Run only specific test IDs, case-insensitive (repeatable) | all |
 | `--timeout` | Connect and read timeout in seconds per test | `5` |
-| `--output` | Write JSON results to file | — |
+| `--output` | Write JSON results to file | none |
 | `--verbose`, `-v` | Print the raw server response for each test | off |
 
 ### Examples
@@ -75,17 +46,17 @@ Score: 97/97  19 warnings  (146 tests, 35.5s)
 
 ## Probing the bundled servers locally
 
-The probe only sends requests — it does not start servers. To probe one of the bundled servers under `src/Servers/`, use `scripts/probe-local.sh`. It mirrors the CI pipeline: builds the server's Docker image, runs it on `--network host`, waits for it to come up, probes it, then tears it down.
+The probe only sends requests, it doesn't start servers. To probe one of the bundled servers under `src/Servers/`, use `scripts/probe-local.sh`. It does the same thing the CI pipeline does: build the server's Docker image, run it on `--network host`, wait for it to come up, probe it, then tear it down.
 
 ```
-# Probe a single server — pass the directory name under src/Servers/, e.g. ActixServer
+# Probe one server by its directory name under src/Servers/, e.g. ActixServer
 scripts/probe-local.sh --server ActixServer
 
 # Probe every bundled server
 scripts/probe-local.sh --all
 ```
 
-The `--server` value is the **directory name** (`ActixServer`), not the display name (`Actix`). If your Docker daemon requires root, add `--docker-sudo` so you don't have to run the whole script with `sudo`:
+The `--server` value is the directory name (`ActixServer`), not the display name (`Actix`). If your Docker daemon needs root, add `--docker-sudo` so you don't have to run the whole script with `sudo`:
 
 ```
 scripts/probe-local.sh --server ActixServer --docker-sudo
@@ -103,11 +74,11 @@ scripts/probe-local.sh --server ActixServer --docker-sudo
 | `--docker-sudo` | Run Docker commands via `sudo` (lets you run the script without `sudo`) |
 | `-h`, `--help` | Show help |
 
-It writes `probe-<ServerDir>.json` (one per server), plus `probe-data.js` and `docs/static/probe/data.js` for local Hugo rendering. Requires `jq`, `docker`, `curl`, `python3`, and the .NET 10 SDK.
+It writes `probe-<ServerDir>.json` (one per server), plus `probe-data.js` and `docs/static/probe/data.js` for local rendering. You'll need `jq`, `docker`, `curl`, `python3`, and the .NET 10 SDK.
 
 ### Probing a server manually
 
-`probe-local.sh` is just a convenience wrapper. To do the same by hand — for example to keep a server up across several probe runs — build and run the container, then point the probe at it. Run these from the repo root, since the Docker build context is the repo root:
+`probe-local.sh` is just a convenience wrapper. If you'd rather do it by hand, say to keep a server up across several probe runs, build and run the container yourself, then point the probe at it. Run these from the repo root, since that's the Docker build context:
 
 ```
 docker build -t probe-actix -f src/Servers/ActixServer/Dockerfile .
@@ -124,7 +95,7 @@ dotnet run --project src/Http11Probe.Cli -- --host localhost --port 9000
 
 ## Building
 
-Requires .NET 10 SDK.
+Requires the .NET 10 SDK.
 
 ```
 dotnet build Http11Probe.slnx
@@ -132,8 +103,4 @@ dotnet build Http11Probe.slnx
 
 ## CI
 
-The [Probe workflow](.github/workflows/probe.yml) runs on PRs and `workflow_dispatch`. It builds each server's Docker image, probes it, and posts a comparison table as a PR comment.
-
-## Results
-
-See the [live comparison](https://www.http-probe.com/probe-results/) across all servers, or browse the [test glossary](https://www.http-probe.com/docs/) for per-test RFC references and explanations.
+The [Probe workflow](.github/workflows/probe.yml) runs on pull requests and `workflow_dispatch`. It builds each server's Docker image, probes it, and posts a comparison table as a PR comment.
