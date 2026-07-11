@@ -63,8 +63,21 @@ impl ProxyHttp for OkProxy {
         let is_post = session.req_header().method == pingora::http::Method::POST;
         let body = if is_post {
             let mut buf = Vec::new();
-            while let Some(chunk) = session.read_request_body().await? {
-                buf.extend_from_slice(&chunk);
+            loop {
+                match session.read_request_body().await {
+                    Ok(Some(chunk)) => buf.extend_from_slice(&chunk),
+                    Ok(None) => break,
+                    // Malformed request body (e.g. bad chunk framing): reject with 400
+                    // instead of letting the error bubble up to Pingora's default 500.
+                    Err(_) => {
+                        let mut header = ResponseHeader::build(400, None)?;
+                        header.insert_header("Content-Length", "0")?;
+                        session
+                            .write_response_header(Box::new(header), true)
+                            .await?;
+                        return Ok(true);
+                    }
+                }
             }
             Bytes::from(buf)
         } else {
