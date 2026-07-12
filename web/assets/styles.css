@@ -122,6 +122,19 @@ code,.mono{font-family:var(--mono)}
 .prose pre{background:var(--surface-2);border:1px solid var(--line-2);border-radius:0;padding:15px 17px;
   overflow-x:auto;margin:0 0 16px;font-size:13px;line-height:1.55}
 .prose pre code{background:none;border:0;padding:0;font-size:13px;white-space:pre}
+/* ---- syntax highlighting (highlight.js tokens, theme-aware) ---- */
+:root{--hl-com:#6a737d;--hl-kw:#cf222e;--hl-str:#0a3069;--hl-num:#0550ae;--hl-type:#953800;--hl-fn:#6639ba;--hl-attr:#116329}
+@media (prefers-color-scheme:dark){:root{--hl-com:#8b949e;--hl-kw:#ff7b72;--hl-str:#a5d6ff;--hl-num:#79c0ff;--hl-type:#ffa657;--hl-fn:#d2a8ff;--hl-attr:#7ee787}}
+:root[data-theme="dark"]{--hl-com:#8b949e;--hl-kw:#ff7b72;--hl-str:#a5d6ff;--hl-num:#79c0ff;--hl-type:#ffa657;--hl-fn:#d2a8ff;--hl-attr:#7ee787}
+:root[data-theme="light"]{--hl-com:#6a737d;--hl-kw:#cf222e;--hl-str:#0a3069;--hl-num:#0550ae;--hl-type:#953800;--hl-fn:#6639ba;--hl-attr:#116329}
+.hljs-comment,.hljs-quote{color:var(--hl-com);font-style:italic}
+.hljs-keyword,.hljs-selector-tag,.hljs-literal,.hljs-doctag,.hljs-section,.hljs-name,.hljs-deletion{color:var(--hl-kw)}
+.hljs-string,.hljs-regexp,.hljs-addition,.hljs-attribute,.hljs-meta .hljs-string,.hljs-char.escape_{color:var(--hl-str)}
+.hljs-number,.hljs-symbol,.hljs-bullet,.hljs-link,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-template-tag{color:var(--hl-num)}
+.hljs-built_in,.hljs-type,.hljs-class .hljs-title,.hljs-title.class_,.hljs-meta{color:var(--hl-type)}
+.hljs-title,.hljs-title.function_,.hljs-function .hljs-title{color:var(--hl-fn)}
+.hljs-attr,.hljs-variable,.hljs-template-variable,.hljs-property,.hljs-params,.hljs-tag{color:var(--hl-attr)}
+.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}
 .prose table{border-collapse:collapse;width:auto;max-width:100%;margin:0 0 18px;font-size:14px;display:block;overflow-x:auto}
 .prose th,.prose td{border:1px solid var(--line-2);padding:8px 13px;text-align:left;vertical-align:top}
 .prose th{background:var(--surface-2);font-weight:640;font-size:13px}
@@ -155,9 +168,15 @@ code,.mono{font-family:var(--mono)}
   .menu-toggle{display:inline-block}
   .topbar .nav-links{display:none}
   .search input{width:130px}
-  .main{max-width:none}
+  .main{max-width:none;padding-left:12px;padding-right:12px}
   .scrim{display:none;position:fixed;inset:var(--topbar-h) 0 0;background:rgba(0,0,0,.4);z-index:34}
   body.nav-open .scrim{display:block}
+  /* mobile grid: keep the horizontal swipe inside the matrix, and shrink the
+     sticky test-name column so a narrow screen has room to slide the cells */
+  body{overflow-x:clip}
+  th.corner,td.rid{min-width:150px;max-width:150px}
+  .matrix.we th.corner,.matrix.we td.rid{min-width:132px;max-width:132px}
+  .matrix.we th.ent-h,.matrix.we td.ent{left:132px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
@@ -208,7 +227,8 @@ code,.mono{font-family:var(--mono)}
 .fw-opt .lg{color:var(--muted);font-family:var(--mono);font-size:10px;margin-left:auto}
 
 /* matrix */
-.matrix-scroll{overflow:auto;border:1px solid var(--line-2);border-radius:0;background:var(--surface);
+.matrix-scroll{overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  border:1px solid var(--line-2);border-radius:0;background:var(--surface);
   max-height:80vh;box-shadow:var(--shadow)}
 table.matrix{display:table;border-collapse:separate;border-spacing:0;font-family:var(--mono);font-size:12px}
 th.corner{position:sticky;left:0;top:0;z-index:6;background:var(--surface-2);text-align:left;padding:0 12px;

@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const MarkdownIt = require("markdown-it");
+const hljs = require("highlight.js");
 
 const __dir = path.dirname(fileURLToPath(import.meta.url));
 const CONTENT = path.resolve(__dir, "../docs/content");
@@ -12,7 +13,20 @@ const DIST = path.resolve(__dir, "dist");
 const ASSETS = path.resolve(__dir, "assets");
 const GH = "https://github.com/MDA2AV/Http11Probe";
 
-const md = new MarkdownIt({ html: true, linkify: true, breaks: false });
+const md = new MarkdownIt({
+  html: true, linkify: true, breaks: false,
+  highlight(str, lang){
+    const alias = { jsp: "xml", cs: "csharp", "c++": "cpp", plaintext: "", text: "" };
+    const l = alias[lang] ?? lang;
+    if (l && hljs.getLanguage(l)) {
+      try {
+        const out = hljs.highlight(str, { language: l, ignoreIllegals: true }).value;
+        return `<pre class="hljs"><code class="hljs language-${l}">${out}</code></pre>`;
+      } catch {}
+    }
+    return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
+  }
+});
 
 // ---------- helpers ----------
 const read = p => fs.readFileSync(p, "utf8");
@@ -304,6 +318,12 @@ function main(){
   const src=dataCandidates.find(exists);
   if(src) fs.copyFileSync(src, path.join(DIST,"data.js"));
   else fs.writeFileSync(path.join(DIST,"data.js"),"window.PROBE_DATA={servers:[]};");
+  // per-server pages (servers/*.html) load /probe/data.js + /probe/render.js (the ProbeRender lib)
+  const probeDst=path.join(DIST,"probe"); fs.mkdirSync(probeDst,{recursive:true});
+  if(src) fs.copyFileSync(src, path.join(probeDst,"data.js"));
+  else fs.writeFileSync(path.join(probeDst,"data.js"),"window.PROBE_DATA={servers:[]};");
+  const renderSrc=path.resolve(__dir,"../docs/static/probe/render.js");
+  if(exists(renderSrc)) fs.copyFileSync(renderSrc, path.join(probeDst,"render.js"));
   // GitHub Pages custom domain (keeps www.http-probe.com pointed at this deploy)
   fs.writeFileSync(path.join(DIST,"CNAME"), "www.http-probe.com\n");
 
