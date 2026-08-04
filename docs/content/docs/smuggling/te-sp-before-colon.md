@@ -1,6 +1,6 @@
 ---
-title: "TE-SP-BEFORE-COLON"
-description: "TE-SP-BEFORE-COLON test documentation"
+title: "TE Space Before Colon — Request Smuggling"
+description: "Transfer-Encoding : chunked — space before the colon. Tested against RFC 9112 §5.1."
 weight: 7
 ---
 

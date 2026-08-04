@@ -1,6 +1,6 @@
 ---
-title: "TE-NOT-FINAL-CHUNKED"
-description: "TE-NOT-FINAL-CHUNKED test documentation"
+title: "TE Not Final Chunked — Request Smuggling"
+description: "Transfer-Encoding: chunked, gzip — chunked is not the final encoding. Tested against RFC 9112 §6.3."
 weight: 16
 ---
 

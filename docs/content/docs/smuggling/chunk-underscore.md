@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-UNDERSCORE"
-description: "CHUNK-UNDERSCORE test documentation"
+title: "Chunk Underscore — Request Smuggling"
+description: "Chunk size 1_0 — with underscore separator. Tested against RFC 9112 §7.1."
 weight: 21
 ---
 

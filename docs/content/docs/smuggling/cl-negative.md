@@ -1,6 +1,6 @@
 ---
-title: "CL-NEGATIVE"
-description: "CL-NEGATIVE test documentation"
+title: "CL Negative — Request Smuggling"
+description: "Negative Content-Length: Content-Length: -1. Tested against RFC 9110 Section 8.6."
 weight: 4
 ---
 

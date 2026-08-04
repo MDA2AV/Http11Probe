@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-EXT-INVALID-TOKEN"
-description: "SMUG-CHUNK-EXT-INVALID-TOKEN test documentation"
+title: "Chunk Ext Invalid Token — Request Smuggling"
+description: "A chunk extension with an invalid token character in the extension name (bad[):. Tested against RFC 9112 §7.1.1."
 weight: 1
 ---
 

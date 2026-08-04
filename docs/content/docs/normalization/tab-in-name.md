@@ -1,6 +1,6 @@
 ---
-title: "TAB-IN-NAME"
-description: "TAB-IN-NAME test documentation"
+title: "Tab In Name — Header Normalization"
+description: "A POST request to /echo with a valid Content-Length: 11 for body framing, plus a header containing a tab character in the name: Content\\tLength: 99."
 weight: 3
 ---
 

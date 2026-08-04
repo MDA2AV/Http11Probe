@@ -1,5 +1,6 @@
 ---
 title: Probe Results
+description: "Side-by-side HTTP/1.1 compliance leaderboard comparing servers and frameworks against RFC 9110/9112 requirements, request smuggling, and malformed input handling."
 layout: wide
 toc: false
 ---

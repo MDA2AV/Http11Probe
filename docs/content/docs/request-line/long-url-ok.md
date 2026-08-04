@@ -1,6 +1,6 @@
 ---
-title: "LONG-URL-OK"
-description: "LONG-URL-OK test documentation"
+title: "Long URL OK — HTTP/1.1 Compliance"
+description: "A GET request with a ~7900-character path (well under 8000 octets total for the request-line). Tested against RFC 9112 §3."
 weight: 31
 ---
 

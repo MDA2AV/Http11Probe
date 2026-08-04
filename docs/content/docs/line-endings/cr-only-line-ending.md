@@ -1,6 +1,6 @@
 ---
-title: "CR-ONLY-LINE-ENDING"
-description: "CR-ONLY-LINE-ENDING test documentation"
+title: "CR Only Line Ending — HTTP/1.1 Compliance"
+description: "A request where lines are terminated with \\r (bare CR) instead of \\r\\n (CRLF). Tested against RFC 9112 Section 2.2."
 weight: 3
 ---
 

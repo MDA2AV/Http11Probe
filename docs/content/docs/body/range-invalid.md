@@ -1,6 +1,6 @@
 ---
-title: "RANGE-INVALID"
-description: "RANGE-INVALID test documentation"
+title: "Range Invalid — HTTP/1.1 Compliance"
+description: "A GET request with a syntactically invalid Range header. Tested against RFC 9110 §14.2."
 weight: 14
 ---
 

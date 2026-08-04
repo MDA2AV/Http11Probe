@@ -1,6 +1,6 @@
 ---
-title: "CL-EXTRA-LEADING-SP"
-description: "CL-EXTRA-LEADING-SP test documentation"
+title: "CL Extra Leading Space — Request Smuggling"
+description: "Content-Length: 5 — extra space between colon and value. Tested against RFC 9112 §5."
 weight: 11
 ---
 

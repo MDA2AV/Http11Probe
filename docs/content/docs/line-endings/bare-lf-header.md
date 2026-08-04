@@ -1,6 +1,6 @@
 ---
-title: "BARE-LF-HEADER"
-description: "BARE-LF-HEADER test documentation"
+title: "Bare LF Header — HTTP/1.1 Compliance"
+description: "A valid GET request where one of the header lines is terminated with \\n (bare LF) instead of \\r\\n. Tested against RFC 9112 Section 2.2."
 weight: 2
 ---
 

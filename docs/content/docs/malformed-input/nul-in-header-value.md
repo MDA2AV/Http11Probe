@@ -1,6 +1,6 @@
 ---
-title: "NUL-IN-HEADER-VALUE"
-description: "NUL-IN-HEADER-VALUE test documentation"
+title: "NUL In Header Value — Malformed Input"
+description: "A request with a NUL byte (0x00) embedded in a header value. Part of Http11Probe's malformed input robustness suite."
 weight: 15
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Add a Framework
+description: "How to add an HTTP server to Http11Probe: implement the required endpoints, add a Dockerfile and probe.json, and get automatic RFC 9110/9112 compliance results."
 toc: true
 ---
 

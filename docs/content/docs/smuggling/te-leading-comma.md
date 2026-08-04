@@ -1,6 +1,6 @@
 ---
-title: "TE-LEADING-COMMA"
-description: "TE-LEADING-COMMA test documentation"
+title: "TE Leading Comma — Request Smuggling"
+description: "Transfer-Encoding: , chunked — leading comma before chunked. Tested against RFC 9110 §5.6.1."
 weight: 23
 ---
 

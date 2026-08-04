@@ -1,6 +1,6 @@
 ---
-title: "CL-LEADING-ZEROS-OCTAL"
-description: "CL-LEADING-ZEROS-OCTAL test documentation"
+title: "CL Leading Zeros Octal — Request Smuggling"
+description: "Content-Length with a leading-zero value that differs between decimal and octal interpretation: Content-Length: 0200 with 200 bytes of body (A repeated). Tested against RFC 9110 §8.6."
 weight: 49
 ---
 

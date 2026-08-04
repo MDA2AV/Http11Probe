@@ -1,6 +1,6 @@
 ---
-title: "HTTP10-DEFAULT-CLOSE"
-description: "HTTP10-DEFAULT-CLOSE test documentation"
+title: "HTTP/1.0 Default Close — HTTP/1.1 Compliance"
+description: "An HTTP/1.0 GET request without a Connection: keep-alive header. Tested against RFC 9112 §9.3."
 weight: 7
 ---
 

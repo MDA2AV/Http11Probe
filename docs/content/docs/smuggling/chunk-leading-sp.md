@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-LEADING-SP"
-description: "CHUNK-LEADING-SP test documentation"
+title: "Chunk Leading Space — Request Smuggling"
+description: "Chunk size  5 — with leading space. Tested against RFC 9112 §7.1."
 weight: 28
 ---
 

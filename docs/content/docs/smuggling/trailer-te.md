@@ -1,6 +1,6 @@
 ---
-title: "TRAILER-TE"
-description: "TRAILER-TE test documentation"
+title: "Trailer TE — Request Smuggling"
+description: "A valid chunked request with a Transfer-Encoding: chunked header in the trailer section. Tested against RFC 9110 §6.5.1."
 weight: 33
 ---
 

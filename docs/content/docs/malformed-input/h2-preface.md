@@ -1,6 +1,6 @@
 ---
-title: "H2-PREFACE"
-description: "H2-PREFACE test documentation"
+title: "HTTP/2 Preface — Malformed Input"
+description: "The HTTP/2 connection preface (PRI * HTTP/2.0\\r\\n\\r\\nSM\\r\\n\\r\\n) to an HTTP/1.1 server. Part of Http11Probe's malformed input robustness suite."
 weight: 17
 ---
 

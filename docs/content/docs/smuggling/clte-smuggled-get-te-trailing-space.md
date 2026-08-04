@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET-TE-TRAILING-SPACE"
-description: "CLTE-SMUGGLED-GET-TE-TRAILING-SPACE sequence test documentation"
+title: "CL/TE Smuggled GET TE Trailing Space — Request Smuggling"
+description: "This is a variant of SMUG-CLTE-SMUGGLED-GET where the Transfer-Encoding value includes a trailing space (chunked␠). Some components treat this as invalid and fall back to Content-Length; others…"
 weight: 19
 ---
 

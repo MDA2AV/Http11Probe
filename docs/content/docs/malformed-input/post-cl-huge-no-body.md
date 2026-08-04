@@ -1,6 +1,6 @@
 ---
-title: "POST-CL-HUGE-NO-BODY"
-description: "POST-CL-HUGE-NO-BODY test documentation"
+title: "POST CL Huge No Body — Malformed Input"
+description: "A POST request declaring a ~1GB body via Content-Length but sending no body data at all. Tested against RFC 9112 Section 6.2."
 weight: 26
 ---
 

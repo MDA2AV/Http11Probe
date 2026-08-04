@@ -1,6 +1,6 @@
 ---
-title: "TE-FORMFEED"
-description: "TE-FORMFEED test documentation"
+title: "TE Form-Feed — Request Smuggling"
+description: "Transfer-Encoding: <FF>chunked with Content-Length present. Tested against RFC 9110 §5.5."
 weight: 53
 ---
 

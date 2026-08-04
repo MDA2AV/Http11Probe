@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-TRAILER-VALID"
-description: "CHUNKED-TRAILER-VALID test documentation"
+title: "Chunked Trailer Valid — HTTP/1.1 Compliance"
+description: "A valid chunked POST with a single 5-byte chunk, a zero terminator, and a trailer field (X-Checksum: abc) after the final chunk. Tested against RFC 9112 §7.1.2."
 weight: 11
 ---
 

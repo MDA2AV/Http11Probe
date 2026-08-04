@@ -1,6 +1,6 @@
 ---
-title: "SP-BEFORE-COLON-CL"
-description: "SP-BEFORE-COLON-CL test documentation"
+title: "Space Before Colon CL — Header Normalization"
+description: "A POST request to /echo with a valid Content-Length: 11 for body framing, plus a malformed Content-Length : 5 header with a space before the colon. Tested against RFC 9112 §5."
 weight: 2
 ---
 

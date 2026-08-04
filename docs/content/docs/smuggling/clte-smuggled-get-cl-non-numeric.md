@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET-CL-NON-NUMERIC"
-description: "CLTE-SMUGGLED-GET-CL-NON-NUMERIC sequence test documentation"
+title: "CL/TE Smuggled GET CL Non Numeric — Request Smuggling"
+description: "This is a variant of SMUG-CLTE-SMUGGLED-GET that uses a non-numeric Content-Length value (N<alpha>) while also sending Transfer-Encoding: chunked. Some HTTP stacks reject non-numeric…"
 weight: 16
 ---
 

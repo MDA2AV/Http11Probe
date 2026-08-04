@@ -1,6 +1,6 @@
 ---
-title: "HOST-WITH-USERINFO"
-description: "HOST-WITH-USERINFO test documentation"
+title: "Host With Userinfo — HTTP/1.1 Compliance"
+description: "A request with Host: user@hostname:port. Tested against RFC 9112 Section 3.2."
 weight: 4
 ---
 

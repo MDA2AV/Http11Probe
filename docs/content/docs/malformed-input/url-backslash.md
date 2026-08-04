@@ -1,6 +1,6 @@
 ---
-title: "URL-BACKSLASH"
-description: "URL-BACKSLASH test documentation"
+title: "URL Backslash — Malformed Input"
+description: "A GET request with a backslash in the URL path. Part of Http11Probe's malformed input robustness suite."
 weight: 21
 ---
 

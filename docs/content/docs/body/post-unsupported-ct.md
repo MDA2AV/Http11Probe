@@ -1,6 +1,6 @@
 ---
-title: "POST-UNSUPPORTED-CT"
-description: "POST-UNSUPPORTED-CT test documentation"
+title: "POST Unsupported Content-Type — HTTP/1.1 Compliance"
+description: "A POST request with an unrecognized Content-Type. Tested against RFC 9110 §15.5.16."
 weight: 15
 ---
 

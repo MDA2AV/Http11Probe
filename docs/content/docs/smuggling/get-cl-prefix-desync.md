@@ -1,6 +1,6 @@
 ---
-title: "GET-CL-PREFIX-DESYNC"
-description: "GET-CL-PREFIX-DESYNC sequence test documentation"
+title: "GET CL Prefix Desync — Request Smuggling"
+description: "Step 1 sends a GET with a Content-Length body containing an incomplete request prefix (it intentionally omits the blank line that ends the header section). Step 2 begins with a blank line to…"
 weight: 62
 ---
 

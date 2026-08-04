@@ -1,6 +1,6 @@
 ---
-title: "TRACE-SENSITIVE"
-description: "TRACE-SENSITIVE test documentation"
+title: "TRACE Sensitive — HTTP/1.1 Compliance"
+description: "A TRACE request that includes an Authorization header with a bearer token. Tested against RFC 9110 §9.3.8."
 weight: 33
 ---
 

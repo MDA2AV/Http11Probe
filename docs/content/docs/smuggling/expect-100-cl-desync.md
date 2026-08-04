@@ -1,6 +1,6 @@
 ---
-title: "EXPECT-100-CL-DESYNC"
-description: "SMUG-EXPECT-100-CL-DESYNC test documentation"
+title: "Expect 100 CL Desync — Request Smuggling"
+description: "A POST with Expect: 100-continue and immediate body bytes, followed by a second GET on the same connection. Tested against RFC 9110 §10.1.1."
 weight: 1
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "DATE-HEADER"
-description: "DATE-HEADER test documentation"
+title: "Date Header — HTTP/1.1 Compliance"
+description: "A standard GET request. The test validates that the server includes a Date header in its response. Tested against RFC 9110 §6.6.1."
 weight: 10
 ---
 

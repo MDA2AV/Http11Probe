@@ -1,6 +1,6 @@
 ---
-title: "WHITESPACE-ONLY-LINE"
-description: "WHITESPACE-ONLY-LINE test documentation"
+title: "Whitespace Only Line — Malformed Input"
+description: "A line consisting only of spaces and tabs -- no method, URI, or version. Part of Http11Probe's malformed input robustness suite."
 weight: 14
 ---
 

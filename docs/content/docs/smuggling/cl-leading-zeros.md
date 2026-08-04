@@ -1,6 +1,6 @@
 ---
-title: "CL-LEADING-ZEROS"
-description: "CL-LEADING-ZEROS test documentation"
+title: "CL Leading Zeros — Request Smuggling"
+description: "Content-Length with leading zeros: Content-Length: 005. Tested against RFC 9110 §8.6."
 weight: 3
 ---
 

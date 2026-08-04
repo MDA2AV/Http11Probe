@@ -1,6 +1,6 @@
 ---
-title: "INCOMPLETE-REQUEST"
-description: "INCOMPLETE-REQUEST test documentation"
+title: "Incomplete Request — Malformed Input"
+description: "A partial HTTP request -- the request-line and some headers, but the connection is closed before the final CRLF. Part of Http11Probe's malformed input robustness suite."
 weight: 12
 ---
 

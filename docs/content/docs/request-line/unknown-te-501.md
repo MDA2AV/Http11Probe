@@ -1,6 +1,6 @@
 ---
-title: "UNKNOWN-TE-501"
-description: "UNKNOWN-TE-501 test documentation"
+title: "Unknown TE 501 — HTTP/1.1 Compliance"
+description: "Transfer-Encoding: gzip without any Content-Length — an unknown transfer coding as the only framing. Tested against RFC 9112 Section 6.1."
 weight: 8
 ---
 

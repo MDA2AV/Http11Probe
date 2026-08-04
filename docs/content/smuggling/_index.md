@@ -1,5 +1,6 @@
 ---
 title: Smuggling
+description: "HTTP request smuggling test results across servers, covering Content-Length/Transfer-Encoding conflicts, obfuscated framing, and pipeline injection vectors."
 layout: wide
 toc: false
 ---

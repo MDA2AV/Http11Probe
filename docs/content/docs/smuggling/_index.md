@@ -1,6 +1,6 @@
 ---
 title: Request Smuggling
-description: "Request Smuggling — Http11Probe documentation"
+description: "Request smuggling test documentation covering Content-Length/Transfer-Encoding conflicts, obfuscated framing headers, and pipeline injection vectors."
 weight: 10
 sidebar:
   open: false

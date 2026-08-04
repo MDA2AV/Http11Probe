@@ -1,6 +1,6 @@
 ---
-title: "OPTIONS-TE-OBS-FOLD"
-description: "SMUG-OPTIONS-TE-OBS-FOLD test documentation"
+title: "OPTIONS TE Obs Fold — Request Smuggling"
+description: "A two-step sequence: OPTIONS with folded Transfer-Encoding plus Content-Length, then a follow-up GET. Tested against RFC 9112 §5.2."
 weight: 1
 ---
 

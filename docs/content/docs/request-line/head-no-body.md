@@ -1,6 +1,6 @@
 ---
-title: "HEAD-NO-BODY"
-description: "HEAD-NO-BODY test documentation"
+title: "HEAD No Body — HTTP/1.1 Compliance"
+description: "A standard HEAD request. The server must respond with headers only — no message body. Tested against RFC 9110 §9.3.2."
 weight: 15
 ---
 

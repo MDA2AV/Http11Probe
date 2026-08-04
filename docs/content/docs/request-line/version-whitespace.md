@@ -1,6 +1,6 @@
 ---
-title: "VERSION-WHITESPACE"
-description: "VERSION-WHITESPACE test documentation"
+title: "Version Whitespace — HTTP/1.1 Compliance"
+description: "A request with HTTP/ 1.1 as the version -- a space character inserted between HTTP/ and 1.1. Tested against RFC 9112 §2.3."
 weight: 17
 ---
 

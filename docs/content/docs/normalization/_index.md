@@ -1,6 +1,6 @@
 ---
 title: Header Normalization
-description: "Header Normalization — Http11Probe documentation"
+description: "Echo-based tests checking whether servers normalize malformed header names — underscore-to-hyphen, tab in name, or case folding on Transfer-Encoding."
 weight: 8
 sidebar:
   open: false

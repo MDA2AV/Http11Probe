@@ -1,6 +1,6 @@
 ---
-title: "TE-TAB-BEFORE-VALUE"
-description: "TE-TAB-BEFORE-VALUE test documentation"
+title: "TE Tab Before Value — Request Smuggling"
+description: "Transfer-Encoding with a horizontal tab (HTAB) instead of space as the OWS separator before the value, alongside Content-Length. Tested against RFC 9110 §5.6.3."
 weight: 56
 ---
 

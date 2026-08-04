@@ -1,6 +1,6 @@
 ---
-title: "ETAG-IN-304"
-description: "CAP-ETAG-IN-304 capability test documentation"
+title: "ETag In 304 — Caching"
+description: "This is a sequence test — it verifies that a 304 Not Modified response includes the ETag header, allowing clients to update their cached validators. Tested against RFC 9110 §15.4.5."
 weight: 12
 ---
 

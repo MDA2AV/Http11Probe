@@ -1,6 +1,6 @@
 ---
-title: "EMPTY"
-description: "COOK-EMPTY cookie test documentation"
+title: "Empty — Cookie Handling"
+description: "Empty Cookie header value — tests parser resilience. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 3
 ---
 

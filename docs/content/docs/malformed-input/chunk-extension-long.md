@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-EXT-64K"
-description: "CHUNK-EXT-64K test documentation"
+title: "Chunk Extension Long — Malformed Input"
+description: "A chunked request with a chunk extension containing 64KB (65,536 bytes) of data. Part of Http11Probe's malformed input robustness suite."
 weight: 18
 ---
 

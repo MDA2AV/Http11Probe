@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-LF-TERM"
-description: "CHUNK-LF-TERM test documentation"
+title: "Chunk LF Term — Request Smuggling"
+description: "A chunked request where the chunk data terminator is a bare LF (\\n) instead of CRLF (\\r\\n): 5\\r\\nhello\\n0\\r\\n\\r\\n. Tested against RFC 9112 §7.1."
 weight: 27
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "TE-OBS-FOLD"
-description: "TE-OBS-FOLD test documentation"
+title: "TE Obs Fold — Request Smuggling"
+description: "Transfer-Encoding header value wrapped using obs-fold (obsolete line folding), with Content-Length also present. Tested against RFC 9112 §5.2."
 weight: 50
 ---
 

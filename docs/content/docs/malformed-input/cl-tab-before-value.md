@@ -1,6 +1,6 @@
 ---
-title: "CL-TAB-BEFORE-VALUE"
-description: "CL-TAB-BEFORE-VALUE test documentation"
+title: "CL Tab Before Value — Malformed Input"
+description: "Content-Length:\\t5 — a Content-Length header where a horizontal tab character separates the colon from the value, instead of a space. Tested against RFC 9110 Section 5.5."
 weight: 20
 ---
 

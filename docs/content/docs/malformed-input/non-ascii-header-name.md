@@ -1,6 +1,6 @@
 ---
-title: "NON-ASCII-HEADER-NAME"
-description: "NON-ASCII-HEADER-NAME test documentation"
+title: "Non Ascii Header Name — Malformed Input"
+description: "A request with non-ASCII bytes (\\x80-\\xFF) in a header field name. Part of Http11Probe's malformed input robustness suite."
 weight: 9
 ---
 

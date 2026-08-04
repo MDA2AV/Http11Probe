@@ -1,6 +1,6 @@
 ---
-title: "PARSED-SPECIAL"
-description: "COOK-PARSED-SPECIAL cookie test documentation"
+title: "Parsed Special — Cookie Handling"
+description: "Cookies with spaces and = in values — tests framework parser edge cases. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 12
 ---
 

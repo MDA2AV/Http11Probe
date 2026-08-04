@@ -1,6 +1,6 @@
 ---
-title: "HTTP12-VERSION"
-description: "HTTP12-VERSION test documentation"
+title: "HTTP/1.2 Version — HTTP/1.1 Compliance"
+description: "A request using HTTP version 1.2, which does not exist but has a higher minor version than 1.1. Tested against RFC 9112 §2.3."
 weight: 19
 ---
 

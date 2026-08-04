@@ -1,6 +1,6 @@
 ---
-title: "CL-HEX-PREFIX"
-description: "CL-HEX-PREFIX test documentation"
+title: "CL Hex Prefix — Request Smuggling"
+description: "Content-Length: 0x5 — CL with hex prefix. Tested against RFC 9110 Section 8.6."
 weight: 26
 ---
 

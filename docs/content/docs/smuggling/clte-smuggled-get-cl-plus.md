@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET-CL-PLUS"
-description: "CLTE-SMUGGLED-GET-CL-PLUS sequence test documentation"
+title: "CL/TE Smuggled GET CL Plus — Request Smuggling"
+description: "This is a variant of SMUG-CLTE-SMUGGLED-GET that uses a malformed Content-Length header (+N) while also sending Transfer-Encoding: chunked. Some HTTP stacks reject Content-Length: +N as…"
 weight: 15
 ---
 

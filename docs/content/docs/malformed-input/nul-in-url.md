@@ -1,6 +1,6 @@
 ---
-title: "NUL-IN-URL"
-description: "NUL-IN-URL test documentation"
+title: "NUL In URL — Malformed Input"
+description: "A request with a NUL byte (\\x00) embedded in the URL. Part of Http11Probe's malformed input robustness suite."
 weight: 7
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "OPTIONS-ALLOW"
-description: "OPTIONS-ALLOW test documentation"
+title: "OPTIONS Allow — HTTP/1.1 Compliance"
+description: "An OPTIONS request to the root path, asking the server to describe its capabilities for that resource. Tested against RFC 9110 §9.3.7."
 weight: 18
 ---
 

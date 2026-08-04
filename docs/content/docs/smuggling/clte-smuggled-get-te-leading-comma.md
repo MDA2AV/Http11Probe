@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET-TE-LEADING-COMMA"
-description: "CLTE-SMUGGLED-GET-TE-LEADING-COMMA sequence test documentation"
+title: "CL/TE Smuggled GET TE Leading Comma — Request Smuggling"
+description: "This is a variant of SMUG-CLTE-SMUGGLED-GET where the Transfer-Encoding field value contains a leading comma (\", chunked\"). Some parsers ignore empty list elements and treat this as equivalent…"
 weight: 20
 ---
 

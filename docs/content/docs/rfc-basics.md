@@ -1,6 +1,6 @@
 ---
 title: RFC Basics
-description: "RFC Basics — Http11Probe documentation"
+description: "An introduction to RFCs and RFC 2119 requirement levels (MUST/SHOULD/MAY), and how RFC 9110 and RFC 9112 define the HTTP/1.1 protocol."
 weight: 3
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "POST-CL-ZERO"
-description: "POST-CL-ZERO test documentation"
+title: "POST CL Zero — HTTP/1.1 Compliance"
+description: "A POST with Content-Length: 0 and no body bytes after the headers. Tested against RFC 9112 Section 6.2."
 weight: 2
 ---
 

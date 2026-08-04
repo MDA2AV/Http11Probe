@@ -1,6 +1,6 @@
 ---
-title: "RANGE-OVERLAPPING"
-description: "RANGE-OVERLAPPING test documentation"
+title: "Range Overlapping — Malformed Input"
+description: "A GET request with a Range header containing 1,000 overlapping range values. Tested against RFC 9110 Section 14.2."
 weight: 25
 ---
 

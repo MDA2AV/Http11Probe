@@ -1,6 +1,6 @@
 ---
-title: "METHOD-CONNECT"
-description: "METHOD-CONNECT test documentation"
+title: "Method CONNECT — HTTP/1.1 Compliance"
+description: "CONNECT example.com:443 HTTP/1.1 — a CONNECT request sent directly to an origin server (not a proxy). Tested against RFC 9110 Section 9.3.6."
 weight: 12
 ---
 

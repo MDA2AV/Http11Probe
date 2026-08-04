@@ -1,6 +1,6 @@
 ---
-title: "UPGRADE-INVALID-VER"
-description: "UPGRADE-INVALID-VER test documentation"
+title: "Upgrade Invalid Version — WebSocket Upgrade"
+description: "A valid WebSocket upgrade request with Sec-WebSocket-Version: 99 — a version the server does not support. Tested against RFC 6455 Section 4.4."
 weight: 4
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "CL-EMPTY"
-description: "CL-EMPTY test documentation"
+title: "CL Empty — Malformed Input"
+description: "Content-Length:  — a Content-Length header with an empty value (just whitespace after the colon). Tested against RFC 9110 Section 8.6."
 weight: 19
 ---
 

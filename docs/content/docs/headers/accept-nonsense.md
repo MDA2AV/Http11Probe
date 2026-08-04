@@ -1,6 +1,6 @@
 ---
-title: "ACCEPT-NONSENSE"
-description: "ACCEPT-NONSENSE test documentation"
+title: "Accept Nonsense — HTTP/1.1 Compliance"
+description: "A GET request with an Accept header requesting a non-existent media type. Tested against RFC 9110 §12.5.1."
 weight: 21
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "PARSED-EMPTY-VAL"
-description: "COOK-PARSED-EMPTY-VAL cookie test documentation"
+title: "Parsed Empty Val — Cookie Handling"
+description: "Cookie with empty value parsed without crash. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 11
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "PIPELINE-SAFE"
-description: "PIPELINE-SAFE baseline sequence test documentation"
+title: "Pipeline Safe — Request Smuggling"
+description: "This is a baseline sequence test — it sends two clean, unambiguous requests on the same keep-alive connection to verify the server supports normal HTTP/1.1 pipelining."
 weight: 15
 ---
 

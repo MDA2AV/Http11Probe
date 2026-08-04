@@ -1,6 +1,6 @@
 ---
-title: "UNKNOWN-METHOD"
-description: "UNKNOWN-METHOD test documentation"
+title: "Unknown Method — HTTP/1.1 Compliance"
+description: "A request with a completely fabricated method name that no server should recognize. Tested against RFC 9110 §9.1."
 weight: 16
 ---
 

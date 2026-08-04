@@ -1,5 +1,6 @@
 ---
 title: Cookies
+description: "Cookie header parsing resilience across HTTP servers, testing oversized values, NUL bytes, control characters, and malformed pairs per RFC 6265."
 layout: wide
 toc: false
 ---

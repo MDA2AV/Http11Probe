@@ -1,6 +1,6 @@
 ---
-title: "BARE-LF-REQUEST-LINE"
-description: "BARE-LF-REQUEST-LINE test documentation"
+title: "Bare LF Request Line — HTTP/1.1 Compliance"
+description: "A GET / HTTP/1.1 request where the request-line is terminated with \\n (bare LF) instead of \\r\\n (CRLF). Tested against RFC 9112 Section 2.2."
 weight: 1
 ---
 

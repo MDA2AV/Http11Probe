@@ -1,6 +1,6 @@
 ---
-title: "BINARY-GARBAGE"
-description: "BINARY-GARBAGE test documentation"
+title: "Binary Garbage — Malformed Input"
+description: "Random binary bytes that do not constitute any valid HTTP message. Part of Http11Probe's malformed input robustness suite."
 weight: 1
 ---
 

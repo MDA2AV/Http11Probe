@@ -1,6 +1,6 @@
 ---
-title: "UPGRADE-UNKNOWN"
-description: "UPGRADE-UNKNOWN test documentation"
+title: "Upgrade Unknown — WebSocket Upgrade"
+description: "A GET request with Connection: Upgrade and Upgrade: totally-made-up/1.0 — a protocol the server cannot possibly support. Tested against RFC 9110 Section 7.8."
 weight: 3
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-HEX-PREFIX"
-description: "CHUNK-HEX-PREFIX test documentation"
+title: "Chunk Hex Prefix — Request Smuggling"
+description: "Chunk size 0x5 — with C-style hex prefix. Tested against RFC 9112 §7.1."
 weight: 25
 ---
 

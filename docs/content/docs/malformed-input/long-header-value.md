@@ -1,6 +1,6 @@
 ---
-title: "LONG-HEADER-VALUE"
-description: "LONG-HEADER-VALUE test documentation"
+title: "Long Header Value — Malformed Input"
+description: "A request with a ~100 KB header field value. Part of Http11Probe's malformed input robustness suite."
 weight: 4
 ---
 

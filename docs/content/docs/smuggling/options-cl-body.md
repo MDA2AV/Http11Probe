@@ -1,6 +1,6 @@
 ---
-title: "OPTIONS-CL-BODY"
-description: "OPTIONS-CL-BODY test documentation"
+title: "OPTIONS CL Body — Request Smuggling"
+description: "OPTIONS / HTTP/1.1 with Content-Length: 5 and body hello. Tested against RFC 9110 §9.3.7."
 weight: 36
 ---
 

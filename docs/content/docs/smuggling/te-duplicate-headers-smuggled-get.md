@@ -1,6 +1,6 @@
 ---
-title: "TE-DUPLICATE-HEADERS-SMUGGLED-GET"
-description: "TE-DUPLICATE-HEADERS-SMUGGLED-GET sequence test documentation"
+title: "TE Duplicate Headers Smuggled GET — Request Smuggling"
+description: "This is a TE.TE + CL ambiguity variant of SMUG-CLTE-SMUGGLED-GET. It sends two Transfer-Encoding header fields with different values (chunked and identity) plus a Content-Length, and embeds a…"
 weight: 22
 ---
 

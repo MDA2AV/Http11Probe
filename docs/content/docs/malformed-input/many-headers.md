@@ -1,6 +1,6 @@
 ---
-title: "MANY-HEADERS"
-description: "MANY-HEADERS test documentation"
+title: "Many Headers — Malformed Input"
+description: "A request with 10,000 header fields. Part of Http11Probe's malformed input robustness suite."
 weight: 6
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "BASELINE"
-description: "BASELINE test documentation"
+title: "Baseline Reachability Test"
+description: "The COMP-BASELINE sanity check that confirms a target HTTP/1.1 server is reachable and parses well-formed requests before running negative tests."
 weight: 4
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-HEX-UPPERCASE"
-description: "CHUNKED-HEX-UPPERCASE test documentation"
+title: "Chunked Hex Uppercase — HTTP/1.1 Compliance"
+description: "A valid chunked POST where the chunk size is expressed using an uppercase hexadecimal digit: A (which equals 10 in decimal), followed by exactly 10 bytes of data. Tested against RFC 9112 §7.1."
 weight: 12
 ---
 

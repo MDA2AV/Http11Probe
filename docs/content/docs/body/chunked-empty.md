@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-EMPTY"
-description: "CHUNKED-EMPTY test documentation"
+title: "Chunked Empty — HTTP/1.1 Compliance"
+description: "A chunked POST with only the zero terminator — a zero-length body. Tested against RFC 9112 Section 7.1."
 weight: 8
 ---
 

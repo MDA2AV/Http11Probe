@@ -1,5 +1,6 @@
 ---
 title: Caching
+description: "Conditional request support across HTTP/1.1 servers, covering ETag, Last-Modified, If-None-Match precedence, and weak comparison behavior."
 layout: wide
 toc: false
 ---

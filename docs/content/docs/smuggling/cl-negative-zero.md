@@ -1,6 +1,6 @@
 ---
-title: "CL-NEGATIVE-ZERO"
-description: "CL-NEGATIVE-ZERO test documentation"
+title: "CL Negative Zero — Request Smuggling"
+description: "Content-Length with a negative zero value: Content-Length: -0. Tested against RFC 9110 §8.6."
 weight: 47
 ---
 

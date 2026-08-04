@@ -1,6 +1,6 @@
 ---
-title: "EXPECT-UNKNOWN"
-description: "EXPECT-UNKNOWN test documentation"
+title: "Expect Unknown — HTTP/1.1 Compliance"
+description: "Expect: 200-ok — an Expect header with a value the server cannot fulfill. Tested against RFC 9110 Section 10.1.1."
 weight: 7
 ---
 

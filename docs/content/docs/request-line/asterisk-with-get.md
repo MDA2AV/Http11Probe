@@ -1,6 +1,6 @@
 ---
-title: "ASTERISK-WITH-GET"
-description: "ASTERISK-WITH-GET test documentation"
+title: "Asterisk With GET — HTTP/1.1 Compliance"
+description: "GET * HTTP/1.1 — the asterisk-form request-target with a non-OPTIONS method. Tested against RFC 9112 Section 3.2.4."
 weight: 6
 ---
 

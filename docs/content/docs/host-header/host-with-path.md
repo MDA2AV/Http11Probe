@@ -1,6 +1,6 @@
 ---
-title: "HOST-WITH-PATH"
-description: "HOST-WITH-PATH test documentation"
+title: "Host With Path — HTTP/1.1 Compliance"
+description: "A request with Host: hostname:port/path. Tested against RFC 9112 Section 3.2."
 weight: 5
 ---
 

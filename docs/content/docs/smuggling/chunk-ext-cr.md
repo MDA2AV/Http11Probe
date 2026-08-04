@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-EXT-CR"
-description: "CHUNK-EXT-CR test documentation"
+title: "Chunk Ext CR — Request Smuggling"
+description: "A chunk-size line where a bare CR appears inside the extension area, not as a valid CRLF terminator. Tested against RFC 9112 §7.1.1."
 weight: 51
 ---
 

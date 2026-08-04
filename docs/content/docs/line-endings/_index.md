@@ -1,6 +1,6 @@
 ---
 title: Line Endings
-description: "Line Endings — Http11Probe documentation"
+description: "CRLF line-ending requirements for HTTP/1.1 messages, testing bare LF handling and bare CR rejection per RFC 9112 Section 2.2."
 weight: 4
 sidebar:
   open: false

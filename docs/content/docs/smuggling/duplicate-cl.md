@@ -1,6 +1,6 @@
 ---
-title: "DUPLICATE-CL"
-description: "DUPLICATE-CL test documentation"
+title: "Duplicate CL — Request Smuggling"
+description: "Two Content-Length headers with different values. Tested against RFC 9110 Section 8.6."
 weight: 2
 ---
 

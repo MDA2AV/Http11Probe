@@ -1,6 +1,6 @@
 ---
-title: "CLTE-DESYNC"
-description: "CLTE-DESYNC sequence test documentation"
+title: "CL/TE Desync — Request Smuggling"
+description: "This is a sequence test that detects actual CL.TE request boundary desynchronization — the classic request smuggling attack. Tested against RFC 9112 §6.1."
 weight: 13
 ---
 

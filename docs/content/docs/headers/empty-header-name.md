@@ -1,6 +1,6 @@
 ---
-title: "EMPTY-HEADER-NAME"
-description: "EMPTY-HEADER-NAME test documentation"
+title: "Empty Header Name — HTTP/1.1 Compliance"
+description: "A header line starting with a colon — effectively an empty field name: : value. Tested against RFC 9112 Section 5."
 weight: 3
 ---
 

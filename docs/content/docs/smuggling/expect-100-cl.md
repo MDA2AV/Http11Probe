@@ -1,6 +1,6 @@
 ---
-title: "EXPECT-100-CL"
-description: "EXPECT-100-CL test documentation"
+title: "Expect 100 CL — Request Smuggling"
+description: "POST with Content-Length: 5 and Expect: 100-continue, body included immediately. Tested against RFC 9110 §10.1.1."
 weight: 33
 ---
 

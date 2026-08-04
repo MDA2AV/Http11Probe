@@ -1,5 +1,6 @@
 ---
 title: Compliance
+description: "RFC 9110/9112 compliance results for HTTP/1.1 servers, covering request-line parsing, header syntax, Host validation, and body framing requirements."
 layout: wide
 toc: false
 ---

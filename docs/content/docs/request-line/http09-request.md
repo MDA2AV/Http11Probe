@@ -1,6 +1,6 @@
 ---
-title: "HTTP09-REQUEST"
-description: "HTTP09-REQUEST test documentation"
+title: "HTTP/0.9 Request — HTTP/1.1 Compliance"
+description: "An HTTP/0.9 style request: GET /\\r\\n — a method and target with no HTTP version. Tested against RFC 9112 Section 2.3."
 weight: 5
 ---
 

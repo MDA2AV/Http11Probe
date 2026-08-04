@@ -1,6 +1,6 @@
 ---
-title: "VERSION-CASE"
-description: "VERSION-CASE test documentation"
+title: "Version Case — HTTP/1.1 Compliance"
+description: "A GET request with lowercase http/1.1 instead of HTTP/1.1. Tested against RFC 9112 §2.3."
 weight: 30
 ---
 

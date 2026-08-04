@@ -1,6 +1,6 @@
 ---
-title: "ECHO"
-description: "COOK-ECHO cookie test documentation"
+title: "Echo — Cookie Handling"
+description: "Basic Cookie header echoed back by /echo endpoint. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 1
 ---
 

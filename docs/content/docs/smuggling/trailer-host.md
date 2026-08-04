@@ -1,6 +1,6 @@
 ---
-title: "TRAILER-HOST"
-description: "TRAILER-HOST test documentation"
+title: "Trailer Host — Request Smuggling"
+description: "A valid chunked request with Host: evil.example.com in the trailer section, while the actual Host header in the request points to the real server. Tested against RFC 9110 §6.5.2."
 weight: 34
 ---
 

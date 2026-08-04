@@ -1,6 +1,6 @@
 ---
-title: "TE-CASE-MISMATCH"
-description: "TE-CASE-MISMATCH test documentation"
+title: "TE Case Mismatch — Request Smuggling"
+description: "Transfer-Encoding: Chunked — capital C instead of lowercase. Tested against RFC 9112 §6.1."
 weight: 14
 ---
 

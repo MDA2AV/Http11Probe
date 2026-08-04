@@ -1,6 +1,6 @@
 ---
-title: "UPGRADE-MISSING-CONN"
-description: "UPGRADE-MISSING-CONN test documentation"
+title: "Upgrade Missing Conn — WebSocket Upgrade"
+description: "A GET request with Upgrade: websocket and WebSocket handshake headers, but without the required Connection: Upgrade header. Tested against RFC 9110 Section 7.8."
 weight: 2
 ---
 

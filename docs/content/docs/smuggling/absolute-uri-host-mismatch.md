@@ -1,6 +1,6 @@
 ---
-title: "ABSOLUTE-URI-HOST-MISMATCH"
-description: "ABSOLUTE-URI-HOST-MISMATCH test documentation"
+title: "Absolute URI Host Mismatch — Request Smuggling"
+description: "A GET request using absolute-form URI with a host that differs from the Host header. Tested against RFC 9112 §3.2.2."
 weight: 57
 ---
 

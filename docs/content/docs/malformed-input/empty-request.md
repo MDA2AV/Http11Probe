@@ -1,6 +1,6 @@
 ---
-title: "EMPTY-REQUEST"
-description: "EMPTY-REQUEST test documentation"
+title: "Empty Request — Malformed Input"
+description: "Zero bytes -- the TCP connection is established and then closed without sending any data. Part of Http11Probe's malformed input robustness suite."
 weight: 13
 ---
 

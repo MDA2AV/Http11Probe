@@ -1,6 +1,6 @@
 ---
-title: "GET-WITH-CL-BODY"
-description: "GET-WITH-CL-BODY test documentation"
+title: "GET With CL Body — HTTP/1.1 Compliance"
+description: "A GET request with Content-Length: 5 and a body (hello). Tested against RFC 9110 Section 9.3.1."
 weight: 5
 ---
 

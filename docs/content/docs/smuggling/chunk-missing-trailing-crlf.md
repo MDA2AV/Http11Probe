@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-MISSING-TRAILING-CRLF"
-description: "CHUNK-MISSING-TRAILING-CRLF test documentation"
+title: "Chunk Missing Trailing CRLF — Request Smuggling"
+description: "Chunk data without the required trailing CRLF after data. Tested against RFC 9112 §7.1."
 weight: 29
 ---
 

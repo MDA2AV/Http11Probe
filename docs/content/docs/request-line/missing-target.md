@@ -1,6 +1,6 @@
 ---
-title: "MISSING-TARGET"
-description: "MISSING-TARGET test documentation"
+title: "Missing Target — HTTP/1.1 Compliance"
+description: "A request-line with no request-target: GET HTTP/1.1 (method directly followed by version, no URI). Tested against RFC 9112 Section 3."
 weight: 2
 ---
 

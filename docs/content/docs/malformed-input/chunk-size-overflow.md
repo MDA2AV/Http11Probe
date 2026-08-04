@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-SIZE-OVERFLOW"
-description: "CHUNK-SIZE-OVERFLOW test documentation"
+title: "Chunk Size Overflow — Malformed Input"
+description: "A chunked request with a chunk size of FFFFFFFFFFFFFFFF0 — a value exceeding the maximum 64-bit unsigned integer. Part of Http11Probe's malformed input robustness suite."
 weight: 16
 ---
 

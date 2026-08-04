@@ -1,6 +1,6 @@
 ---
-title: "CL-COMMA-DIFFERENT"
-description: "CL-COMMA-DIFFERENT test documentation"
+title: "CL Comma Different — Request Smuggling"
+description: "Content-Length: 5, 10 — comma-separated CL with different values. Tested against RFC 9110 Section 8.6."
 weight: 15
 ---
 

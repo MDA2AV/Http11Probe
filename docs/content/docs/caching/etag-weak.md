@@ -1,6 +1,6 @@
 ---
-title: "ETAG-WEAK"
-description: "CAP-ETAG-WEAK capability test documentation"
+title: "ETag Weak — Caching"
+description: "This is a sequence test — it captures the server's ETag and resends it with a W/ weak prefix in If-None-Match to test whether the server uses the weak comparison function for GET requests."
 weight: 18
 ---
 

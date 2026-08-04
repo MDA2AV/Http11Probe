@@ -1,6 +1,6 @@
 ---
 title: Caching
-description: "Caching — Http11Probe documentation"
+description: "Conditional request tests for ETag, Last-Modified, and If-None-Match handling, covering precedence, wildcard matching, and weak comparison."
 weight: 12
 sidebar:
   open: false

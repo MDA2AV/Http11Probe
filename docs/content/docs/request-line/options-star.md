@@ -1,6 +1,6 @@
 ---
-title: "OPTIONS-STAR"
-description: "OPTIONS-STAR test documentation"
+title: "OPTIONS Star — HTTP/1.1 Compliance"
+description: "OPTIONS * HTTP/1.1 — the valid asterisk-form request. Tested against RFC 9112 Section 3.2.4."
 weight: 7
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "DATE-FORMAT"
-description: "DATE-FORMAT test documentation"
+title: "Date Format — HTTP/1.1 Compliance"
+description: "Sends a standard GET request and checks whether the Date response header uses the preferred IMF-fixdate format. Tested against RFC 9110 §5.6.7."
 weight: 20
 ---
 
