@@ -12,6 +12,7 @@ const CONTENT = path.resolve(__dir, "../docs/content");
 const DIST = path.resolve(__dir, "dist");
 const ASSETS = path.resolve(__dir, "assets");
 const GH = "https://github.com/MDA2AV/Http11Probe";
+const SITE = "https://www.http-probe.com";
 
 const md = new MarkdownIt({
   html: true, linkify: true, breaks: false,
@@ -278,6 +279,12 @@ function buildRfcmap(pages){
   return map;
 }
 
+// ---------- sitemap ----------
+function buildSitemap(urls){
+  const body = urls.map(u=>`  <url><loc>${esc(SITE+u)}</loc></url>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
+}
+
 // ---------- run ----------
 function main(){
   if(exists(DIST)) fs.rmSync(DIST,{recursive:true});
@@ -329,6 +336,11 @@ function main(){
   if(exists(renderSrc)) fs.copyFileSync(renderSrc, path.join(probeDst,"render.js"));
   // GitHub Pages custom domain (keeps www.http-probe.com pointed at this deploy)
   fs.writeFileSync(path.join(DIST,"CNAME"), "www.http-probe.com\n");
+
+  // sitemap + robots
+  const urls = ["/", "/entropy.html", ...pages.map(pg=>pg.url)];
+  fs.writeFileSync(path.join(DIST,"sitemap.xml"), buildSitemap(urls));
+  fs.writeFileSync(path.join(DIST,"robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 
   console.log(`Built ${pages.length} pages + landing → dist/`);
   console.log(`  glossary test links: ${Object.keys(slugmap).length}  ·  search entries: ${idx.length}  ·  data.js: ${src?"copied":"STUB"}`);
