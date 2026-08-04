@@ -86,7 +86,7 @@ function buildPages(){
   const push=(srcPath, url, extra)=>{
     const {fm,body}=frontmatter(read(srcPath));
     pages.push({ srcPath, url, body, title:fm.title||path.basename(srcPath,".md"),
-      weight:parseInt(fm.weight)||999, ...extra });
+      description:fm.description||"", weight:parseInt(fm.weight)||999, ...extra });
   };
   // docs/**
   for(const p of walk(path.join(CONTENT,"docs"))){
@@ -155,10 +155,10 @@ function link(pg,active,cls){
 }
 
 // ---------- template ----------
-function shell({title, navHtml, bodyHtml, breadcrumb, wide, headExtra="", scripts="", contentClass="prose"}){
+function shell({title, description, navHtml, bodyHtml, breadcrumb, wide, headExtra="", scripts="", contentClass="prose"}){
   return `<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)} · Http11Probe</title>
+<title>${esc(title)} · Http11Probe</title>${description?`\n<meta name="description" content="${esc(description)}">`:""}
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔀</text></svg>">
 <link rel="stylesheet" href="/assets/styles.css">${headExtra}
 </head><body>
@@ -204,7 +204,7 @@ function breadcrumbFor(pg){
 }
 
 // ---------- landing (matrix) ----------
-function landing(navHtml){
+function landing(navHtml, description){
   const body=`<div class="hero-lite">
     <h1>HTTP/1.1 behaviour, measured</h1>
     <p>Every framework, every probe, one grid. Green passes, amber warns (the RFC permits either), red fails.
@@ -222,7 +222,7 @@ function landing(navHtml){
   <div class="matrix-scroll"><table class="matrix" id="matrix"><thead id="mhead"></thead><tbody id="mbody"></tbody></table></div>
   <div class="rowcount" id="rowcount"></div>
   <div id="tip"></div>`;
-  return shell({ title:"Results", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
+  return shell({ title:"Results", description, navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
     scripts:`\n<script src="/data.js"></script>\n<script src="/assets/llm-choice.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
@@ -251,7 +251,8 @@ function entropyPage(navHtml){
   <div class="matrix-scroll"><table class="matrix" id="matrix"><thead id="mhead"></thead><tbody id="mbody"></tbody></table></div>
   <div class="rowcount" id="rowcount"></div>
   <div id="tip"></div>`;
-  return shell({ title:"Entropy", navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
+  return shell({ title:"Entropy", description:"Which HTTP/1.1 MUST-level compliance, smuggling, and malformed-input tests frameworks disagree on most, ranked by Shannon entropy of verdicts across servers.",
+    navHtml, bodyHtml:body, wide:true, contentClass:"matrix-page",
     scripts:`\n<script>window.GRID_CONFIG=${JSON.stringify(cfg)};</script>\n<script src="/data.js"></script>\n<script src="/assets/llm-choice.js"></script>\n<script src="/slugmap.js"></script>\n<script src="/rfcmap.js"></script>\n<script src="/assets/grid.js"></script>` });
 }
 
@@ -290,12 +291,14 @@ function main(){
     const out=path.join(DIST, outRel.replace(/^\//,""));
     ensure(out);
     const nav=buildNav(pages, pg.url);
-    const html=shell({ title:pg.forceTitle||pg.title, navHtml:nav, bodyHtml:renderMarkdown(pg),
+    const html=shell({ title:pg.forceTitle||pg.title, description:pg.description, navHtml:nav, bodyHtml:renderMarkdown(pg),
       breadcrumb:breadcrumbFor(pg), wide:pg.url==="/docs/rfc-requirement-dashboard.html" });
     fs.writeFileSync(out, html);
   }
   // landing + entropy study
-  fs.writeFileSync(path.join(DIST,"index.html"), landing(buildNav(pages,"/")));
+  const homeIdx=path.join(CONTENT,"_index.md");
+  const homeDescription=exists(homeIdx)?frontmatter(read(homeIdx)).fm.description||"":"";
+  fs.writeFileSync(path.join(DIST,"index.html"), landing(buildNav(pages,"/"), homeDescription));
   fs.writeFileSync(path.join(DIST,"entropy.html"), entropyPage(buildNav(pages,"/entropy.html")));
 
   // search index
