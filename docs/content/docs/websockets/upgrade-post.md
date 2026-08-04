@@ -1,6 +1,6 @@
 ---
-title: "UPGRADE-POST"
-description: "UPGRADE-POST test documentation"
+title: "Upgrade POST — WebSocket Upgrade"
+description: "A WebSocket upgrade request using POST instead of GET, with all standard WebSocket headers (Connection: Upgrade, Upgrade: websocket, Sec-WebSocket-Key, Sec-WebSocket-Version: 13)."
 weight: 1
 ---
 

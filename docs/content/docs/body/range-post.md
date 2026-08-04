@@ -1,6 +1,6 @@
 ---
-title: "RANGE-POST"
-description: "RANGE-POST test documentation"
+title: "Range POST — HTTP/1.1 Compliance"
+description: "A POST request with a Range header. The Range mechanism only applies to GET requests. Tested against RFC 9110 §14.2."
 weight: 13
 ---
 

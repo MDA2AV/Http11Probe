@@ -1,6 +1,6 @@
 ---
-title: "LONG-METHOD"
-description: "LONG-METHOD test documentation"
+title: "Long Method — Malformed Input"
+description: "A request with a ~100 KB method name. Part of Http11Probe's malformed input robustness suite."
 weight: 5
 ---
 

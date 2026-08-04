@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-BARE-SEMICOLON"
-description: "CHUNK-BARE-SEMICOLON test documentation"
+title: "Chunk Bare Semicolon — Request Smuggling"
+description: "Chunk size 5; with a semicolon but no extension name. Tested against RFC 9112 §7.1.1."
 weight: 18
 ---
 

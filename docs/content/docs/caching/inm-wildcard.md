@@ -1,6 +1,6 @@
 ---
-title: "INM-WILDCARD"
-description: "CAP-INM-WILDCARD capability test documentation"
+title: "If-None-Match Wildcard — Caching"
+description: "This is a sequence test — it uses the wildcard * value in If-None-Match to test whether the server recognizes that any current representation matches. Tested against RFC 9110 §13.1.2."
 weight: 14
 ---
 

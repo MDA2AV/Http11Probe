@@ -1,6 +1,6 @@
 ---
-title: "SPACE-IN-TARGET"
-description: "SPACE-IN-TARGET test documentation"
+title: "Space In Target — HTTP/1.1 Compliance"
+description: "A GET request with an unencoded space inside the request-target. Tested against RFC 9112 §3.2."
 weight: 32
 ---
 

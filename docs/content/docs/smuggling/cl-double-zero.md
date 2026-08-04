@@ -1,6 +1,6 @@
 ---
-title: "CL-DOUBLE-ZERO"
-description: "CL-DOUBLE-ZERO test documentation"
+title: "CL Double Zero — Request Smuggling"
+description: "Content-Length with a double-zero value: Content-Length: 00. Tested against RFC 9110 §8.6."
 weight: 48
 ---
 

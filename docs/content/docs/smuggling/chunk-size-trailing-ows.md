@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-SIZE-TRAILING-OWS"
-description: "SMUG-CHUNK-SIZE-TRAILING-OWS test documentation"
+title: "Chunk Size Trailing OWS — Request Smuggling"
+description: "A chunked request with trailing whitespace after the chunk-size token. Tested against RFC 9112 §7.1."
 weight: 1
 ---
 

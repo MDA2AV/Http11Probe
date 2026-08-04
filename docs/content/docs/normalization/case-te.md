@@ -1,6 +1,6 @@
 ---
-title: "CASE-TE"
-description: "CASE-TE test documentation"
+title: "Case TE — Header Normalization"
+description: "A POST request to /echo with a valid Content-Length: 11 for body framing, plus an all-uppercase TRANSFER-ENCODING: chunked header."
 weight: 4
 ---
 

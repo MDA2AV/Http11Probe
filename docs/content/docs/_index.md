@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: "Glossary — Http11Probe documentation"
+description: "Reference documentation for every Http11Probe test, organized by topic, explaining the RFC requirement, request payload, expected response, and rationale."
 breadcrumbs: false
 sidebar:
   open: false

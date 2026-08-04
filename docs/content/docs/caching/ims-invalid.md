@@ -1,6 +1,6 @@
 ---
-title: "IMS-INVALID"
-description: "CAP-IMS-INVALID capability test documentation"
+title: "If-Modified-Since Invalid — Caching"
+description: "This is a sequence test — it sends an If-Modified-Since header with an unparseable garbage value to check whether the server correctly ignores it. Tested against RFC 9110 §13.1.3."
 weight: 16
 ---
 

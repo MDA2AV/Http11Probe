@@ -1,6 +1,6 @@
 ---
-title: "INVALID-HEADER-NAME"
-description: "INVALID-HEADER-NAME test documentation"
+title: "Invalid Header Name — HTTP/1.1 Compliance"
+description: "A header with non-token characters in the field name (e.g., characters outside the tchar set defined in RFC 9110 Section 5.6.2). Tested against RFC 9112 Section 5."
 weight: 4
 ---
 

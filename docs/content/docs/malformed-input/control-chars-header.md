@@ -1,6 +1,6 @@
 ---
-title: "CONTROL-CHARS-HEADER"
-description: "CONTROL-CHARS-HEADER test documentation"
+title: "Control Chars Header — Malformed Input"
+description: "A request with control characters (\\x01-\\x08, \\x0E-\\x1F) in a header field value. Tested against RFC 9110 Section 5.5."
 weight: 8
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "405-ALLOW"
-description: "405-ALLOW test documentation"
+title: "405 Allow — HTTP/1.1 Compliance"
+description: "A DELETE request to the root path, which most servers do not support. This is intended to trigger a 405 response. Tested against RFC 9110 §15.5.6."
 weight: 17
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "OVERSIZED"
-description: "COOK-OVERSIZED cookie test documentation"
+title: "Oversized — Cookie Handling"
+description: "64KB Cookie header — tests header size limits on cookie data. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 2
 ---
 

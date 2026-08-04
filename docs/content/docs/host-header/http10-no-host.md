@@ -1,6 +1,6 @@
 ---
-title: "HTTP10-NO-HOST"
-description: "HTTP10-NO-HOST test documentation"
+title: "HTTP/1.0 No Host — HTTP/1.1 Compliance"
+description: "An HTTP/1.0 request with no Host header at all. Tested against RFC 9112 §3.2."
 weight: 7
 ---
 

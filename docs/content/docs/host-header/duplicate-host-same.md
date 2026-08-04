@@ -1,6 +1,6 @@
 ---
-title: "DUPLICATE-HOST-SAME"
-description: "DUPLICATE-HOST-SAME test documentation"
+title: "Duplicate Host Same — HTTP/1.1 Compliance"
+description: "A request with two identical Host headers. Tested against RFC 9112 Section 3.2."
 weight: 3
 ---
 

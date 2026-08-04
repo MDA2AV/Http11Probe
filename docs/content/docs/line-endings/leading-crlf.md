@@ -1,6 +1,6 @@
 ---
-title: "LEADING-CRLF"
-description: "LEADING-CRLF test documentation"
+title: "Leading CRLF — HTTP/1.1 Compliance"
+description: "Two leading CRLF sequences before the request-line. Tested against RFC 9112 Section 2.2."
 weight: 4
 ---
 

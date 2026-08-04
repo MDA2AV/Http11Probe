@@ -1,6 +1,6 @@
 ---
-title: "IMS-FUTURE"
-description: "CAP-IMS-FUTURE capability test documentation"
+title: "If-Modified-Since Future — Caching"
+description: "This is a sequence test — it sends an If-Modified-Since header with a date far in the future to check whether the server correctly ignores it. Tested against RFC 9110 §13.1.3."
 weight: 15
 ---
 

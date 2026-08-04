@@ -1,6 +1,6 @@
 ---
-title: "POST-CL-UNDERSEND"
-description: "POST-CL-UNDERSEND test documentation"
+title: "POST CL Undersend — HTTP/1.1 Compliance"
+description: "A POST declaring Content-Length: 10 but sending only 5 bytes (hello). The connection then goes silent. Tested against RFC 9112 Section 6.2."
 weight: 4
 ---
 

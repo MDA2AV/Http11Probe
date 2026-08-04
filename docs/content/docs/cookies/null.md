@@ -1,6 +1,6 @@
 ---
-title: "NUL"
-description: "COOK-NUL cookie test documentation"
+title: "Null — Cookie Handling"
+description: "NUL byte in cookie value — dangerous if preserved by parser. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 4
 ---
 

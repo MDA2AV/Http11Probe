@@ -1,6 +1,6 @@
 ---
-title: "CL-INTERNAL-SPACE"
-description: "CL-INTERNAL-SPACE test documentation"
+title: "CL Internal Space — Request Smuggling"
+description: "Content-Length: 1 0 — space inside the number. Tested against RFC 9110 Section 8.6."
 weight: 27
 ---
 

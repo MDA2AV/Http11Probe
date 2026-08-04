@@ -1,6 +1,6 @@
 ---
-title: "OBS-FOLD"
-description: "OBS-FOLD test documentation"
+title: "Obs Fold — HTTP/1.1 Compliance"
+description: "A request with an obsolete line-folded header value — a continuation line that starts with whitespace:. Tested against RFC 9112 Section 5.2."
 weight: 2
 ---
 

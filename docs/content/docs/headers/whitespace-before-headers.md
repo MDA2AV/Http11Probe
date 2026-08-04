@@ -1,6 +1,6 @@
 ---
-title: "WHITESPACE-BEFORE-HEADERS"
-description: "WHITESPACE-BEFORE-HEADERS test documentation"
+title: "Whitespace Before Headers — HTTP/1.1 Compliance"
+description: "A request with whitespace (SP) before the first header line, between the request-line and the headers. Tested against RFC 9112 Section 2.2."
 weight: 6
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "POST-CL-BODY"
-description: "POST-CL-BODY test documentation"
+title: "POST CL Body — HTTP/1.1 Compliance"
+description: "A valid POST with Content-Length: 5 and exactly 5 bytes of body (hello). Tested against RFC 9112 Section 6.2."
 weight: 1
 ---
 

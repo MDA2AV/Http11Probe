@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-HEAD"
-description: "CLTE-SMUGGLED-HEAD sequence test documentation"
+title: "CL/TE Smuggled HEAD — Request Smuggling"
+description: "This is a HEAD-based confirmation variant of SMUG-CLTE-SMUGGLED-GET. It sends an ambiguous Content-Length + Transfer-Encoding: chunked request whose body contains a complete smuggled HEAD /…"
 weight: 18
 ---
 

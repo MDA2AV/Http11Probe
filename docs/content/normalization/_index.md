@@ -1,5 +1,6 @@
 ---
 title: Normalization
+description: "Header normalization test results, showing whether servers drop, preserve, or silently rewrite malformed header names in ways that create request smuggling risk."
 layout: wide
 toc: false
 ---

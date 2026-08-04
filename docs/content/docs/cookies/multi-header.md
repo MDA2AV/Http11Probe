@@ -1,6 +1,6 @@
 ---
-title: "MULTI-HEADER"
-description: "COOK-MULTI-HEADER cookie test documentation"
+title: "Multi Header — Cookie Handling"
+description: "Two separate Cookie headers — should be folded per RFC 6265 §5.4. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 8
 ---
 

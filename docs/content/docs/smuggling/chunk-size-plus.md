@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-SIZE-PLUS"
-description: "SMUG-CHUNK-SIZE-PLUS test documentation"
+title: "Chunk Size Plus — Request Smuggling"
+description: "A chunked request where chunk-size is prefixed by +. Tested against RFC 9112 §7.1."
 weight: 1
 ---
 

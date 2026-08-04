@@ -1,6 +1,6 @@
 ---
-title: "LONG-URL"
-description: "LONG-URL test documentation"
+title: "Long URL — Malformed Input"
+description: "A request with a ~100 KB URL. Tested against RFC 9112 Section 3."
 weight: 2
 ---
 

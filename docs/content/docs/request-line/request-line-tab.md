@@ -1,6 +1,6 @@
 ---
-title: "REQUEST-LINE-TAB"
-description: "REQUEST-LINE-TAB test documentation"
+title: "Request Line Tab — HTTP/1.1 Compliance"
+description: "A request-line that uses a horizontal tab (HT, 0x09) instead of a space (SP, 0x20) between the method and the request-target. Tested against RFC 9112 §3."
 weight: 14
 ---
 

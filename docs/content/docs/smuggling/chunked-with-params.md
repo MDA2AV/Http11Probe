@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-WITH-PARAMS"
-description: "CHUNKED-WITH-PARAMS test documentation"
+title: "Chunked With Params — Request Smuggling"
+description: "Transfer-Encoding: chunked;ext=val — parameters on the chunked coding. Tested against RFC 9112 §7.1."
 weight: 32
 ---
 

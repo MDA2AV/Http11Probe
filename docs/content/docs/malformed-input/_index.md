@@ -1,6 +1,6 @@
 ---
 title: Malformed Input
-description: "Malformed Input — Http11Probe documentation"
+description: "Robustness tests for oversized fields, binary garbage, control characters, and incomplete requests that a compliant server must reject without crashing."
 weight: 11
 sidebar:
   open: false

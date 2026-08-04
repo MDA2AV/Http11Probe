@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-EXT-LF"
-description: "CHUNK-EXT-LF test documentation"
+title: "Chunk Ext LF — Request Smuggling"
+description: "A chunked request where the chunk extension area contains a bare LF instead of CRLF: 5;\\nhello. Tested against RFC 9112 §7.1.1."
 weight: 25
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "CL-TE-BOTH"
-description: "CL-TE-BOTH test documentation"
+title: "CL TE Both — Request Smuggling"
+description: "A request with both Content-Length and Transfer-Encoding headers present. Tested against RFC 9112 §6.1."
 weight: 1
 ---
 

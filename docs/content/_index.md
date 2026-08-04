@@ -1,5 +1,6 @@
 ---
 title: Http11Probe
+description: "Http11Probe tests HTTP/1.1 server implementations against RFC 9110 and RFC 9112, covering protocol compliance, request smuggling, and malformed input handling across frameworks."
 layout: hextra-home
 ---
 

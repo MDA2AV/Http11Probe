@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-LF-TRAILER"
-description: "CHUNK-LF-TRAILER test documentation"
+title: "Chunk LF Trailer — Request Smuggling"
+description: "A chunked request where the final trailer section terminator uses bare LF instead of CRLF: 0\\r\\n\\n instead of 0\\r\\n\\r\\n. Tested against RFC 9112 §7.1."
 weight: 29
 ---
 

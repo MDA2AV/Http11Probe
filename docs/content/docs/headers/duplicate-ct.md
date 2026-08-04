@@ -1,6 +1,6 @@
 ---
-title: "DUPLICATE-CT"
-description: "DUPLICATE-CT test documentation"
+title: "Duplicate Content-Type — HTTP/1.1 Compliance"
+description: "A POST request with two Content-Type headers that have conflicting values. Tested against RFC 9110 §5.3."
 weight: 20
 ---
 

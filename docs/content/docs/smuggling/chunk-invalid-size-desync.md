@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-INVALID-SIZE-DESYNC"
-description: "SMUG-CHUNK-INVALID-SIZE-DESYNC test documentation"
+title: "Chunk Invalid Size Desync — Request Smuggling"
+description: "A two-step sequence: invalid chunk-size +0 with poison byte X, then a clean GET. Tested against RFC 9112 §7.1."
 weight: 1
 ---
 

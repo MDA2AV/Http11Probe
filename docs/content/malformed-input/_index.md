@@ -1,5 +1,6 @@
 ---
 title: Malformed Input
+description: "How HTTP/1.1 servers handle oversized, binary, and pathological request data, testing for graceful 400/414/431 rejection instead of crashes or hangs."
 layout: wide
 toc: false
 ---

@@ -1,6 +1,6 @@
 ---
-title: "TRACE-WITH-BODY"
-description: "TRACE-WITH-BODY test documentation"
+title: "TRACE With Body — HTTP/1.1 Compliance"
+description: "A TRACE request that includes a Content-Length header and a message body, which clients are prohibited from sending. Tested against RFC 9110 §9.3.8."
 weight: 20
 ---
 

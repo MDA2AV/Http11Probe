@@ -1,6 +1,6 @@
 ---
-title: "CONTENT-TYPE"
-description: "CONTENT-TYPE test documentation"
+title: "Content Type Presence — HTTP/1.1 Compliance"
+description: "A standard GET request. The test validates that the server includes a Content-Type header when the response contains a body. Tested against RFC 9110 §8.3."
 weight: 12
 ---
 

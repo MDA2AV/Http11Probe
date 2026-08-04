@@ -1,6 +1,6 @@
 ---
-title: "TRAILER-AUTH"
-description: "TRAILER-AUTH test documentation"
+title: "Trailer Auth — Request Smuggling"
+description: "A chunked request that places Authorization in the trailer section. Tested against RFC 9110 §6.5.1."
 weight: 55
 ---
 

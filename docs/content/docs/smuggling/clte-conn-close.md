@@ -1,6 +1,6 @@
 ---
-title: "CLTE-CONN-CLOSE"
-description: "CLTE-CONN-CLOSE sequence test documentation"
+title: "CL/TE Conn Close — Request Smuggling"
+description: "This is a sequence test — it sends multiple requests on the same TCP connection to verify server behavior across the full exchange. Tested against RFC 9112 §6.1."
 weight: 10
 ---
 

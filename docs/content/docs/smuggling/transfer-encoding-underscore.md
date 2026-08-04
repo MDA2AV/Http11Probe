@@ -1,6 +1,6 @@
 ---
-title: "TRANSFER_ENCODING"
-description: "TRANSFER_ENCODING test documentation"
+title: "Transfer Encoding Underscore — Request Smuggling"
+description: "Transfer_Encoding: chunked (underscore instead of hyphen) with Content-Length: 5. Tested against RFC 9112 Section 6.1."
 weight: 30
 ---
 

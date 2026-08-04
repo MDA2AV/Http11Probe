@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-EXTENSION"
-description: "CHUNKED-EXTENSION test documentation"
+title: "Chunked Extension — HTTP/1.1 Compliance"
+description: "A chunked POST where the chunk size line includes a valid extension: 5;ext=value. Tested against RFC 9112 Section 7.1.1."
 weight: 10
 ---
 

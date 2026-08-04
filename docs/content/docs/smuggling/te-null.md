@@ -1,6 +1,6 @@
 ---
-title: "TE-NULL"
-description: "TE-NULL test documentation"
+title: "TE Null — Request Smuggling"
+description: "Transfer-Encoding: chunked<NUL> with Content-Length present. Tested against RFC 9110 §5.5."
 weight: 54
 ---
 

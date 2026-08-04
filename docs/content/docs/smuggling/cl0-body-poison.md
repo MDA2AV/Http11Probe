@@ -1,6 +1,6 @@
 ---
-title: "CL0-BODY-POISON"
-description: "SMUG-CL0-BODY-POISON test documentation"
+title: "CL0 Body Poison — Request Smuggling"
+description: "A two-step sequence: first a POST with Content-Length: 0 plus one extra byte, then a clean GET on the same connection. Tested against RFC 9112 §6.2."
 weight: 1
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "TECL-DESYNC"
-description: "TECL-DESYNC sequence test documentation"
+title: "TE/CL Desync — Request Smuggling"
+description: "This is a sequence test that detects TE.CL request boundary desynchronization — the reverse of the classic CL.TE smuggling attack. Tested against RFC 9112 §6.1."
 weight: 14
 ---
 

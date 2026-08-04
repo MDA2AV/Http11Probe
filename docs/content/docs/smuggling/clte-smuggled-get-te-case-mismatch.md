@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET-TE-CASE-MISMATCH"
-description: "CLTE-SMUGGLED-GET-TE-CASE-MISMATCH sequence test documentation"
+title: "CL/TE Smuggled GET TE Case Mismatch — Request Smuggling"
+description: "This is a variant of SMUG-CLTE-SMUGGLED-GET where the Transfer-Encoding token is written as Chunked (case mismatch). Some components are case-insensitive as required by the HTTP token rules…"
 weight: 21
 ---
 

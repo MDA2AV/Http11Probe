@@ -1,6 +1,6 @@
 ---
-title: "CL-COMMA-SAME"
-description: "CL-COMMA-SAME test documentation"
+title: "CL Comma Same — Request Smuggling"
+description: "Content-Length: 5, 5 — comma-separated CL with identical values. Tested against RFC 9110 Section 8.6."
 weight: 31
 ---
 

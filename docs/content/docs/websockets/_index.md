@@ -1,6 +1,6 @@
 ---
 title: WebSockets
-description: "WebSockets — Http11Probe documentation"
+description: "WebSocket Upgrade handshake validation tests, checking the Connection header, GET-only method requirement, and version negotiation per RFC 9110/6455."
 weight: 12
 sidebar:
   open: false

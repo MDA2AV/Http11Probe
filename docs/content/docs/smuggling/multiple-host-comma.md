@@ -1,6 +1,6 @@
 ---
-title: "MULTIPLE-HOST-COMMA"
-description: "MULTIPLE-HOST-COMMA test documentation"
+title: "Multiple Host Comma — Request Smuggling"
+description: "A Host header with two comma-separated hostnames. Tested against RFC 9110 §7.2."
 weight: 52
 ---
 

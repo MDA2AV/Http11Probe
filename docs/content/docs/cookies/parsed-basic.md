@@ -1,6 +1,6 @@
 ---
-title: "PARSED-BASIC"
-description: "COOK-PARSED-BASIC cookie test documentation"
+title: "Parsed Basic — Cookie Handling"
+description: "Basic cookie parsed correctly by framework. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 9
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "URL-PERCENT-CRLF"
-description: "URL-PERCENT-CRLF test documentation"
+title: "URL Percent CRLF — Malformed Input"
+description: "A GET request with percent-encoded CRLF characters (%0d%0a) in the URL, followed by an injected header. Part of Http11Probe's malformed input robustness suite."
 weight: 24
 ---
 

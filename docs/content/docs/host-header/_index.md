@@ -1,6 +1,6 @@
 ---
 title: Host Header
-description: "Host Header — Http11Probe documentation"
+description: "Host header validation tests for missing, duplicate, and malformed values — the only case where RFC 9112 explicitly mandates a 400 response."
 weight: 7
 sidebar:
   open: false

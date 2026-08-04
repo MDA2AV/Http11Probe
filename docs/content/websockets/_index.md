@@ -1,5 +1,6 @@
 ---
 title: WebSockets
+description: "How HTTP/1.1 servers validate the WebSocket Upgrade handshake, per RFC 9110 Section 7.8 and RFC 6455, including malformed and unsupported upgrade requests."
 layout: wide
 toc: false
 ---

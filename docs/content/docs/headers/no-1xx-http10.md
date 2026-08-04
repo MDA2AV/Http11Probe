@@ -1,6 +1,6 @@
 ---
-title: "NO-1XX-HTTP10"
-description: "NO-1XX-HTTP10 test documentation"
+title: "No 1xx HTTP/1.0 — HTTP/1.1 Compliance"
+description: "An HTTP/1.0 POST with Expect: 100-continue and a body, designed to test whether the server incorrectly sends a 100 Continue interim response to an HTTP/1.0 client. Tested against RFC 9110 §15.2."
 weight: 11
 ---
 

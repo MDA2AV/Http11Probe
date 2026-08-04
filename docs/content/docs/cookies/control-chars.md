@@ -1,6 +1,6 @@
 ---
-title: "CONTROL-CHARS"
-description: "COOK-CONTROL-CHARS cookie test documentation"
+title: "Control Chars — Cookie Handling"
+description: "Control characters (0x01-0x03) in cookie value — dangerous if preserved. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 5
 ---
 

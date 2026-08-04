@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-NO-FINAL"
-description: "CHUNKED-NO-FINAL test documentation"
+title: "Chunked No Final — HTTP/1.1 Compliance"
+description: "A chunked POST with one data chunk but no zero terminator. The connection then goes silent. Tested against RFC 9112 Section 7.1."
 weight: 9
 ---
 

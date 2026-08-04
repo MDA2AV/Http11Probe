@@ -1,6 +1,6 @@
 ---
-title: "CL-NON-NUMERIC"
-description: "CL-NON-NUMERIC test documentation"
+title: "CL Non Numeric — HTTP/1.1 Compliance"
+description: "A request with a non-numeric Content-Length value, e.g., Content-Length: abc. Tested against RFC 9110 Section 8.6."
 weight: 1
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "METHOD-CASE"
-description: "METHOD-CASE test documentation"
+title: "Method Case — HTTP/1.1 Compliance"
+description: "Get / HTTP/1.1 — lowercase method name. Tested against RFC 9110 Section 9.1."
 weight: 10
 ---
 

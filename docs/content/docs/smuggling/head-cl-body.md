@@ -1,6 +1,6 @@
 ---
-title: "HEAD-CL-BODY"
-description: "HEAD-CL-BODY test documentation"
+title: "HEAD CL Body — Request Smuggling"
+description: "HEAD / HTTP/1.1 with Content-Length: 5 and body hello. HEAD requests are not supposed to have a response body, but this test sends a request body. Tested against RFC 9110 §9.3.2."
 weight: 35
 ---
 

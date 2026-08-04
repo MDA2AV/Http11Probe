@@ -1,5 +1,6 @@
 ---
 title: Add with AI Agent
+description: "Use an AI coding agent with Http11Probe's machine-readable AGENTS.md guide to add a new compliance test or HTTP server framework."
 ---
 
 Use an AI coding agent (Claude Code, Cursor, Copilot, etc.) to add a new test or framework to Http11Probe. The repository includes a machine-readable contribution guide at [`AGENTS.md`](https://github.com/MDA2AV/blob/main/AGENTS.md) designed specifically for LLM consumption.

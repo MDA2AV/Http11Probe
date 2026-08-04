@@ -1,6 +1,6 @@
 ---
-title: "TE-XCHUNKED"
-description: "TE-XCHUNKED test documentation"
+title: "TE X-Chunked — Request Smuggling"
+description: "Transfer-Encoding: xchunked with a Content-Length header. The TE value xchunked is not a recognized encoding. Tested against RFC 9112 §6.1."
 weight: 5
 ---
 

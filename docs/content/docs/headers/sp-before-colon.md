@@ -1,6 +1,6 @@
 ---
-title: "SP-BEFORE-COLON"
-description: "SP-BEFORE-COLON test documentation"
+title: "Space Before Colon — HTTP/1.1 Compliance"
+description: "A request with a space between the header field name and the colon: Host : localhost. Tested against RFC 9112 Section 5."
 weight: 1
 ---
 

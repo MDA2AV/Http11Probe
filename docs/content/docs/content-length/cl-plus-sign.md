@@ -1,6 +1,6 @@
 ---
-title: "CL-PLUS-SIGN"
-description: "CL-PLUS-SIGN test documentation"
+title: "CL Plus Sign — HTTP/1.1 Compliance"
+description: "A request with a plus sign in the Content-Length value: Content-Length: +5. Tested against RFC 9110 Section 8.6."
 weight: 2
 ---
 

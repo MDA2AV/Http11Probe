@@ -1,6 +1,6 @@
 ---
-title: "CONNECTION-CLOSE"
-description: "CONNECTION-CLOSE test documentation"
+title: "Connection Close — HTTP/1.1 Compliance"
+description: "A standard GET request with Connection: close indicating the client wants the server to close the connection after sending the response. Tested against RFC 9112 §9.6."
 weight: 6
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "INM-PRECEDENCE"
-description: "CAP-INM-PRECEDENCE capability test documentation"
+title: "If-None-Match Precedence — Caching"
+description: "This is a sequence test — it sends a conditional GET with both If-None-Match (matching ETag) and If-Modified-Since (epoch timestamp, guaranteed stale) to verify that the server correctly gives…"
 weight: 13
 ---
 

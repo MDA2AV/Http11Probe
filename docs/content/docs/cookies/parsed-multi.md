@@ -1,6 +1,6 @@
 ---
-title: "PARSED-MULTI"
-description: "COOK-PARSED-MULTI cookie test documentation"
+title: "Parsed Multi — Cookie Handling"
+description: "Multiple cookies parsed correctly by framework. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 10
 ---
 

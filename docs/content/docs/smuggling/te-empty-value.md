@@ -1,6 +1,6 @@
 ---
-title: "TE-EMPTY-VALUE"
-description: "TE-EMPTY-VALUE test documentation"
+title: "TE Empty Value — Request Smuggling"
+description: "Transfer-Encoding:  (empty value) with Content-Length: 5. Tested against RFC 9112 Section 6.1."
 weight: 22
 ---
 

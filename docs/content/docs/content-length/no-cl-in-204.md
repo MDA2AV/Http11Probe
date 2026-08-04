@@ -1,6 +1,6 @@
 ---
-title: "NO-CL-IN-204"
-description: "NO-CL-IN-204 test documentation"
+title: "No CL In 204 — HTTP/1.1 Compliance"
+description: "An OPTIONS request to the root path. Some servers respond with 204 No Content, which triggers the validation. Tested against RFC 9110 §8.6."
 weight: 3
 ---
 

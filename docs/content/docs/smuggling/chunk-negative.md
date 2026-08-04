@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-NEGATIVE"
-description: "CHUNK-NEGATIVE test documentation"
+title: "Chunk Negative — Request Smuggling"
+description: "A chunked request with a negative chunk size: -1\\r\\nhello\\r\\n0\\r\\n\\r\\n. Tested against RFC 9112 §7.1."
 weight: 31
 ---
 

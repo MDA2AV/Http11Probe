@@ -1,6 +1,6 @@
 ---
-title: "TECL-SMUGGLED-GET"
-description: "TECL-SMUGGLED-GET sequence test documentation"
+title: "TE/CL Smuggled GET — Request Smuggling"
+description: "This test is a TE.CL smuggling confirmation technique inspired by common request smuggling labs. The body begins with a valid chunk-size line (for the chunked framing), but the Content-Length…"
 weight: 23
 ---
 

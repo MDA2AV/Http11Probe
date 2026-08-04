@@ -1,6 +1,6 @@
 ---
-title: "INVALID-VERSION"
-description: "INVALID-VERSION test documentation"
+title: "Invalid Version — HTTP/1.1 Compliance"
+description: "A request with an unrecognizable HTTP version string, e.g., GET / HTTP/9.9. Tested against RFC 9112 Section 2.3."
 weight: 4
 ---
 

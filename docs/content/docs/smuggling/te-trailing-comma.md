@@ -1,6 +1,6 @@
 ---
-title: "TE-TRAILING-COMMA"
-description: "TE-TRAILING-COMMA test documentation"
+title: "TE Trailing Comma — Request Smuggling"
+description: "Transfer-Encoding with a trailing comma after chunked, alongside Content-Length. Tested against RFC 9110 §5.6.1."
 weight: 51
 ---
 

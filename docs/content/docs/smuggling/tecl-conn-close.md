@@ -1,6 +1,6 @@
 ---
-title: "TECL-CONN-CLOSE"
-description: "TECL-CONN-CLOSE sequence test documentation"
+title: "TE/CL Conn Close — Request Smuggling"
+description: "This is a sequence test — it sends multiple requests on the same TCP connection to verify server behavior across the full exchange. It is a mirror of CLTE-CONN-CLOSE with the header order…"
 weight: 11
 ---
 

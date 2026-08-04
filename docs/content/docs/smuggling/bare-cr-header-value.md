@@ -1,6 +1,6 @@
 ---
-title: "BARE-CR-HEADER-VALUE"
-description: "BARE-CR-HEADER-VALUE test documentation"
+title: "Bare CR Header Value — Request Smuggling"
+description: "Header value containing a bare CR (0x0D not followed by LF). Tested against RFC 9112 §2.2."
 weight: 19
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "METHOD-TRACE"
-description: "METHOD-TRACE test documentation"
+title: "Method TRACE — HTTP/1.1 Compliance"
+description: "TRACE / HTTP/1.1 — a standard TRACE request. Tested against RFC 9110 Section 9.3.8."
 weight: 14
 ---
 

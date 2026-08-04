@@ -1,6 +1,6 @@
 ---
-title: "POST-NO-CL-NO-TE"
-description: "POST-NO-CL-NO-TE test documentation"
+title: "POST No CL No TE — HTTP/1.1 Compliance"
+description: "A POST with neither Content-Length nor Transfer-Encoding headers — no body framing at all. Tested against RFC 9112 Section 6.3."
 weight: 3
 ---
 

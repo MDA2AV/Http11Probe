@@ -1,6 +1,6 @@
 ---
-title: "MISSING-HOST"
-description: "MISSING-HOST test documentation"
+title: "Missing Host — HTTP/1.1 Compliance"
+description: "A valid GET / HTTP/1.1 request with no Host header. Tested against RFC 9112 Section 3.2."
 weight: 1
 ---
 

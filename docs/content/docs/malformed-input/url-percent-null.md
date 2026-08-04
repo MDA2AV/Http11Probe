@@ -1,6 +1,6 @@
 ---
-title: "URL-PERCENT-NULL"
-description: "URL-PERCENT-NULL test documentation"
+title: "URL Percent Null — Malformed Input"
+description: "A GET request with a percent-encoded NUL byte (%00) in the URL path. Part of Http11Probe's malformed input robustness suite."
 weight: 23
 ---
 

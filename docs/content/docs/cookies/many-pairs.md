@@ -1,6 +1,6 @@
 ---
-title: "MANY-PAIRS"
-description: "COOK-MANY-PAIRS cookie test documentation"
+title: "Many Pairs — Cookie Handling"
+description: "1000 cookie key=value pairs — tests parser performance limits. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 6
 ---
 

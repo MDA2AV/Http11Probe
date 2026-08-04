@@ -1,6 +1,6 @@
 ---
-title: "MULTI-SP-REQUEST-LINE"
-description: "MULTI-SP-REQUEST-LINE test documentation"
+title: "Multi Space Request Line — HTTP/1.1 Compliance"
+description: "A request-line with multiple spaces between components: GET / HTTP/1.1 (double spaces). Tested against RFC 9112 §3."
 weight: 1
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Add a Test
+description: "How to add a new HTTP/1.1 compliance, smuggling, or malformed-input test case to Http11Probe, including the test case definition, documentation page, and category index entry."
 ---
 
 A step-by-step guide to adding a new test to Http11Probe. Every test touches four places: the suite file, the docs URL map (sometimes), a documentation page, and the category index.
@@ -94,6 +95,7 @@ Expected = new ExpectedBehavior
 - Set `AllowConnectionClose = true` only when connection close is an acceptable alternative to a status code.
 - Set `Scored = false` for MAY-level or informational tests.
 - Use `"RFC 9112 §5.1"` format for `RfcReference` (section sign, not "Section").
+- Give the doc page a readable `title` (e.g. `"My Test — HTTP/1.1 Compliance"`), not the raw test ID — it's rendered as the page heading and browser tab title. Write a `description` that's a specific, one-sentence summary of the request and its RFC basis, not a generic placeholder — it's used as the page's meta description for search results.
 
 ## 2. Add a docs URL mapping (if needed)
 
@@ -117,8 +119,8 @@ Use this template:
 
 ```markdown
 ---
-title: "MY-TEST"
-description: "MY-TEST test documentation"
+title: "My Test — HTTP/1.1 Compliance"
+description: "One or two sentences describing the request and what makes it non-conforming, ideally ending with the RFC section it's tested against."
 weight: 1
 ---
 

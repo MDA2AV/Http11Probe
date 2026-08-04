@@ -1,6 +1,6 @@
 ---
-title: "URL-OVERLONG-UTF8"
-description: "URL-OVERLONG-UTF8 test documentation"
+title: "URL Overlong UTF-8 — Malformed Input"
+description: "A GET request with raw overlong UTF-8 bytes in the URL path. The bytes 0xC0 0xAF are an overlong encoding of / (U+002F). Part of Http11Probe's malformed input robustness suite."
 weight: 22
 ---
 

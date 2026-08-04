@@ -1,6 +1,6 @@
 ---
 title: Body Handling
-description: "Body Handling — Http11Probe documentation"
+description: "How HTTP/1.1 servers must read and terminate request bodies using Content-Length and chunked Transfer-Encoding, per RFC 9112 Sections 6 and 7."
 weight: 9
 sidebar:
   open: false

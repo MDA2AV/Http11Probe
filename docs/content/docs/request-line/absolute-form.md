@@ -1,6 +1,6 @@
 ---
-title: "ABSOLUTE-FORM"
-description: "ABSOLUTE-FORM test documentation"
+title: "Absolute Form — HTTP/1.1 Compliance"
+description: "GET http://host/ HTTP/1.1 — the absolute-form request-target. Tested against RFC 9112 Section 3.2.2."
 weight: 9
 ---
 

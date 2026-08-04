@@ -1,6 +1,6 @@
 ---
-title: "CL-OVERFLOW"
-description: "CL-OVERFLOW test documentation"
+title: "CL Overflow — Malformed Input"
+description: "A Content-Length value exceeding the 64-bit integer range (e.g., 99999999999999999999). Part of Http11Probe's malformed input robustness suite."
 weight: 11
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "TE-VTAB"
-description: "TE-VTAB test documentation"
+title: "TE Vertical-Tab — Request Smuggling"
+description: "Transfer-Encoding: <VTAB>chunked with Content-Length present. Tested against RFC 9110 §5.5."
 weight: 52
 ---
 

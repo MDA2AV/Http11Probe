@@ -1,6 +1,6 @@
 ---
-title: "TE-IDENTITY"
-description: "TE-IDENTITY test documentation"
+title: "TE Identity — Request Smuggling"
+description: "A request with Transfer-Encoding: identity and Content-Length: 5. The identity encoding was deprecated and removed in HTTP/1.1 (RFC 7230 and later RFC 9112). Tested against RFC 9112 §6.1."
 weight: 30
 ---
 

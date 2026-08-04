@@ -1,6 +1,6 @@
 ---
-title: "MALFORMED"
-description: "COOK-MALFORMED cookie test documentation"
+title: "Malformed — Cookie Handling"
+description: "Completely malformed cookie value (===;;;) — tests parser crash resilience. Part of Http11Probe's cookie parsing resilience suite (RFC 6265)."
 weight: 7
 ---
 

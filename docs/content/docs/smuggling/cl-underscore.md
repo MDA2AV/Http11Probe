@@ -1,6 +1,6 @@
 ---
-title: "CL-UNDERSCORE"
-description: "CL-UNDERSCORE test documentation"
+title: "CL Underscore — Request Smuggling"
+description: "Content-Length with an underscore digit separator: Content-Length: 1_0 with 10 bytes of body. Tested against RFC 9110 §8.6."
 weight: 46
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "OPTIONS-CL-BODY-DESYNC"
-description: "SMUG-OPTIONS-CL-BODY-DESYNC test documentation"
+title: "OPTIONS CL Body Desync — Request Smuggling"
+description: "An OPTIONS request with Content-Length: 5 and body hello, followed by a second GET on the same connection. Tested against RFC 9110 §9.3.7."
 weight: 1
 ---
 

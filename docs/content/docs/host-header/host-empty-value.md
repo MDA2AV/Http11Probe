@@ -1,6 +1,6 @@
 ---
-title: "HOST-EMPTY-VALUE"
-description: "HOST-EMPTY-VALUE test documentation"
+title: "Host Empty Value — HTTP/1.1 Compliance"
+description: "A request with a Host header present but with an empty value. Tested against RFC 9112 §3.2."
 weight: 6
 ---
 

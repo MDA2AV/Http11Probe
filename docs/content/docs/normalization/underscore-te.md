@@ -1,6 +1,6 @@
 ---
-title: "UNDERSCORE-TE"
-description: "UNDERSCORE-TE test documentation"
+title: "Underscore TE — Header Normalization"
+description: "A POST request to /echo with a valid Content-Length: 11 for body framing, plus a malformed Transfer_Encoding: chunked header using an underscore instead of a hyphen."
 weight: 5
 ---
 

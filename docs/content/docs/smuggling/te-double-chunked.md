@@ -1,6 +1,6 @@
 ---
-title: "TE-DOUBLE-CHUNKED"
-description: "TE-DOUBLE-CHUNKED test documentation"
+title: "TE Double Chunked — Request Smuggling"
+description: "Transfer-Encoding: chunked, chunked — duplicate chunked encoding with a Content-Length header also present. Tested against RFC 9112 §6.1."
 weight: 13
 ---
 

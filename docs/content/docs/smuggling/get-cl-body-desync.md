@@ -1,6 +1,6 @@
 ---
-title: "GET-CL-BODY-DESYNC"
-description: "SMUG-GET-CL-BODY-DESYNC test documentation"
+title: "GET CL Body Desync — Request Smuggling"
+description: "A GET with Content-Length: 5 and body hello, followed by a second GET on the same socket. Tested against RFC 9110 §9.3.1."
 weight: 1
 ---
 

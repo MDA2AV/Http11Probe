@@ -1,6 +1,6 @@
 ---
-title: "LAST-MODIFIED-304"
-description: "CAP-LAST-MODIFIED-304 capability test documentation"
+title: "Last Modified 304 — Caching"
+description: "This is a sequence test — it sends two requests on the same TCP connection to test Last-Modified-based conditional request handling. Tested against RFC 9110 §13.1.3."
 weight: 11
 ---
 

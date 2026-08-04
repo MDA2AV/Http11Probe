@@ -1,6 +1,6 @@
 ---
 title: Content-Length
-description: "Content-Length — Http11Probe documentation"
+description: "Content-Length header validation tests covering non-numeric values, plus signs, integer overflow, and other malformed framing per RFC 9112."
 weight: 8
 sidebar:
   open: false

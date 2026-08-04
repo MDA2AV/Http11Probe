@@ -1,6 +1,6 @@
 ---
-title: "CL-COMMA-TRIPLE"
-description: "CL-COMMA-TRIPLE test documentation"
+title: "CL Comma Triple — Request Smuggling"
+description: "A POST request with three comma-separated identical Content-Length values, extending the duplicate-value merge test. Tested against RFC 9110 §8.6."
 weight: 61
 ---
 

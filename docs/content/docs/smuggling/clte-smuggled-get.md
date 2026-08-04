@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET"
-description: "CLTE-SMUGGLED-GET sequence test documentation"
+title: "CL/TE Smuggled GET — Request Smuggling"
+description: "This test is the \"real\" version of SMUG-CLTE-DESYNC: instead of smuggling a single poison byte (X), it smuggles a complete GET / request into the ambiguous body. If a server accepts an…"
 weight: 14
 ---
 

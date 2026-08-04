@@ -1,6 +1,6 @@
 ---
-title: "ETAG-304"
-description: "CAP-ETAG-304 capability test documentation"
+title: "ETag 304 — Caching"
+description: "This is a sequence test — it sends two requests on the same TCP connection to test ETag-based conditional request handling. Tested against RFC 9110 §13.1.2."
 weight: 10
 ---
 

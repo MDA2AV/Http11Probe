@@ -1,6 +1,6 @@
 ---
-title: "INM-UNQUOTED"
-description: "CAP-INM-UNQUOTED capability test documentation"
+title: "If-None-Match Unquoted — Caching"
+description: "This is a sequence test — it captures the server's ETag, strips the surrounding quotes, and sends it back unquoted in If-None-Match to test whether the server enforces ETag syntax."
 weight: 17
 ---
 

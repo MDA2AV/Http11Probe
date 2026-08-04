@@ -1,6 +1,6 @@
 ---
-title: "TRAILER-CONTENT-TYPE"
-description: "TRAILER-CONTENT-TYPE test documentation"
+title: "Trailer Content Type — Request Smuggling"
+description: "A valid chunked request with a Content-Type: text/evil header in the trailer section (after the last chunk). Tested against RFC 9110 §6.5.1."
 weight: 58
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "TE-DUPLICATE-HEADERS"
-description: "TE-DUPLICATE-HEADERS test documentation"
+title: "TE Duplicate Headers — Request Smuggling"
+description: "Two TE headers (chunked and identity) plus Content-Length. Tested against RFC 9112 Section 6.1."
 weight: 24
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "CL-TRAILING-SPACE"
-description: "CL-TRAILING-SPACE test documentation"
+title: "CL Trailing Space — Request Smuggling"
+description: "Content-Length: 5  — trailing space after the value. Tested against RFC 9112 §5."
 weight: 10
 ---
 

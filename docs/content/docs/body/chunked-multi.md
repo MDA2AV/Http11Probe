@@ -1,6 +1,6 @@
 ---
-title: "CHUNKED-MULTI"
-description: "CHUNKED-MULTI test documentation"
+title: "Chunked Multi — HTTP/1.1 Compliance"
+description: "A valid chunked POST with two data chunks (5 bytes + 6 bytes) followed by the zero terminator. Tested against RFC 9112 Section 7.1."
 weight: 7
 ---
 

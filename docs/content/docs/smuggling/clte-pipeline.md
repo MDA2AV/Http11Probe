@@ -1,6 +1,6 @@
 ---
-title: "CLTE-PIPELINE"
-description: "CLTE-PIPELINE test documentation"
+title: "CL/TE Pipeline — Request Smuggling"
+description: "A request with both Content-Length and Transfer-Encoding: chunked — the classic CL.TE conflict pattern. Tested against RFC 9112 §6.1."
 weight: 8
 ---
 

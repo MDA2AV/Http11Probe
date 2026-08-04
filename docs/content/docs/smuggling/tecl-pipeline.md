@@ -1,6 +1,6 @@
 ---
-title: "TECL-PIPELINE"
-description: "TECL-PIPELINE test documentation"
+title: "TE/CL Pipeline — Request Smuggling"
+description: "The reverse of CL.TE — a request with Transfer-Encoding: chunked listed first, plus a conflicting Content-Length. Tested against RFC 9112 §6.1."
 weight: 9
 ---
 

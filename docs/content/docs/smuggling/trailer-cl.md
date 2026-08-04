@@ -1,6 +1,6 @@
 ---
-title: "TRAILER-CL"
-description: "TRAILER-CL test documentation"
+title: "Trailer CL — Request Smuggling"
+description: "A valid chunked request with a Content-Length: 50 header in the trailer section (after the last chunk). Tested against RFC 9110 §6.5.1."
 weight: 32
 ---
 

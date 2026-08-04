@@ -1,6 +1,6 @@
 ---
-title: "UPGRADE-HTTP10"
-description: "UPGRADE-HTTP10 test documentation"
+title: "Upgrade HTTP/1.0 — WebSocket Upgrade"
+description: "An HTTP/1.0 request with WebSocket upgrade headers. The server must ignore the Upgrade field because it was received in an HTTP/1.0 request. Tested against RFC 9110 §7.8."
 weight: 5
 ---
 

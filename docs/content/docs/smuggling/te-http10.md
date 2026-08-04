@@ -1,6 +1,6 @@
 ---
-title: "TE-HTTP10"
-description: "TE-HTTP10 test documentation"
+title: "TE HTTP/1.0 — Request Smuggling"
+description: "HTTP/1.0 request with Transfer-Encoding: chunked and Content-Length: 5. Tested against RFC 9112 Section 6.1."
 weight: 17
 ---
 

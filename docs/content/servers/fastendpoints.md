@@ -1,5 +1,6 @@
 ---
 title: "FastEndpoints"
+description: "FastEndpoints (C#) tested against RFC 9110/9112 for HTTP/1.1 compliance, request smuggling resistance, and malformed input handling."
 toc: true
 breadcrumbs: false
 ---

@@ -1,6 +1,6 @@
 ---
-title: "HEADER-NO-COLON"
-description: "HEADER-NO-COLON test documentation"
+title: "Header No Colon — HTTP/1.1 Compliance"
+description: "A header line with no colon: InvalidHeaderNoColon. Tested against RFC 9112 Section 5."
 weight: 5
 ---
 

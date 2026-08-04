@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-EXT-CTRL"
-description: "CHUNK-EXT-CTRL test documentation"
+title: "Chunk Ext Ctrl — Request Smuggling"
+description: "A chunked request with a NUL byte (0x00) embedded in the chunk extension: 5;\\x00ext. Tested against RFC 9112 §7.1.1."
 weight: 28
 ---
 

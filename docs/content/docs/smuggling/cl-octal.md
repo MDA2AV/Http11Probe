@@ -1,6 +1,6 @@
 ---
-title: "CL-OCTAL"
-description: "CL-OCTAL test documentation"
+title: "CL Octal — Request Smuggling"
+description: "Content-Length: 0o5 — CL with octal prefix. Tested against RFC 9110 Section 8.6."
 weight: 20
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-SPILL"
-description: "CHUNK-SPILL test documentation"
+title: "Chunk Spill — Request Smuggling"
+description: "A chunked request that declares chunk size 5 but sends 7 bytes of data (hello!!), followed by the terminator. Tested against RFC 9112 §7.1."
 weight: 26
 ---
 

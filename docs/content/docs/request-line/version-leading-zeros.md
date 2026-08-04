@@ -1,6 +1,6 @@
 ---
-title: "VERSION-LEADING-ZEROS"
-description: "VERSION-LEADING-ZEROS test documentation"
+title: "Version Leading Zeros — HTTP/1.1 Compliance"
+description: "A request with HTTP/01.01 as the version -- leading zeros on both the major and minor version digits. Tested against RFC 9112 §2.3."
 weight: 16
 ---
 

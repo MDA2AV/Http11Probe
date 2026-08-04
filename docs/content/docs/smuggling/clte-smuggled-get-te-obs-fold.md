@@ -1,6 +1,6 @@
 ---
-title: "CLTE-SMUGGLED-GET-TE-OBS-FOLD"
-description: "CLTE-SMUGGLED-GET-TE-OBS-FOLD sequence test documentation"
+title: "CL/TE Smuggled GET TE Obs Fold — Request Smuggling"
+description: "This is a variant of SMUG-CLTE-SMUGGLED-GET that uses obs-fold (obsolete line folding) on the Transfer-Encoding header while also sending Content-Length. If a server unfolds obs-fold into…"
 weight: 17
 ---
 

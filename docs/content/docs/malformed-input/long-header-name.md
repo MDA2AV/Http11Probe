@@ -1,6 +1,6 @@
 ---
-title: "LONG-HEADER-NAME"
-description: "LONG-HEADER-NAME test documentation"
+title: "Long Header Name — Malformed Input"
+description: "A request with a ~100 KB header field name. Part of Http11Probe's malformed input robustness suite."
 weight: 3
 ---
 

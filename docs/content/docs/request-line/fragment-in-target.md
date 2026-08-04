@@ -1,6 +1,6 @@
 ---
-title: "FRAGMENT-IN-TARGET"
-description: "FRAGMENT-IN-TARGET test documentation"
+title: "Fragment In Target — HTTP/1.1 Compliance"
+description: "A request with a fragment identifier in the URI: GET /path#frag HTTP/1.1. Tested against RFC 9112 Section 3.2."
 weight: 3
 ---
 

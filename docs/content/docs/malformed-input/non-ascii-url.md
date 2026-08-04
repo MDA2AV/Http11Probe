@@ -1,6 +1,6 @@
 ---
-title: "NON-ASCII-URL"
-description: "NON-ASCII-URL test documentation"
+title: "Non Ascii URL — Malformed Input"
+description: "A request with non-ASCII bytes in the URL. Part of Http11Probe's malformed input robustness suite."
 weight: 10
 ---
 

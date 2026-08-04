@@ -1,6 +1,6 @@
 ---
-title: "VERSION-MISSING-MINOR"
-description: "VERSION-MISSING-MINOR test documentation"
+title: "Version Missing Minor — HTTP/1.1 Compliance"
+description: "A request with HTTP/1 as the version -- missing the dot and minor version digit. Tested against RFC 9112 §2.3."
 weight: 15
 ---
 

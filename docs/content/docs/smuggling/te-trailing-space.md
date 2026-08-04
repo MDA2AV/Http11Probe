@@ -1,6 +1,6 @@
 ---
-title: "TE-TRAILING-SPACE"
-description: "TE-TRAILING-SPACE test documentation"
+title: "TE Trailing Space — Request Smuggling"
+description: "Transfer-Encoding: chunked  (with a trailing space). The value does not exactly match chunked. Tested against RFC 9110 §5.5."
 weight: 6
 ---
 

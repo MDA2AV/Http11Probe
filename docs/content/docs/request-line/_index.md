@@ -1,6 +1,6 @@
 ---
 title: Request Line
-description: "Request Line — Http11Probe documentation"
+description: "Request-line parsing tests covering method casing, multiple spaces, missing targets, fragments, and HTTP version validation per RFC 9112 Section 3."
 weight: 5
 sidebar:
   open: false

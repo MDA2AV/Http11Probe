@@ -1,6 +1,6 @@
 ---
-title: "CHUNK-BARE-CR-TERM"
-description: "CHUNK-BARE-CR-TERM test documentation"
+title: "Chunk Bare CR Term — Request Smuggling"
+description: "A chunked request where the chunk size line is terminated by bare CR (\\r) without LF. Tested against RFC 9112 §2.2."
 weight: 53
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Header Syntax
-description: "Header Syntax — Http11Probe documentation"
+description: "HTTP header field syntax tests covering obs-fold, space before colon, empty names, invalid characters, and missing colons per RFC 9112 Section 5."
 weight: 6
 sidebar:
   open: false

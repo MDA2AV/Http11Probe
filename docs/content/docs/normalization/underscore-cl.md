@@ -1,6 +1,6 @@
 ---
-title: "UNDERSCORE-CL"
-description: "UNDERSCORE-CL test documentation"
+title: "Underscore CL — Header Normalization"
+description: "A POST request to /echo with a valid Content-Length: 11 for body framing, plus a malformed Content_Length: 99 header using an underscore instead of a hyphen."
 weight: 1
 ---
 

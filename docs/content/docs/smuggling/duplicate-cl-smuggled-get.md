@@ -1,6 +1,6 @@
 ---
-title: "DUPLICATE-CL-SMUGGLED-GET"
-description: "DUPLICATE-CL-SMUGGLED-GET sequence test documentation"
+title: "Duplicate CL Smuggled GET — Request Smuggling"
+description: "This is a CL.CL smuggling confirmation variant of SMUG-DUPLICATE-CL. It sends two different Content-Length header fields and includes an embedded GET / request immediately after the shorter…"
 weight: 24
 ---
 
