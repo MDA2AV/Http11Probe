@@ -5,6 +5,12 @@ namespace Http11Probe.Client;
 
 public sealed class RawTcpClient : IAsyncDisposable
 {
+    // Responses are read into a single fixed buffer and truncated at its size. Keep this above the
+    // largest payload any test sends — 100,000 bytes (MAL-LONG-URL, MAL-LONG-HEADER-NAME,
+    // MAL-LONG-HEADER-VALUE, MAL-LONG-METHOD) — so a server that echoes one back in an error
+    // response doesn't get cut off and misread as a truncated reply.
+    private const int ReadBufferSize = 128 * 1024;
+
     private Socket? _socket;
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _readTimeout;
@@ -60,7 +66,7 @@ public sealed class RawTcpClient : IAsyncDisposable
         if (_socket is null)
             return ([], 0, ConnectionState.Error, false);
 
-        var buffer = new byte[65536];
+        var buffer = new byte[ReadBufferSize];
         var totalRead = 0;
 
         using var cts = new CancellationTokenSource(_readTimeout);
