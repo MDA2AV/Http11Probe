@@ -60,8 +60,8 @@ Every new framework added makes the comparison more useful for the entire commun
 <div style="height:20px"></div>
 
 {{< cards >}}
-  {{< card link="add-a-framework" title="Add a Framework" subtitle="Three steps to add your framework — Dockerfile, probe.json, and open a PR." icon="plus-circle" >}}
+  {{< card link="add-a-framework" title="Add a Framework" subtitle="Four steps to add your framework — server, Dockerfile, probe.json, and open a PR." icon="plus-circle" >}}
   {{< card link="add-a-test" title="Add a Test" subtitle="How to define a new test case, write its documentation, and wire it into the platform." icon="beaker" >}}
-  {{< card link="add-with-ai-agent" title="Add with AI Agent" subtitle="Use an AI coding agent to add a test or framework using the machine-readable AGENTS.md guide." icon="chip" >}}
+  {{< card link="add-with-ai-agent" title="Add with AI Agent" subtitle="Point an AI coding agent at the contribution guides to add a test or framework." icon="chip" >}}
 {{< /cards >}}
 
