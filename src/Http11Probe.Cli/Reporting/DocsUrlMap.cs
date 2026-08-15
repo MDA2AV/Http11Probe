@@ -143,6 +143,13 @@ internal static class DocsUrlMap
             return BaseUrl + "websockets/" + suffix;
         }
 
+        // CAP-* → caching/{suffix}
+        if (testId.StartsWith("CAP-", StringComparison.OrdinalIgnoreCase))
+        {
+            var suffix = testId[4..].ToLowerInvariant();
+            return BaseUrl + "caching/" + suffix;
+        }
+
         return null;
     }
 }

@@ -109,9 +109,9 @@ Expected = new ExpectedBehavior
 
 **File:** `src/Http11Probe.Cli/Reporting/DocsUrlMap.cs`
 
-Tests prefixed with `SMUG-`, `MAL-`, `NORM-`, `COOK-`, or `WS-` are auto-mapped to their doc URL based on the ID. For example, `SMUG-CL-TE-BOTH` maps to `smuggling/cl-te-both`.
+Tests prefixed with `SMUG-`, `MAL-`, `NORM-`, `COOK-`, `WS-`, or `CAP-` are auto-mapped to their doc URL based on the ID. For example, `SMUG-CL-TE-BOTH` maps to `smuggling/cl-te-both`.
 
-Every other prefix — `COMP-`, `RFC*`, `CAP-` — needs an explicit entry in the `ComplianceSlugs` dictionary, otherwise the test result won't link to its documentation:
+`COMP-` and `RFC*` tests have no folder that follows from the ID, so they need an explicit entry in the `ComplianceSlugs` dictionary — without one the CLI won't print a docs link for the test:
 
 ```csharp
 ["COMP-MY-TEST"] = "headers/my-test",
