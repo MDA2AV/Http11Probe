@@ -1,0 +1,7 @@
+{
+  "name": "uwebsockets-server",
+  "private": true,
+  "dependencies": {
+    "uWebSockets.js": "https://github.com/uNetworking/uWebSockets.js/archive/refs/tags/v20.69.0.tar.gz"
+  }
+}
