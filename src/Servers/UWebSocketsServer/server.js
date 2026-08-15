@@ -1,6 +1,6 @@
 const uWS = require('uWebSockets.js');
 
-const port = parseInt(process.argv[2] || '8080', 10);
+const port = Number.parseInt(process.argv[2] || '8080', 10);
 
 /* uWS invalidates `req` the moment the handler returns, so everything needed
  * later has to be read out synchronously. Only the body echo is async here. */

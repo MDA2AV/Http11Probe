@@ -73,6 +73,8 @@ __pycache__/
 # Node
 node_modules/
 package-lock.json
+# ...except for servers, where the lock pins the image's dependencies by hash
+!src/Servers/**/package-lock.json
 
 # Probe results (local testing)
 probe-*.json

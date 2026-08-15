@@ -13,15 +13,16 @@ breadcrumbs: false
 # trixie, not the default bookworm: uWS ships prebuilt binaries needing glibc >= 2.38
 FROM node:22-trixie-slim
 WORKDIR /app
-COPY src/Servers/UWebSocketsServer/package.json .
-RUN npm install --omit=dev
+COPY src/Servers/UWebSocketsServer/package.json src/Servers/UWebSocketsServer/package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
 COPY src/Servers/UWebSocketsServer/server.js .
+USER node
 ENTRYPOINT ["node", "server.js", "8080"]
 ```
 
 ## Source — `package.json`
 
-uWebSockets.js is not published to the npm registry, so it is pinned to a release tarball. Release tags carry prebuilt `.node` binaries, so there is no build step.
+uWebSockets.js is not published to the npm registry, so it is pinned to a release tarball. Release tags carry prebuilt `.node` binaries, so there is no build step and no lifecycle scripts to run. A generated `package-lock.json` sits alongside this file, pinning the tarball by sha512 integrity hash so `npm ci` gets identical bytes on every build.
 
 ```json
 {
@@ -38,7 +39,7 @@ uWebSockets.js is not published to the npm registry, so it is pinned to a releas
 ```javascript
 const uWS = require('uWebSockets.js');
 
-const port = parseInt(process.argv[2] || '8080', 10);
+const port = Number.parseInt(process.argv[2] || '8080', 10);
 
 /* uWS invalidates `req` the moment the handler returns, so everything needed
  * later has to be read out synchronously. Only the body echo is async here. */
