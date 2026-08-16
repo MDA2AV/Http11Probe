@@ -60,7 +60,11 @@ int main(int argc, char **argv) {
     }).any("/*", [](auto *res, auto *req) {
         if (req->getMethod() != "post") {
             res->writeHeader("Content-Type", "text/plain");
-            res->end("OK");
+            if (req->getMethod() != "head") {
+                res->end("OK");
+            } else {
+                res->endWithoutBody();
+            }
             return;
         }
 
