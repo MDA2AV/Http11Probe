@@ -28,8 +28,9 @@ RUN apt-get update \
     && git config --global url."https://github.com/".insteadOf ssh://git@github.com/
 WORKDIR /app
 COPY src/Servers/FulmineServer/package.json .
-# the version is pinned rather than ranged, since this repo does not keep lock files, and nothing
-# here needs an install script to run
+# the version is a range rather than a pin, as the Express row's is, so a run installs the current
+# 5.x rather than the release this file was written against, and nothing here needs an install
+# script to run
 RUN npm install --omit=dev --ignore-scripts
 # ExpressServer's application, not a copy of it. Fulmine.js is a drop-in replacement for Express 5,
 # so the package is installed under the name "express" and the same file runs unchanged: what is
@@ -52,7 +53,7 @@ unchanged, which is the point of the row: the source is the one on the
   "name": "fulmine-server",
   "private": true,
   "dependencies": {
-    "express": "npm:fulmine.js@5.13.3"
+    "express": "npm:fulmine.js@^5.21.4"
   }
 }
 ```
