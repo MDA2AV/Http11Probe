@@ -2,7 +2,7 @@
 
 Http11Probe is a compliance and security tester for HTTP/1.1 servers. It throws malformed, ambiguous, and oversized requests at a server over raw TCP sockets and checks how it responds against what RFC 9110 and RFC 9112 actually require. These are the awkward cases like bare LF line endings, obsolete line folding, CL/TE request smuggling, chunk-framing tricks, oversized headers, and NUL bytes, where a strict parser and a lenient one start to disagree.
 
-The same 215 tests run against 41 reference servers written in 12 languages, from Nginx, Apache, and Envoy to Kestrel, Gin, Actix, and the built-in servers in Node, Bun, and Deno. Every result is scored against the MUST/SHOULD/MAY wording in the spec and marked **Pass**, **Fail**, or **Warn**. A Warn just means the RFC allows both the strict and the lenient behavior, so neither one is wrong.
+The same 215 tests run against 42 reference servers written in 12 languages, from Nginx, Apache, and Envoy to Kestrel, Gin, Actix, and the built-in servers in Node, Bun, and Deno. Every result is scored against the MUST/SHOULD/MAY wording in the spec and marked **Pass**, **Fail**, or **Warn**. A Warn just means the RFC allows both the strict and the lenient behavior, so neither one is wrong.
 
 You'll find the full documentation, a per-test glossary with RFC citations, and the live results matrix for every server at [http-probe.com](https://www.http-probe.com/).
 
