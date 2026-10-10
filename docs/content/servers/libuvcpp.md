@@ -21,6 +21,8 @@ A C++11 HTTP framework built on libuv's event loop, serving through `uvcpp_web_a
 #
 # The download is pinned by sha256 rather than by tag: a release tag can be moved
 # and its assets re-uploaded, so the hash is what fixes which bytes get built.
+# The transfer is forced over HTTPS, redirects included, rather than left to
+# curl's default of following a redirect into whatever scheme it names.
 #
 # Both stages are ubuntu:24.04 (glibc 2.39; the release package's floor is
 # 2.34), so the compiler that links the binary and the libc that runs it are the
@@ -33,11 +35,12 @@ ARG LIBUVCPP_SHA256=b64ae68d121b49543e7a37126bbf38adf95a00ac51bff463b11be2dc499a
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-        ca-certificates curl unzip g++ \
+        ca-certificates curl g++ unzip \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-RUN curl -fsSL --retry 3 --retry-connrefused -o libuvcpp.zip \
+RUN curl -fsSL --proto '=https' --proto-redir '=https' --tlsv1.2 \
+        --retry 3 --retry-connrefused -o libuvcpp.zip \
         "https://github.com/Antruly/libuvcpp/releases/download/v${LIBUVCPP_VERSION}/libuvcpp-${LIBUVCPP_VERSION}-linux-x64.zip" \
  && echo "${LIBUVCPP_SHA256}  libuvcpp.zip" | sha256sum -c - \
  && unzip -q libuvcpp.zip -d /opt \
