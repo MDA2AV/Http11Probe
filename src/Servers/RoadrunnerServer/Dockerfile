@@ -7,4 +7,5 @@ RUN rebar3 as prod release
 FROM alpine:3.23
 RUN apk add --no-cache libstdc++ ncurses-libs openssl
 COPY --from=build /src/_build/prod/rel/roadrunner_probe /app
+USER nobody
 ENTRYPOINT ["/app/bin/roadrunner_probe", "foreground"]
