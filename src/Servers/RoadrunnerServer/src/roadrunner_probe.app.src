@@ -1,0 +1,8 @@
+{application, roadrunner_probe, [
+    {description, "Http11Probe entry for the Roadrunner HTTP server"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {roadrunner_probe_app, []}},
+    {applications, [kernel, stdlib, roadrunner]},
+    {env, []}
+]}.
