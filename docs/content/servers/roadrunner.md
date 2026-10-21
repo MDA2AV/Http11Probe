@@ -7,7 +7,7 @@ breadcrumbs: false
 
 **Language:** Erlang · [View source on GitHub](https://github.com/MDA2AV/Http11Probe/tree/main/src/Servers/RoadrunnerServer)
 
-[Roadrunner](https://github.com/arizona-framework/roadrunner) is a pure-Erlang HTTP/1.1, HTTP/2, HTTP/3 and WebSocket server from the Arizona framework. This entry runs roadrunner 0.10.2 from Hex as an OTP release: one HTTP/1.1 listener on port 8080 with roadrunner's default options, and a handler that serves `/echo`, `/cookie`, and a catch-all for every other path. HEAD needs no route of its own, since roadrunner answers it like GET without the body.
+[Roadrunner](https://github.com/arizona-framework/roadrunner) is a pure-Erlang HTTP/1.1, HTTP/2, HTTP/3 and WebSocket server from the Arizona framework. This entry runs roadrunner 0.10.2 from Hex as an OTP release: one HTTP/1.1 listener on port 8080 with roadrunner's default options plus its `roadrunner_etag` conditional-request middleware, and a handler that serves `/echo`, `/cookie`, and a catch-all for every other path. Each route answers GET, HEAD and POST, and roadrunner's router answers any other method with 405 and an `Allow` header. HEAD needs no route of its own, since roadrunner answers it like GET without the body.
 
 ## Dockerfile
 
@@ -73,14 +73,18 @@ ENTRYPOINT ["/app/bin/roadrunner_probe", "foreground"]
 -export([start/2, stop/1]).
 -export([init/1]).
 
-%% Starts one HTTP/1.1 listener on port 8080 with roadrunner's defaults.
-%% The listener runs under roadrunner's own supervisor; this empty
-%% supervisor is only the application's top process.
+%% Starts one HTTP/1.1 listener on port 8080 with roadrunner's defaults,
+%% plus `roadrunner_etag`, roadrunner's conditional-request middleware: it
+%% gives each GET/HEAD 200 a weak ETag and answers a matching
+%% If-None-Match with 304. The listener runs under roadrunner's own
+%% supervisor; this empty supervisor is only the application's top
+%% process.
 start(_StartType, _StartArgs) ->
     {ok, Sup} = supervisor:start_link(?MODULE, []),
     {ok, _} = roadrunner:start_listener(probe, #{
         port => 8080,
-        routes => roadrunner_probe_handler:routes()
+        routes => roadrunner_probe_handler:routes(),
+        middlewares => [roadrunner_etag]
     }),
     {ok, Sup}.
 
@@ -100,15 +104,25 @@ init([]) ->
 -export([routes/0]).
 -export([handle/1]).
 
-%% `/` and every other path share one catch-all handler. HEAD needs no
-%% clause of its own: roadrunner answers it like GET without the body.
+%% `/` and every other path share one catch-all handler. Every route
+%% answers GET, HEAD and POST; roadrunner's router answers any other
+%% method with 405 and an `Allow` header. HEAD needs no clause of its
+%% own: roadrunner answers it like GET without the body.
 routes() ->
     [
-        {~"/echo", ?MODULE, echo},
-        {~"/cookie", ?MODULE, cookie},
-        {~"/", ?MODULE, root},
-        {~"/*path", ?MODULE, root}
+        route(~"/echo", echo),
+        route(~"/cookie", cookie),
+        route(~"/", root),
+        route(~"/*path", root)
     ].
+
+route(Path, State) ->
+    #{
+        path => Path,
+        handler => ?MODULE,
+        state => State,
+        methods => [~"GET", ~"HEAD", ~"POST"]
+    }.
 
 handle(Req) ->
     handle(roadrunner_req:state(Req), Req).
