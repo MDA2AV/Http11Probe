@@ -7,7 +7,7 @@ breadcrumbs: false
 
 **Language:** Erlang · [View source on GitHub](https://github.com/MDA2AV/Http11Probe/tree/main/src/Servers/RoadrunnerServer)
 
-[Roadrunner](https://github.com/arizona-framework/roadrunner) is a pure-Erlang HTTP/1.1, HTTP/2, HTTP/3 and WebSocket server from the Arizona framework. This entry runs roadrunner 0.10.2 from Hex as an OTP release: one HTTP/1.1 listener on port 8080 with roadrunner's default options plus its `roadrunner_etag` conditional-request middleware, and a handler that serves `/echo`, `/cookie`, and a catch-all for every other path. Each route answers GET, HEAD and POST, and roadrunner's router answers any other method with 405 and an `Allow` header. HEAD needs no route of its own, since roadrunner answers it like GET without the body.
+[Roadrunner](https://github.com/arizona-framework/roadrunner) is a pure-Erlang HTTP/1.1, HTTP/2, HTTP/3 and WebSocket server from the Arizona framework. This entry runs roadrunner 0.10.4 from Hex as an OTP release: one HTTP/1.1 listener on port 8080 with roadrunner's default options plus its `roadrunner_etag` conditional-request middleware, and a handler that serves `/echo`, `/cookie`, and a catch-all for every other path. Each route answers GET, HEAD and POST, and roadrunner's router answers any other method with 405 and an `Allow` header. HEAD needs no route of its own, since roadrunner answers it like GET without the body.
 
 ## Dockerfile
 
@@ -33,7 +33,7 @@ ENTRYPOINT ["/app/bin/roadrunner_probe", "foreground"]
 {erl_opts, [debug_info]}.
 
 {deps, [
-    {roadrunner, "0.10.2"}
+    {roadrunner, "0.10.4"}
 ]}.
 
 {relx, [
