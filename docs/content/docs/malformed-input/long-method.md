@@ -8,7 +8,7 @@ weight: 5
 |---|---|
 | **Test ID** | `MAL-LONG-METHOD` |
 | **Category** | Malformed Input |
-| **Expected** | `400` or close |
+| **Expected** | `400`/`501` or close |
 
 ## What it sends
 

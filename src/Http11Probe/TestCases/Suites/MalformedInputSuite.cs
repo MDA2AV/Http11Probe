@@ -231,12 +231,13 @@ public static class MalformedInputSuite
             },
             Expected = new ExpectedBehavior
             {
-                Description = "400 or close",
+                Description = "400, 501 or close",
                 CustomValidator = (response, state) =>
                 {
                     if (response is null)
                         return state == ConnectionState.ClosedByServer ? TestVerdict.Pass : TestVerdict.Fail;
-                    return response.StatusCode == 400
+                    // RFC 9112 §3: a method longer than any the server implements SHOULD get 501.
+                    return response.StatusCode is 400 or 501
                         ? TestVerdict.Pass
                         : TestVerdict.Fail;
                 }
