@@ -4,15 +4,25 @@
 -export([routes/0]).
 -export([handle/1]).
 
-%% `/` and every other path share one catch-all handler. HEAD needs no
-%% clause of its own: roadrunner answers it like GET without the body.
+%% `/` and every other path share one catch-all handler. Every route
+%% answers GET, HEAD and POST; roadrunner's router answers any other
+%% method with 405 and an `Allow` header. HEAD needs no clause of its
+%% own: roadrunner answers it like GET without the body.
 routes() ->
     [
-        {~"/echo", ?MODULE, echo},
-        {~"/cookie", ?MODULE, cookie},
-        {~"/", ?MODULE, root},
-        {~"/*path", ?MODULE, root}
+        route(~"/echo", echo),
+        route(~"/cookie", cookie),
+        route(~"/", root),
+        route(~"/*path", root)
     ].
+
+route(Path, State) ->
+    #{
+        path => Path,
+        handler => ?MODULE,
+        state => State,
+        methods => [~"GET", ~"HEAD", ~"POST"]
+    }.
 
 handle(Req) ->
     handle(roadrunner_req:state(Req), Req).
