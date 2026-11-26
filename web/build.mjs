@@ -286,6 +286,46 @@ function buildSitemap(urls){
 }
 
 // ---------- run ----------
+// ---------- badges ----------
+// One SVG per server page, badges/{page}.svg, with the score of the results matrix:
+// Pass + Warn over the scored tests, minus the tests grid.js excludes.
+const BADGE_EXCLUDE = new Set(["COMP-NO-CL-IN-204", "COMP-405-ALLOW"]);
+function badgeSvg(label, value, color){
+  const w = s => Math.round(s.length * 6.5) + 10;
+  const lw = w(label), vw = w(value), tw = lw + vw;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${tw}" height="20" role="img" aria-label="${esc(label)}: ${esc(value)}">` +
+    `<title>${esc(label)}: ${esc(value)}</title>` +
+    `<linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>` +
+    `<clipPath id="r"><rect width="${tw}" height="20" rx="3" fill="#fff"/></clipPath>` +
+    `<g clip-path="url(#r)"><rect width="${lw}" height="20" fill="#555"/><rect x="${lw}" width="${vw}" height="20" fill="${color}"/><rect width="${tw}" height="20" fill="url(#s)"/></g>` +
+    `<g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">` +
+    `<text x="${lw / 2}" y="14">${esc(label)}</text><text x="${lw + vw / 2}" y="14">${esc(value)}</text></g></svg>`;
+}
+function buildBadges(pages, dataSrc){
+  if(!dataSrc) return 0;
+  const data = JSON.parse(read(dataSrc).replace(/^\s*window\.PROBE_DATA\s*=\s*/, "").replace(/;\s*$/, ""));
+  // the page links its src/Servers/ folder, whose probe.json has the name used in data.js
+  const pageOf = {};
+  for(const pg of pages){
+    if(pg.section!=="Servers" || pg.isIndex) continue;
+    const m = pg.body.match(/src\/Servers\/([\w.-]+)/);
+    const probe = m && path.resolve(__dir, "../src/Servers", m[1], "probe.json");
+    if(probe && exists(probe)) pageOf[JSON.parse(read(probe)).name] = path.basename(pg.srcPath, ".md");
+  }
+  const dir = path.join(DIST, "badges"); fs.mkdirSync(dir, {recursive:true});
+  let n = 0;
+  for(const s of data.servers || []){
+    const page = pageOf[s.name]; if(!page) continue;
+    const scored = s.results.filter(r => r.scored && !BADGE_EXCLUDE.has(r.id));
+    const score = scored.filter(r => r.verdict==="Pass" || r.verdict==="Warn").length;
+    const fail = scored.length - score;
+    const color = fail===0 ? "#4c1" : fail<=5 ? "#dfb317" : "#e05d44";
+    fs.writeFileSync(path.join(dir, `${page}.svg`), badgeSvg("HTTP/1.1 probe", `${score}/${scored.length}`, color));
+    n++;
+  }
+  return n;
+}
+
 function main(){
   if(exists(DIST)) fs.rmSync(DIST,{recursive:true});
   const pages=buildPages();
@@ -334,6 +374,7 @@ function main(){
   else fs.writeFileSync(path.join(probeDst,"data.js"),"window.PROBE_DATA={servers:[]};");
   const renderSrc=path.resolve(__dir,"../docs/static/probe/render.js");
   if(exists(renderSrc)) fs.copyFileSync(renderSrc, path.join(probeDst,"render.js"));
+  const badges = buildBadges(pages, src);
   // GitHub Pages custom domain (keeps www.http-probe.com pointed at this deploy)
   fs.writeFileSync(path.join(DIST,"CNAME"), "www.http-probe.com\n");
 
@@ -343,6 +384,6 @@ function main(){
   fs.writeFileSync(path.join(DIST,"robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 
   console.log(`Built ${pages.length} pages + landing → dist/`);
-  console.log(`  glossary test links: ${Object.keys(slugmap).length}  ·  search entries: ${idx.length}  ·  data.js: ${src?"copied":"STUB"}`);
+  console.log(`  glossary test links: ${Object.keys(slugmap).length}  ·  search entries: ${idx.length}  ·  data.js: ${src?"copied":"STUB"}  ·  badges: ${badges}`);
 }
 main();

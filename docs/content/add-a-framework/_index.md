@@ -127,6 +127,14 @@ The CI pipeline scans `src/Servers/*/probe.json` to discover servers. For each o
 
 No workflow edits, no port allocation, no config files.
 
+## Badge
+
+Once the server is on the site, its README can show the score of the results matrix: Pass + Warn over the scored tests. The badge is updated with every run. `{page}` is the name of the server page, the same as in `/servers/{page}.html`.
+
+```markdown
+[![HTTP/1.1 probe](https://www.http-probe.com/badges/{page}.svg)](https://www.http-probe.com/servers/{page}.html)
+```
+
 ## Example
 
 Here's the Flask server as a reference:
