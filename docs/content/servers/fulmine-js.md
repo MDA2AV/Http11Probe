@@ -53,7 +53,7 @@ unchanged, which is the point of the row: the source is the one on the
   "name": "fulmine-server",
   "private": true,
   "dependencies": {
-    "express": "npm:fulmine.js@^5.21.4"
+    "express": "npm:fulmine.js@^5.34.4"
   }
 }
 ```
